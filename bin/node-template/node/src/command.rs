@@ -12,7 +12,7 @@ use sp_keyring::Sr25519Keyring;
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
-		"Substrate Node".into()
+		"XnetXCoin Node".into()
 	}
 
 	fn impl_version() -> String {
@@ -20,25 +20,26 @@ impl SubstrateCli for Cli {
 	}
 
 	fn description() -> String {
-		env!("CARGO_PKG_DESCRIPTION").into()
+		"XnetXCoin - A PoS blockchain with halving mechanism".into()
 	}
 
 	fn author() -> String {
-		env!("CARGO_PKG_AUTHORS").into()
+		"XnetXCoin Team".into()
 	}
 
 	fn support_url() -> String {
-		"support.anonymous.an".into()
+		"https://xnetxcoin.io".into()
 	}
 
 	fn copyright_start_year() -> i32 {
-		2017
+		2024
 	}
 
 	fn load_spec(&self, id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
 		Ok(match id {
 			"dev" => Box::new(chain_spec::development_config()?),
-			"" | "local" => Box::new(chain_spec::local_testnet_config()?),
+			"local" => Box::new(chain_spec::local_testnet_config()?),
+			"" | "mainnet" => Box::new(chain_spec::mainnet_config()?),
 			path =>
 				Box::new(chain_spec::ChainSpec::from_json_file(std::path::PathBuf::from(path))?),
 		})

@@ -14,6 +14,7 @@ use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
 	traits::{
 		AccountIdLookup, BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, One, Verify,
+		OpaqueKeys,
 	},
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, MultiSignature,
@@ -23,12 +24,21 @@ use sp_std::prelude::*;
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 
+// Staking imports
+use frame_election_provider_support::{onchain, SequentialPhragmen};
+use pallet_session::historical as pallet_session_historical;
+use sp_staking::SessionIndex;
+
+// Re-export pallet genesis configs for chain_spec
+pub use pallet_session::GenesisConfig as SessionConfig;
+pub use pallet_staking::GenesisConfig as StakingConfig;
+
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
 	construct_runtime, parameter_types,
 	traits::{
 		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness,
-		StorageInfo,
+		StorageInfo, U128CurrencyToVote,
 	},
 	weights::{
 		constants::{
@@ -36,18 +46,22 @@ pub use frame_support::{
 		},
 		IdentityFee, Weight,
 	},
-	StorageValue,
+	StorageValue, PalletId,
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_timestamp::Call as TimestampCall;
+pub use pallet_staking::StakerStatus;
 use pallet_transaction_payment::{ConstFeeMultiplier, CurrencyAdapter, Multiplier};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
-pub use sp_runtime::{Perbill, Permill};
+pub use sp_runtime::{Perbill, Permill, curve::PiecewiseLinear};
 
 /// Import the template pallet.
 pub use pallet_template;
+
+/// Import the block rewards pallet for XnetXCoin
+pub use pallet_block_rewards;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -92,12 +106,28 @@ pub mod opaque {
 	}
 }
 
+/// Helper trait to generate session keys from authority keys
+pub trait SessionKeysGenerator {
+	fn generate_session_keys(aura: AuraId, grandpa: GrandpaId) -> opaque::SessionKeys;
+}
+
+impl SessionKeysGenerator for Runtime {
+	fn generate_session_keys(aura: AuraId, grandpa: GrandpaId) -> opaque::SessionKeys {
+		opaque::SessionKeys { aura, grandpa }
+	}
+}
+
+/// Helper function to generate session keys (for use in chain_spec)
+pub fn session_keys(aura: AuraId, grandpa: GrandpaId) -> opaque::SessionKeys {
+	opaque::SessionKeys { aura, grandpa }
+}
+
 // To learn more about runtime versioning, see:
 // https://docs.substrate.io/main-docs/build/upgrade#runtime-versioning
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("node-template"),
-	impl_name: create_runtime_str!("node-template"),
+	spec_name: create_runtime_str!("xnetxcoin"),
+	impl_name: create_runtime_str!("xnetxcoin"),
 	authoring_version: 1,
 	// The version of the runtime specification. A full node will not attempt to use its native
 	//   runtime in substitute for the on-chain Wasm runtime unless all of `spec_name`,
@@ -117,16 +147,50 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 /// up by `pallet_aura` to implement `fn slot_duration()`.
 ///
 /// Change this to adjust the block time.
-pub const MILLISECS_PER_BLOCK: u64 = 6000;
+/// XnetXCoin: 12 seconds block time
+pub const MILLISECS_PER_BLOCK: u64 = 12000;
 
 // NOTE: Currently it is not possible to change the slot duration after the chain has started.
 //       Attempting to do so will brick block production.
 pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 
+// ============================================================================
+// XnetXCoin Tokenomics Constants
+// ============================================================================
+
+/// Block time in seconds
+pub const BLOCK_TIME_SECONDS: u64 = 12;
+
+/// Blocks per year: 365.25 * 24 * 60 * 60 / 12 = 2,628,000
+pub const BLOCKS_PER_YEAR: BlockNumber = 2_628_000;
+
+/// Halving interval: 4 years = 4 * 2,628,000 = 10,512,000 blocks
+pub const HALVING_INTERVAL_BLOCKS: BlockNumber = 10_512_000;
+
+/// Decimals for XNX token
+pub const DECIMALS: u8 = 18;
+
+/// 1 XNX = 10^18 units (like wei in Ethereum)
+pub const XNX: Balance = 1_000_000_000_000_000_000;
+
+/// Total emission for mining: 47,000,000 XNX
+pub const TOTAL_EMISSION: Balance = 47_000_000 * XNX;
+
+/// Premine amount: 6,000,000 XNX
+pub const PREMINE: Balance = 6_000_000 * XNX;
+
+/// Max supply: 53,000,000 XNX
+pub const MAX_SUPPLY: Balance = 53_000_000 * XNX;
+
+/// Initial block reward: 1.565 XNX (35% in first 4 years)
+/// 1.565 * 10^18 = 1_565_000_000_000_000_000
+pub const INITIAL_BLOCK_REWARD: Balance = 1_565_000_000_000_000_000;
+
 // Time is measured by number of blocks.
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
+pub const YEARS: BlockNumber = DAYS * 365;
 
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -257,9 +321,28 @@ parameter_types! {
 	pub FeeMultiplier: Multiplier = Multiplier::one();
 }
 
+/// Fee'larni block author (validator) ga yuborish
+pub struct DealWithFees;
+impl frame_support::traits::OnUnbalanced<pallet_balances::NegativeImbalance<Runtime>> for DealWithFees {
+	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = pallet_balances::NegativeImbalance<Runtime>>) {
+		if let Some(fees) = fees_then_tips.next() {
+			// Fee'larni validatorga berish
+			let mut amount = fees;
+			if let Some(tips) = fees_then_tips.next() {
+				// Tips ham validatorga
+				amount = amount.merge(tips);
+			}
+			// Block author'ga to'lash
+			if let Some(author) = Authorship::author() {
+				Balances::resolve_creating(&author, amount);
+			}
+		}
+	}
+}
+
 impl pallet_transaction_payment::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
+	type OnChargeTransaction = CurrencyAdapter<Balances, DealWithFees>;
 	type OperationalFeeMultiplier = ConstU8<5>;
 	type WeightToFee = IdentityFee<Balance>;
 	type LengthToFee = IdentityFee<Balance>;
@@ -272,10 +355,163 @@ impl pallet_sudo::Config for Runtime {
 	type WeightInfo = pallet_sudo::weights::SubstrateWeight<Runtime>;
 }
 
+// ============================================================================
+// Session Pallet Configuration
+// ============================================================================
+
+impl pallet_authorship::Config for Runtime {
+	type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Aura>;
+	type EventHandler = (Staking,);
+}
+
+parameter_types! {
+	pub const Period: BlockNumber = HOURS; // Session length = 1 hour
+	pub const Offset: BlockNumber = 0;
+}
+
+impl pallet_session::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type ValidatorId = AccountId;
+	type ValidatorIdOf = pallet_staking::StashOf<Self>;
+	type ShouldEndSession = pallet_session::PeriodicSessions<Period, Offset>;
+	type NextSessionRotation = pallet_session::PeriodicSessions<Period, Offset>;
+	type SessionManager = pallet_session::historical::NoteHistoricalRoot<Self, Staking>;
+	type SessionHandler = <opaque::SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
+	type Keys = opaque::SessionKeys;
+	type WeightInfo = pallet_session::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_session::historical::Config for Runtime {
+	type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
+	type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
+}
+
+// ============================================================================
+// Staking Pallet Configuration
+// ============================================================================
+
+pallet_staking_reward_curve::build! {
+	const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
+		min_inflation: 0_025_000, // 2.5% minimum inflation
+		max_inflation: 0_100_000, // 10% max inflation
+		ideal_stake: 0_500_000,   // 50% ideal staking ratio
+		falloff: 0_050_000,
+		max_piece_count: 40,
+		test_precision: 0_005_000,
+	);
+}
+
+parameter_types! {
+	pub const SessionsPerEra: SessionIndex = 6; // 6 sessions = 6 hours per era
+	pub const BondingDuration: u32 = 28; // 28 eras = ~1 week to unbond
+	pub const SlashDeferDuration: u32 = 27;
+	pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
+	pub const MaxNominatorRewardedPerValidator: u32 = 256;
+	pub const OffendingValidatorsThreshold: Perbill = Perbill::from_percent(17);
+	pub const MaxNominations: u32 = 16;
+	// Minimum stake: 10,000 XNX
+	pub const MinValidatorBond: Balance = 10_000 * XNX;
+	pub const MinNominatorBond: Balance = 1_000 * XNX;
+	pub StakingPalletId: PalletId = PalletId(*b"staking!");
+	pub const HistoryDepth: u32 = 84;
+}
+
+pub struct StakingBenchmarkingConfig;
+impl pallet_staking::BenchmarkingConfig for StakingBenchmarkingConfig {
+	type MaxNominators = ConstU32<1000>;
+	type MaxValidators = ConstU32<1000>;
+}
+
+impl pallet_staking::Config for Runtime {
+	type Currency = Balances;
+	type CurrencyBalance = Balance;
+	type UnixTime = Timestamp;
+	type CurrencyToVote = U128CurrencyToVote;
+	type RewardRemainder = (); // Burn remaining rewards
+	type RuntimeEvent = RuntimeEvent;
+	type Slash = (); // Burn slashed funds
+	type Reward = (); // Block rewards handled by our pallet
+	type SessionsPerEra = SessionsPerEra;
+	type BondingDuration = BondingDuration;
+	type SlashDeferDuration = SlashDeferDuration;
+	type AdminOrigin = frame_system::EnsureRoot<AccountId>;
+	type SessionInterface = Self;
+	type EraPayout = pallet_staking::ConvertCurve<RewardCurve>;
+	type NextNewSession = Session;
+	type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
+	type OffendingValidatorsThreshold = OffendingValidatorsThreshold;
+	type ElectionProvider = onchain::OnChainExecution<OnChainSeqPhragmen>;
+	type GenesisElectionProvider = onchain::OnChainExecution<OnChainSeqPhragmen>;
+	type VoterList = pallet_staking::UseNominatorsAndValidatorsMap<Runtime>;
+	type TargetList = pallet_staking::UseValidatorsMap<Runtime>;
+	type MaxUnlockingChunks = ConstU32<32>;
+	type HistoryDepth = HistoryDepth;
+	type BenchmarkingConfig = StakingBenchmarkingConfig;
+	type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
+}
+
+parameter_types! {
+	pub const MaxControllersInDeprecationBatch: u32 = 100;
+}
+
+pub struct OnChainSeqPhragmen;
+impl onchain::Config for OnChainSeqPhragmen {
+	type System = Runtime;
+	type Solver = SequentialPhragmen<AccountId, sp_runtime::Perbill>;
+	type DataProvider = Staking;
+	type WeightInfo = frame_election_provider_support::weights::SubstrateWeight<Runtime>;
+	type MaxWinners = ConstU32<100>;
+	type Bounds = ();
+}
+
+impl pallet_offences::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type IdentificationTuple = pallet_session::historical::IdentificationTuple<Self>;
+	type OnOffenceHandler = Staking;
+}
+
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = pallet_template::weights::SubstrateWeight<Runtime>;
+}
+
+parameter_types! {
+	/// Initial block reward: 1.565 XNX = 1_565_000_000_000_000_000
+	pub const InitialBlockReward: Balance = INITIAL_BLOCK_REWARD;
+	/// Halving interval: 4 years = 10,512,000 blocks
+	pub const HalvingInterval: BlockNumber = HALVING_INTERVAL_BLOCKS;
+	/// Max emission: 47,000,000 XNX
+	pub const MaxEmission: Balance = TOTAL_EMISSION;
+}
+
+/// Find block author (validator) by looking up the session validator index
+pub struct FindAuthorFromSession;
+impl frame_support::traits::FindAuthor<AccountId> for FindAuthorFromSession {
+	fn find_author<'a, I>(digests: I) -> Option<AccountId>
+	where
+		I: 'a + IntoIterator<Item = (sp_runtime::ConsensusEngineId, &'a [u8])>,
+	{
+		// Find the Aura author index from the digest (returns u32 index)
+		if let Some(author_index) = <pallet_aura::Pallet<Runtime> as frame_support::traits::FindAuthor<u32>>::find_author(digests) {
+			// Get the validator at that index from the session
+			let validators = pallet_session::Pallet::<Runtime>::validators();
+			if (author_index as usize) < validators.len() {
+				return Some(validators[author_index as usize].clone());
+			}
+		}
+		None
+	}
+}
+
+/// Configure the block-rewards pallet for XnetXCoin
+impl pallet_block_rewards::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = Balances;
+	type InitialBlockReward = InitialBlockReward;
+	type HalvingInterval = HalvingInterval;
+	type MaxEmission = MaxEmission;
+	type FindAuthor = FindAuthorFromSession;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -288,8 +524,18 @@ construct_runtime!(
 		Balances: pallet_balances,
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
+		
+		// PoS Staking pallets
+		Authorship: pallet_authorship,
+		Session: pallet_session,
+		Historical: pallet_session_historical,
+		Staking: pallet_staking,
+		Offences: pallet_offences,
+		
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
+		// XnetXCoin block rewards with halving
+		BlockRewards: pallet_block_rewards,
 	}
 );
 
@@ -572,3 +818,4 @@ impl_runtime_apis! {
 		}
 	}
 }
+
