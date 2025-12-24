@@ -6,7 +6,7 @@ description = "Generic Substrate node implementation in Rust."
 build = "build.rs"
 edition = "2021"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
-default-run = "substrate-node"
+default-run = "xnetx-node"
 homepage = "https://substrate.io"
 repository = "https://github.com/paritytech/substrate/"
 publish = false
@@ -28,7 +28,7 @@ is-it-maintained-open-issues = { repository = "paritytech/substrate" }
 # The same node binary as the `substrate` (defined in the workspace `Cargo.toml`) binary,
 # but just exposed by this crate here.
 [[bin]]
-name = "substrate-node"
+name = "xnetx-node"
 path = "bin/main.rs"
 required-features = ["cli"]
 

@@ -30,6 +30,7 @@ use sc_chain_spec::ChainSpecExtension;
 use sc_service::ChainType;
 use sc_telemetry::TelemetryEndpoints;
 use serde::{Deserialize, Serialize};
+use serde_json;
 use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_core::{crypto::UncheckedInto, sr25519, Pair, Public};
@@ -183,7 +184,7 @@ fn staging_testnet_config_genesis() -> RuntimeGenesisConfig {
 pub fn staging_testnet_config() -> ChainSpec {
 	let boot_nodes = vec![];
 	ChainSpec::from_genesis(
-		"Staging Testnet",
+		"Xnetx Staging Testnet",
 		"staging_testnet",
 		ChainType::Live,
 		staging_testnet_config_genesis,
@@ -194,7 +195,12 @@ pub fn staging_testnet_config() -> ChainSpec {
 		),
 		None,
 		None,
-		None,
+		{
+			let mut properties = serde_json::Map::new();
+			properties.insert("tokenSymbol".to_string(), serde_json::Value::String("XNX".to_string()));
+			properties.insert("tokenDecimals".to_string(), serde_json::Value::Number(12.into()));
+			Some(properties)
+		},
 		Default::default(),
 	)
 }
@@ -244,7 +250,6 @@ pub fn testnet_genesis(
 ) -> RuntimeGenesisConfig {
 	let mut endowed_accounts: Vec<AccountId> = endowed_accounts.unwrap_or_else(|| {
 		vec![
-			get_account_id_from_seed::<sr25519::Public>("Alice"),
 			get_account_id_from_seed::<sr25519::Public>("Bob"),
 			get_account_id_from_seed::<sr25519::Public>("Charlie"),
 			get_account_id_from_seed::<sr25519::Public>("Dave"),
@@ -293,10 +298,21 @@ pub fn testnet_genesis(
 	const ENDOWMENT: Balance = 10_000_000 * DOLLARS;
 	const STASH: Balance = ENDOWMENT / 1000;
 
+	const PREVIEW_AMOUNT: Balance = 6_000_000 * DOLLARS;
+	let xnetxcoin_wallet: AccountId = get_account_id_from_seed::<sr25519::Public>("Alice");
+	endowed_accounts.push(xnetxcoin_wallet.clone());
+
 	RuntimeGenesisConfig {
 		system: SystemConfig { code: wasm_binary_unwrap().to_vec(), ..Default::default() },
 		balances: BalancesConfig {
-			balances: endowed_accounts.iter().cloned().map(|x| (x, ENDOWMENT)).collect(),
+			balances: {
+				let mut balances = vec![];
+				for account in &endowed_accounts {
+					let amount = if *account == xnetxcoin_wallet { PREVIEW_AMOUNT } else { ENDOWMENT };
+					balances.push((account.clone(), amount));
+				}
+				balances
+			},
 		},
 		indices: IndicesConfig { indices: vec![] },
 		session: SessionConfig {
@@ -382,7 +398,7 @@ fn development_config_genesis() -> RuntimeGenesisConfig {
 /// Development config (single validator Alice).
 pub fn development_config() -> ChainSpec {
 	ChainSpec::from_genesis(
-		"Development",
+		"Xnetx Development",
 		"dev",
 		ChainType::Development,
 		development_config_genesis,
@@ -390,7 +406,12 @@ pub fn development_config() -> ChainSpec {
 		None,
 		None,
 		None,
-		None,
+		{
+			let mut properties = serde_json::Map::new();
+			properties.insert("tokenSymbol".to_string(), serde_json::Value::String("XNX".to_string()));
+			properties.insert("tokenDecimals".to_string(), serde_json::Value::Number(12.into()));
+			Some(properties)
+		},
 		Default::default(),
 	)
 }

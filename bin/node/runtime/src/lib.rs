@@ -630,8 +630,8 @@ const MAX_QUOTA_NOMINATIONS: u32 = 16;
 
 pub struct StakingBenchmarkingConfig;
 impl pallet_staking::BenchmarkingConfig for StakingBenchmarkingConfig {
-	type MaxNominators = ConstU32<1000>;
-	type MaxValidators = ConstU32<1000>;
+	type MaxNominators = ConstU32<110_000>;
+	type MaxValidators = ConstU32<110_000>;
 }
 
 impl pallet_staking::Config for Runtime {
@@ -729,7 +729,7 @@ parameter_types! {
 	pub MaxElectingVotersSolution: u32 = 40_000;
 	// The maximum winners that can be elected by the Election pallet which is equivalent to the
 	// maximum active validators the staking pallet can have.
-	pub MaxActiveValidators: u32 = 1000;
+	pub MaxActiveValidators: u32 = 110_000;
 }
 
 /// The numbers configured here could always be more than the the maximum limits of staking pallet
@@ -1339,7 +1339,7 @@ parameter_types! {
 	pub const ImOnlineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
 	/// We prioritize im-online heartbeats over election solution submission.
 	pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
-	pub const MaxAuthorities: u32 = 100;
+	pub const MaxAuthorities: u32 = 110_000;
 	pub const MaxKeys: u32 = 10_000;
 	pub const MaxPeerInHeartbeats: u32 = 10_000;
 }
