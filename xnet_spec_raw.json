@@ -1,13 +1,17 @@
 {
-  "name": "Local Testnet",
-  "id": "local_testnet",
+  "name": "XNetXCoin Testnet",
+  "id": "xnet_testnet",
   "chainType": "Local",
   "bootNodes": [
-    "/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWQq94kZLtbXrW2itpxecWQhsypa7CvL3FDxevjvGJfi7q"
+    "/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWBuyE4Tfa838ocfmmk3mAMd4qytK1fchqEe1iPzTn2C56"
   ],
   "telemetryEndpoints": null,
-  "protocolId": null,
-  "properties": null,
+  "protocolId": "xnx",
+  "properties": {
+    "ss58Format": 42,
+    "tokenDecimals": 12,
+    "tokenSymbol": "XNX"
+  },
   "forkBlocks": null,
   "badBlocks": null,
   "lightSyncState": null,
