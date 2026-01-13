@@ -3570,6 +3570,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
+name = "hex-literal"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ebdb29d2ea9ed0083cd8cece49bbd968021bd99b0849edb4a9a7ee0fdf6a4e0"
+
+[[package]]
 name = "hkdf"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4947,24 +4953,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef53942eb7bf7ff43a617b3e2c1c4a5ecf5944a7c1bc12d7ee39bbb15e5c1519"
 
 [[package]]
-name = "lite-json"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd0e787ffe1153141a0f6f6d759fdf1cc34b1226e088444523812fd412a5cca2"
-dependencies = [
- "lite-parser",
-]
-
-[[package]]
-name = "lite-parser"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3d5f9dc37c52d889a21fd701983d02bb6a84f852c5140a6c80ef4557f7dc29e"
-dependencies = [
- "paste",
-]
-
-[[package]]
 name = "lock_api"
 version = "0.4.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5564,6 +5552,7 @@ dependencies = [
  "frame-system",
  "frame-system-rpc-runtime-api",
  "futures",
+ "hex-literal",
  "jsonrpsee",
  "kitchensink-runtime",
  "log",
@@ -5740,110 +5729,6 @@ dependencies = [
  "clap 4.3.2",
  "generate-bags",
  "kitchensink-runtime",
-]
-
-[[package]]
-name = "node-template"
-version = "4.0.0-dev"
-dependencies = [
- "clap 4.3.2",
- "frame-benchmarking",
- "frame-benchmarking-cli",
- "frame-system",
- "futures",
- "jsonrpsee",
- "node-template-runtime",
- "pallet-transaction-payment",
- "pallet-transaction-payment-rpc",
- "sc-basic-authorship",
- "sc-cli",
- "sc-client-api",
- "sc-consensus",
- "sc-consensus-aura",
- "sc-consensus-grandpa",
- "sc-executor",
- "sc-network",
- "sc-offchain",
- "sc-rpc-api",
- "sc-service",
- "sc-telemetry",
- "sc-transaction-pool",
- "sc-transaction-pool-api",
- "serde_json",
- "sp-api",
- "sp-block-builder",
- "sp-blockchain",
- "sp-consensus-aura",
- "sp-consensus-grandpa",
- "sp-core",
- "sp-inherents",
- "sp-io",
- "sp-keyring",
- "sp-runtime",
- "sp-timestamp",
- "substrate-build-script-utils",
- "substrate-frame-rpc-system",
- "try-runtime-cli",
-]
-
-[[package]]
-name = "node-template-release"
-version = "3.0.0"
-dependencies = [
- "clap 4.3.2",
- "flate2",
- "fs_extra",
- "glob",
- "itertools",
- "tar",
- "tempfile",
- "toml_edit",
-]
-
-[[package]]
-name = "node-template-runtime"
-version = "4.0.0-dev"
-dependencies = [
- "frame-benchmarking",
- "frame-election-provider-support",
- "frame-executive",
- "frame-support",
- "frame-system",
- "frame-system-benchmarking",
- "frame-system-rpc-runtime-api",
- "frame-try-runtime",
- "pallet-aura",
- "pallet-authorship",
- "pallet-bags-list",
- "pallet-balances",
- "pallet-block-rewards",
- "pallet-grandpa",
- "pallet-offences",
- "pallet-session",
- "pallet-staking",
- "pallet-staking-reward-curve",
- "pallet-sudo",
- "pallet-template",
- "pallet-timestamp",
- "pallet-transaction-payment",
- "pallet-transaction-payment-rpc-runtime-api",
- "parity-scale-codec",
- "scale-info",
- "sp-api",
- "sp-block-builder",
- "sp-consensus-aura",
- "sp-consensus-grandpa",
- "sp-core",
- "sp-inherents",
- "sp-offchain",
- "sp-runtime",
- "sp-session",
- "sp-staking",
- "sp-std",
- "sp-storage",
- "sp-transaction-pool",
- "sp-version",
- "substrate-wasm-builder",
 ]
 
 [[package]]
@@ -6615,20 +6500,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-default-config-example"
-version = "4.0.0-dev"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "pallet-democracy"
 version = "4.0.0-dev"
 dependencies = [
@@ -6642,22 +6513,6 @@ dependencies = [
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-dev-mode"
-version = "4.0.0-dev"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "parity-scale-codec",
- "scale-info",
  "sp-core",
  "sp-io",
  "sp-runtime",
@@ -6747,84 +6602,6 @@ dependencies = [
  "sp-std",
  "sp-tracing",
  "substrate-test-utils",
-]
-
-[[package]]
-name = "pallet-example-basic"
-version = "4.0.0-dev"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-example-kitchensink"
-version = "4.0.0-dev"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-example-offchain-worker"
-version = "4.0.0-dev"
-dependencies = [
- "frame-support",
- "frame-system",
- "lite-json",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-keystore",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-example-split"
-version = "4.0.0-dev"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-examples"
-version = "4.0.0-dev"
-dependencies = [
- "pallet-default-config-example",
- "pallet-dev-mode",
- "pallet-example-basic",
- "pallet-example-kitchensink",
- "pallet-example-offchain-worker",
- "pallet-example-split",
 ]
 
 [[package]]
@@ -12575,17 +12352,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 
 [[package]]
-name = "tar"
-version = "0.4.40"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b16afcea1f22891c49a00c751c7b63b2233284064f11a200fc624137c51e2ddb"
-dependencies = [
- "filetime",
- "libc",
- "xattr",
-]
-
-[[package]]
 name = "target-lexicon"
 version = "0.12.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -14468,12 +14234,93 @@ dependencies = [
 ]
 
 [[package]]
-name = "xattr"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4686009f71ff3e5c4dbcf1a282d0a44db3f021ba69350cd42086b3e5f1c6985"
+name = "xnetx-node"
+version = "4.0.0-dev"
 dependencies = [
- "libc",
+ "clap 4.3.2",
+ "frame-benchmarking",
+ "frame-benchmarking-cli",
+ "frame-system",
+ "futures",
+ "jsonrpsee",
+ "pallet-transaction-payment",
+ "pallet-transaction-payment-rpc",
+ "sc-basic-authorship",
+ "sc-cli",
+ "sc-client-api",
+ "sc-consensus",
+ "sc-consensus-aura",
+ "sc-consensus-grandpa",
+ "sc-executor",
+ "sc-network",
+ "sc-offchain",
+ "sc-rpc-api",
+ "sc-service",
+ "sc-telemetry",
+ "sc-transaction-pool",
+ "sc-transaction-pool-api",
+ "serde_json",
+ "sp-api",
+ "sp-block-builder",
+ "sp-blockchain",
+ "sp-consensus-aura",
+ "sp-consensus-grandpa",
+ "sp-core",
+ "sp-inherents",
+ "sp-io",
+ "sp-keyring",
+ "sp-runtime",
+ "sp-timestamp",
+ "substrate-build-script-utils",
+ "substrate-frame-rpc-system",
+ "try-runtime-cli",
+ "xnetx-runtime",
+]
+
+[[package]]
+name = "xnetx-runtime"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-election-provider-support",
+ "frame-executive",
+ "frame-support",
+ "frame-system",
+ "frame-system-benchmarking",
+ "frame-system-rpc-runtime-api",
+ "frame-try-runtime",
+ "pallet-aura",
+ "pallet-authorship",
+ "pallet-bags-list",
+ "pallet-balances",
+ "pallet-block-rewards",
+ "pallet-grandpa",
+ "pallet-offences",
+ "pallet-session",
+ "pallet-staking",
+ "pallet-staking-reward-curve",
+ "pallet-sudo",
+ "pallet-template",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "pallet-transaction-payment-rpc-runtime-api",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-api",
+ "sp-block-builder",
+ "sp-consensus-aura",
+ "sp-consensus-grandpa",
+ "sp-core",
+ "sp-inherents",
+ "sp-offchain",
+ "sp-runtime",
+ "sp-session",
+ "sp-staking",
+ "sp-std",
+ "sp-storage",
+ "sp-transaction-pool",
+ "sp-version",
+ "substrate-wasm-builder",
 ]
 
 [[package]]

@@ -87,6 +87,7 @@ use sp_std::prelude::*;
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 use static_assertions::const_assert;
+use crate::constants::currency;
 
 #[cfg(any(feature = "std", test))]
 pub use frame_system::Call as SystemCall;
@@ -138,17 +139,17 @@ pub fn wasm_binary_unwrap() -> &'static [u8] {
 /// Runtime version.
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("node"),
-	impl_name: create_runtime_str!("substrate-node"),
+	spec_name: create_runtime_str!("xnetx-coin"),
+	impl_name: create_runtime_str!("xnetx-coin-node"),
 	authoring_version: 10,
 	// Per convention: if the runtime behavior changes, increment spec_version
 	// and set impl_version to 0. If only runtime
 	// implementation changes and behavior does not, then leave spec_version as
 	// is and increment impl_version.
-	spec_version: 268,
-	impl_version: 0,
+	spec_version: 100,
+	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
-	transaction_version: 2,
+	transaction_version: 1,
 	state_version: 1,
 };
 
@@ -498,9 +499,8 @@ impl pallet_indices::Config for Runtime {
 }
 
 parameter_types! {
-	pub const ExistentialDeposit: Balance = 1 * DOLLARS;
-	// For weight estimation, we assume that the most locks on an individual account will be 50.
-	// This number may need to be adjusted in the future if this assumption no longer holds true.
+	pub const ExistentialDeposit: Balance = 100 * MILLICENTS;
+	pub const SS58Prefix: u8 = 88;
 	pub const MaxLocks: u32 = 50;
 	pub const MaxReserves: u32 = 50;
 }
@@ -522,7 +522,7 @@ impl pallet_balances::Config for Runtime {
 }
 
 parameter_types! {
-	pub const TransactionByteFee: Balance = 10 * MILLICENTS;
+	pub const TransactionByteFee: Balance = 1 * MILLICENTS;
 	pub const OperationalFeeMultiplier: u8 = 5;
 	pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
 	pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
@@ -575,6 +575,22 @@ impl pallet_timestamp::Config for Runtime {
 impl pallet_authorship::Config for Runtime {
 	type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Babe>;
 	type EventHandler = (Staking, ImOnline);
+}
+
+parameter_types! {
+    pub const BlockReward: Balance = currency::INITIAL_REWARD;
+    pub const HalvingPeriod: BlockNumber = currency::HALVING_PERIOD_BLOCKS;
+}
+
+pub fn get_block_reward() -> Balance {
+    let now = frame_system::Pallet::<Runtime>::block_number();
+    let halving_count = (now / HalvingPeriod::get()) as u32;
+
+    if halving_count < 64 {
+        BlockReward::get() >> halving_count
+    } else {
+        0
+    }
 }
 
 impl_opaque_keys! {
@@ -2009,6 +2025,14 @@ impl pallet_broker::Config for Runtime {
 	type PriceAdapter = pallet_broker::Linear;
 }
 
+pub struct RewardToAuthor;
+impl frame_support::traits::OnUnbalanced<NegativeImbalance> for RewardToAuthor {
+    fn on_nonzero_unbalanced(amount: NegativeImbalance) {
+        if let Some(author) = Authorship::author() {
+            Balances::resolve_creating(&author, amount);
+        }
+    }
+}
 construct_runtime!(
 	pub struct Runtime
 	{

@@ -6,7 +6,7 @@ description = "Generic Substrate node implementation in Rust."
 build = "build.rs"
 edition = "2021"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
-default-run = "xnetx-node"
+default-run = "node-template"
 homepage = "https://substrate.io"
 repository = "https://github.com/paritytech/substrate/"
 publish = false
@@ -28,7 +28,7 @@ is-it-maintained-open-issues = { repository = "paritytech/substrate" }
 # The same node binary as the `substrate` (defined in the workspace `Cargo.toml`) binary,
 # but just exposed by this crate here.
 [[bin]]
-name = "xnetx-node"
+name = "node-template"
 path = "bin/main.rs"
 required-features = ["cli"]
 
@@ -133,6 +133,7 @@ wait-timeout = "0.2"
 substrate-rpc-client = { path = "../../../utils/frame/rpc/client" }
 pallet-timestamp = { version = "4.0.0-dev", path = "../../../frame/timestamp" }
 substrate-cli-test-utils = { path = "../../../test-utils/cli" }
+hex-literal = "0.3.4"
 
 [build-dependencies]
 clap = { version = "4.2.5", optional = true }

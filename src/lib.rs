@@ -72,7 +72,7 @@
 //! with FRAME.
 //!
 //! > Side note, it is entirely possible to craft a substrate-based runtime without FRAME, an
-//! > example of which can be found [here](https://github.com/JoshOrndorff/frameless-node-template).
+//! > example of which can be found [here](https://github.com/JoshOrndorff/frameless-xnetx-node).
 //!
 //! In more broad terms, the following avenues exist into developing with substrate:
 //!
@@ -131,13 +131,13 @@
 //!   demonstration.
 //!     * [`chain-spec-builder`]: Utility to build more detailed chain-specs for the aforementioned
 //!       node. Other projects typically contain a `build-spec` subcommand that does the same.
-//! * [`node-template`]: a template node that contains a minimal set of features and can act as a
+//! * [`xnetx-node`]: a template node that contains a minimal set of features and can act as a
 //!   starting point of a project.
 //! * [`subkey`]: Substrate's key management utility.
 //!
 //! ### Anatomy of a Binary Crate
 //!
-//! From the above, [`node`] and [`node-template`] are essentially blueprints of a substrate-based
+//! From the above, [`node`] and [`xnetx-node`] are essentially blueprints of a substrate-based
 //! project, as the name of the latter is implying. Each substrate-based project typically contains
 //! the following:
 //!
@@ -190,7 +190,7 @@
 //!
 //! Templates:
 //!
-//! - classic [`substrate-node-template`](https://github.com/substrate-developer-hub/substrate-node-template)
+//! - classic [`substrate-xnetx-node`](https://github.com/substrate-developer-hub/substrate-xnetx-node)
 //! - classic [cumulus-parachain-template](https://github.com/substrate-developer-hub/substrate-parachain-template)
 //! - [`extended-parachain-template`](https://github.com/paritytech/extended-parachain-template)
 //! - [`frontier-parachain-template`](https://github.com/paritytech/frontier-parachain-template)
@@ -214,7 +214,7 @@
 //! [`sc-consensus-manual-seal`]: ../sc_consensus_manual_seal/index.html
 //! [`sc-consensus-pow`]: ../sc_consensus_pow/index.html
 //! [`node`]: ../node_cli/index.html
-//! [`node-template`]: ../node_template/index.html
+//! [`xnetx-node`]: ../node_template/index.html
 //! [`kitchensink_runtime`]: ../kitchensink_runtime/index.html
 //! [`subkey`]: ../subkey/index.html
 //! [`chain-spec-builder`]: ../chain_spec_builder/index.html

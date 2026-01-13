@@ -28,3 +28,8 @@ bin/node-template/Cargo.lock
 substrate.code-workspace
 .direnv/
 /.envrc
+/target
+/my_node.key
+/my_node_key.txt
+/--*
+/xato
