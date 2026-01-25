@@ -1,12 +1,12 @@
 [package]
-description = "Endpoint to expose Prometheus metrics"
-name = "substrate-prometheus-endpoint"
-version = "0.10.0-dev"
+description = "Endpoint to expose Prometheus metrics for Xnet"
+name = "xnet-prometheus-endpoint"
+version = "1.0.0-dev"
 license = "Apache-2.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["Xnet Technologies <info@xnethub.org>"]
 edition = "2021"
-homepage = "https://substrate.io"
-repository = "https://github.com/paritytech/substrate/"
+homepage = "https://xnethub.org"
+repository = "https://github.com/xnetcoin/xnet/"
 readme = "README.md"
 
 [package.metadata.docs.rs]

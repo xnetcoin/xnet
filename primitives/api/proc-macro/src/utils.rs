@@ -243,7 +243,7 @@ pub fn parse_runtime_api_version(version: &Attribute) -> Result<u64> {
 	let version = version.parse_args::<syn::LitInt>().map_err(|_| {
 		Error::new(
 			version.span(),
-			&format!(
+			format!(
 				"Unexpected `{api_version}` attribute. The supported format is `{api_version}(1)`",
 				api_version = API_VERSION_ATTRIBUTE
 			),

@@ -1,4 +1,4 @@
-# XnetXCoin: A Sustainable Peer-to-Peer Electronic Cash System
+# Xnet: A Sustainable Peer-to-Peer Electronic Cash System
 
 
 **Technical Whitepaper v2.0**
@@ -9,7 +9,7 @@
 
 ## Abstract
 
-We propose a solution to the scalability and sustainability problems of existing cryptocurrencies through a pure Proof-of-Stake electronic cash system. XnetXCoin (XNX) combines Bitcoin's proven deflationary economic model with modern consensus technology to create a network that is both energy-efficient and economically sound. The system features a fixed maximum supply of 53 million tokens, a halving emission schedule that mirrors Bitcoin's scarcity model, and deterministic finality that confirms transactions within seconds rather than hours. We demonstrate that the combination of Nominated Proof-of-Stake consensus with Byzantine fault-tolerant finality provides security guarantees equivalent to Proof-of-Work while eliminating the associated environmental costs. Furthermore, we introduce a novel reward distribution mechanism that aligns validator incentives with network security.
+We propose a solution to the scalability and sustainability problems of existing cryptocurrencies through a pure Proof-of-Stake electronic cash system. Xnet (XNX) combines Bitcoin's proven deflationary economic model with modern consensus technology to create a network that is both energy-efficient and economically sound. The system features a fixed maximum supply of 53 million tokens, a halving emission schedule that mirrors Bitcoin's scarcity model, and deterministic finality that confirms transactions within seconds rather than hours. We demonstrate that the combination of Nominated Proof-of-Stake consensus with Byzantine fault-tolerant finality provides security guarantees equivalent to Proof-of-Work while eliminating the associated environmental costs. Furthermore, we introduce a novel reward distribution mechanism that aligns validator incentives with network security.
 
 ---
 
@@ -21,7 +21,7 @@ However, Bitcoin's success has revealed fundamental limitations in its design. T
 
 Subsequent developments in blockchain technology have addressed some of these limitations. Ethereum demonstrated the power of programmable smart contracts, while later networks have experimented with various consensus mechanisms. Yet no existing cryptocurrency has successfully combined all the desirable properties: Bitcoin's sound monetary policy, fast and final transactions, energy efficiency, and true decentralization.
 
-XnetXCoin represents a synthesis of these advances. By building on the Substrate blockchain framework, we inherit years of research and development in consensus protocols, cryptographic primitives, and network architecture. By implementing a halving emission schedule, we preserve the economic properties that have made Bitcoin a successful store of value. And by utilizing Proof-of-Stake consensus, we achieve our sustainability goals while maintaining security.
+Xnet represents a synthesis of these advances. By building on the Substrate blockchain framework, we inherit years of research and development in consensus protocols, cryptographic primitives, and network architecture. By implementing a halving emission schedule, we preserve the economic properties that have made Bitcoin a successful store of value. And by utilizing Proof-of-Stake consensus, we achieve our sustainability goals while maintaining security.
 
 ### 1.1 Historical Context
 
@@ -35,9 +35,9 @@ Proof-of-Stake emerged as an alternative approach. Rather than expending energy 
 
 ### 1.2 Design Philosophy
 
-XnetXCoin is designed around several core principles:
+Xnet is designed around several core principles:
 
-**Sound Money**: Like Bitcoin, xnetxcoin has a fixed maximum supply and a predetermined emission schedule. There will never be more than 53 million XNX tokens. This creates genuine digital scarcity, essential for a store of value.
+**Sound Money**: Like Bitcoin, Xnet has a fixed maximum supply and a predetermined emission schedule. There will never be more than 53 million XNX tokens. This creates genuine digital scarcity, essential for a store of value.
 
 **Sustainability**: The network must be environmentally sustainable. Proof-of-Stake consensus eliminates the need for energy-intensive mining while maintaining security through economic incentives.
 
@@ -49,11 +49,11 @@ XnetXCoin is designed around several core principles:
 
 ---
 
-## 2. The XnetXCoin Network
+## 2. The Xnet Network
 
 ### 2.1 System Overview
 
-XnetXCoin operates as a peer-to-peer network of nodes that maintain a shared ledger of transactions. The network has no central authority; all nodes follow the same protocol rules and reach consensus about the state of the ledger through the mechanisms described in this paper.
+Xnet operates as a peer-to-peer network of nodes that maintain a shared ledger of transactions. The network has no central authority; all nodes follow the same protocol rules and reach consensus about the state of the ledger through the mechanisms described in this paper.
 
 The system can be understood as a state transition function:
 
@@ -87,7 +87,7 @@ The network layer uses libp2p, a modular networking stack designed for peer-to-p
 
 ### 2.3 Account Model
 
-XnetXCoin uses an account-based model (like Ethereum) rather than Bitcoin's UTXO model. Each account consists of:
+Xnet uses an account-based model (like Ethereum) rather than Bitcoin's UTXO model. Each account consists of:
 
 - **Nonce**: A counter that increments with each transaction, preventing replay attacks
 - **Balance**: The number of XNX tokens owned by the account
@@ -115,7 +115,7 @@ A blockchain network must solve a fundamental problem: how can a distributed set
 
 Bitcoin's Proof-of-Work solves this by making block production costly. The longest chain (most cumulative work) is considered canonical. An attacker would need to control majority hash power to rewrite history.
 
-XnetXCoin achieves equivalent security through Proof-of-Stake. Instead of computational work, validators stake economic value. Misbehavior results in stake destruction ("slashing"), making attacks costly.
+Xnet achieves equivalent security through Proof-of-Stake. Instead of computational work, validators stake economic value. Misbehavior results in stake destruction ("slashing"), making attacks costly.
 
 ### 3.2 Nominated Proof-of-Stake (NPoS)
 
@@ -177,7 +177,7 @@ This makes attacks prohibitively expensive. Unlike Proof-of-Work where attackers
 
 ### 4.1 Token Supply
 
-XnetXCoin has a fixed maximum supply of **53,000,000 XNX**. This supply cap is enforced by the protocol and cannot be changed without a hard fork (which would create a separate network).
+Xnet has a fixed maximum supply of **53,000,000 XNX**. This supply cap is enforced by the protocol and cannot be changed without a hard fork (which would create a separate network).
 
 | Allocation | Amount | Percentage |
 |------------|--------|------------|
@@ -189,7 +189,7 @@ The initial distribution provides liquidity for early network bootstrapping. All
 
 ### 4.2 Emission Schedule with Halving
 
-Like Bitcoin, XnetXCoin implements a halving emission schedule where block rewards are reduced by 50% at fixed intervals:
+Like Bitcoin, Xnet implements a halving emission schedule where block rewards are reduced by 50% at fixed intervals:
 
 ```
 reward(block) = INITIAL_REWARD / 2^era
@@ -218,7 +218,7 @@ This schedule ensures that:
 
 ### 4.3 Supply Curve Comparison
 
-The following illustrates XnetXCoin's supply curve versus Bitcoin:
+The following illustrates Xnet's supply curve versus Bitcoin:
 
 ```
 XNX Supply (millions)
@@ -337,7 +337,7 @@ Higher staking participation means individual rewards are smaller but security i
 
 ### 6.1 Hash Functions
 
-XnetXCoin uses **Blake2b-256** for all hashing operations:
+Xnet uses **Blake2b-256** for all hashing operations:
 
 - Block header hashing
 - State root computation (Merkle-Patricia trie)
@@ -390,7 +390,7 @@ State is organized in a Merkle-Patricia trie, enabling:
 
 ### 7.1 Transaction Format
 
-A XnetXCoin transaction contains:
+A Xnet transaction contains:
 
 | Field | Description |
 |-------|-------------|
@@ -457,7 +457,7 @@ GRANDPA finality works as follows:
 
 ### 8.2 Key Security Model
 
-XnetXCoin employs a hierarchical key model:
+Xnet employs a hierarchical key model:
 
 **Stash Keys** (Cold)
 - Control bonded funds
@@ -495,7 +495,7 @@ Upon recovery, the network automatically resumes normal operation. Finality catc
 
 ### 9.1 On-Chain Governance
 
-XnetXCoin implements transparent, on-chain governance:
+Xnet implements transparent, on-chain governance:
 
 **Proposals**: Any token holder can submit proposals for protocol changes
 **Voting**: Stake-weighted voting with conviction multipliers
@@ -540,7 +540,7 @@ During the initial launch phase, a sudo (superuser) key exists for emergency ope
 |---------|------------|-----|----------|
 | Bitcoin | 10 min | ~7 | ~60 min (6 conf) |
 | Ethereum | 12 sec | ~30 | ~15 min |
-| **XnetXCoin** | **12 sec** | **~333** | **~24 sec** |
+| **Xnet** | **12 sec** | **~333** | **~24 sec** |
 
 ### 10.3 Future Scaling Roadmap
 
@@ -565,7 +565,7 @@ During the initial launch phase, a sudo (superuser) key exists for emergency ope
 
 ### 11.1 Technology Stack
 
-XnetXCoin is built on the Substrate blockchain framework:
+Xnet is built on the Substrate blockchain framework:
 
 - **Language**: Rust (memory-safe, high performance)
 - **Runtime**: WebAssembly (deterministic, upgradable)
@@ -590,7 +590,7 @@ XnetXCoin is built on the Substrate blockchain framework:
 
 ### 11.3 Runtime Upgrades
 
-The XnetXCoin runtime is compiled to WebAssembly and stored on-chain. This enables:
+The Xnet runtime is compiled to WebAssembly and stored on-chain. This enables:
 
 **Forkless Upgrades**: Protocol changes without network splits
 **Deterministic Execution**: Same code runs on all nodes
@@ -638,7 +638,7 @@ Upgrade process:
 
 ## 13. Conclusion
 
-XnetXCoin represents a synthesis of the best ideas in cryptocurrency design:
+Xnet represents a synthesis of the best ideas in cryptocurrency design:
 
 **From Bitcoin**: Sound money principles with fixed supply and halving emission
 **From Ethereum**: Account-based model and programmable transactions
@@ -651,9 +651,9 @@ The result is a cryptocurrency that is:
 - **Fast**: 12-second blocks with ~24-second finality
 - **Decentralized**: Low barriers to validator participation
 
-We believe XnetXCoin fulfills the original vision of cryptocurrency as peer-to-peer electronic cash: fast, cheap, and accessible to all. The halving emission schedule ensures long-term value preservation, while modern consensus technology enables practical everyday use.
+We believe Xnet fulfills the original vision of cryptocurrency as peer-to-peer electronic cash: fast, cheap, and accessible to all. The halving emission schedule ensures long-term value preservation, while modern consensus technology enables practical everyday use.
 
-As the network matures, governance will transition fully to token holders. The community will guide XnetXCoin's evolution, ensuring it remains aligned with user needs. We invite developers, validators, and users to join us in building the future of money.
+As the network matures, governance will transition fully to token holders. The community will guide Xnet's evolution, ensuring it remains aligned with user needs. We invite developers, validators, and users to join us in building the future of money.
 
 ---
 
@@ -686,7 +686,7 @@ As the network matures, governance will transition fully to token holders. The c
 ### Network Configuration
 
 ```
-Network Name:       XnetXCoin Mainnet
+Network Name:       Xnet Mainnet
 Chain ID:           xnx_mainnet
 Native Token:       XNX
 Token Decimals:     18
@@ -805,12 +805,12 @@ Plus initial distribution: 6,000,000 XNX
 | Version | 2.0 |
 | Date | December 2025 |
 | Status | Final |
-| Authors | XnetXCoin Foundation |
-| Contact | info@xnetxcoin.org |
-| Website | https://xnetxcoin.org |
+| Authors | Xnet Foundation |
+| Contact | info@Xnet.org |
+| Website | https://Xnet.org |
 
 ---
 
 *This whitepaper is provided for informational purposes only and does not constitute financial, legal, or investment advice. Cryptocurrency investments carry significant risk including the possible loss of principal. Past performance does not guarantee future results. Please conduct your own research and consult with qualified professionals before making any investment decisions.*
 
-*© 2025 XnetXCoin Foundation. This document may be freely distributed with attribution.*
+*© 2025 Xnet Foundation. This document may be freely distributed with attribution.*

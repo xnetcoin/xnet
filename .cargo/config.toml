@@ -7,16 +7,16 @@
 # RUSTFLAGS= cargo clippy
 [target.'cfg(feature = "cargo-clippy")']
 rustflags = [
-  "-Aclippy::all",
-  "-Dclippy::correctness",
-  "-Aclippy::if-same-then-else",
-  "-Aclippy::clone-double-ref",
-  "-Dclippy::complexity",
+  "-Dclippy::all",            # Hamma xatolar uchun taqiq (Deny)
+  "-Dclippy::correctness",     # Mantiqiy xatolar uchun qatiy taqiq
+  "-Dclippy::complexity",      # Murakkab, tushunarsiz kodga yo'l yo'q
+  "-Dclippy::perf",            # Tezlikni tushiradigan kodga yo'l yo'q
+  "-Aclippy::type_complexity",
   "-Aclippy::zero-prefixed-literal",     # 00_1000_000
   "-Aclippy::type_complexity",           # raison d'etre
   "-Aclippy::nonminimal-bool",           # maybe
   "-Aclippy::borrowed-box",              # Reasonable to fix this one
-  "-Aclippy::too-many-arguments",        # (Turning this on would lead to)
+  "-Dclippy::too-many-arguments",        # (Turning this on would lead to)
   "-Aclippy::unnecessary_cast",          # Types may change
   "-Aclippy::identity-op",               # One case where we do 0 +
   "-Aclippy::useless_conversion",        # Types may change

@@ -1,19 +1,21 @@
-name: Check Links
+name: "XNET: Link Integrity Audit"
 
 on:
   pull_request:
-    branches:
-    - master
+    branches: [master]
   push:
-    branches:
-    - master
+    branches: [master]
 
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: gaurav-nelson/github-action-markdown-link-check@0a51127e9955b855a9bbfa1ff5577f1d1338c9a5 # 1.0.14
-      with:
-        use-quiet-mode: 'yes'
-        config-file: '.github/workflows/mlc_config.json'
+      - name: "Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "Run Link Checker"
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/workflows/mlc_config.json'
+          check-modified-files-only: 'yes' # Faqat o'zgargan fayllarni tekshiradi

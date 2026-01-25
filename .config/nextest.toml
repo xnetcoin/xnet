@@ -16,7 +16,7 @@ dir = "target/nextest"
 # * retries = 3
 # * retries = { backoff = "fixed", count = 2, delay = "1s" }
 # * retries = { backoff = "exponential", count = 10, delay = "1s", jitter = true, max-delay = "10s" }
-retries = 5
+retries = 3
 
 # The number of threads to run tests with. Supported values are either an integer or
 # the string "num-cpus". Can be overridden through the `--test-threads` option.
@@ -94,7 +94,7 @@ path = "junit.xml"
 # The name of the top-level "report" element in JUnit report. If aggregating
 # reports across different test runs, it may be useful to provide separate names
 # for each report.
-report-name = "substrate"
+report-name = "xnetcoin-core"
 
 # Whether standard output and standard error for passing tests should be stored in the JUnit report.
 # Output is stored in the <system-out> and <system-err> elements of the <testcase> element.
@@ -118,7 +118,7 @@ test-threads = 1
 serial-integration = { max-threads = 1 }
 
 # Running UI tests sequentially
-# More info can be found here: https://github.com/paritytech/ci_cd/issues/754
+# More info can be found here: https://github.com/xnetcoin
 [[profile.default.overrides]]
 filter = 'test(/(^ui$|_ui|ui_)/)'
 test-group = 'serial-integration'

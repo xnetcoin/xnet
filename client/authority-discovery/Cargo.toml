@@ -1,6 +1,6 @@
 [package]
 name = "sc-authority-discovery"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 build = "build.rs"
@@ -27,9 +27,9 @@ log = "0.4.17"
 prost = "0.11"
 rand = "0.8.5"
 thiserror = "1.0"
-prometheus-endpoint = { package = "substrate-prometheus-endpoint", version = "0.10.0-dev", path = "../../utils/prometheus" }
+prometheus-endpoint = { package = "xnet-prometheus-endpoint", version = "1.0.0-dev", path = "../../utils/prometheus" }
 sc-client-api = { version = "4.0.0-dev", path = "../api" }
-sc-network = { version = "0.10.0-dev", path = "../network/" }
+sc-network = { version = "1.0.0-dev", path = "../network/" }
 sp-api = { version = "4.0.0-dev", path = "../../primitives/api" }
 sp-authority-discovery = { version = "4.0.0-dev", path = "../../primitives/authority-discovery" }
 sp-blockchain = { version = "4.0.0-dev", path = "../../primitives/blockchain" }

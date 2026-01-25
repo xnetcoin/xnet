@@ -1,12 +1,12 @@
 [package]
-name = "substrate"
-description = "Next-generation framework for blockchain innovation"
+name = "xnet"
+description = "Xnet - Decentralized blockchain platform for secure transactions"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
-homepage = "https://substrate.io"
-repository = "https://github.com/paritytech/substrate/"
-authors = ["Parity Technologies <admin@parity.io>"]
+homepage = "https://xnetcoin.org"
+repository = "https://github.com/xnetcoin/xnet/"
+authors = ["Xnet Technologies <info@xnetcoin.org>"]
 edition = "2021"
-version = "0.0.0"
+version = "1.0.0"
 
 # This list of dependencies is for documentation purposes only.
 [dependencies]
@@ -37,16 +37,16 @@ node-cli = { path = "bin/node/cli" }
 # `cargo run` on its own doesn't support features. To use features you must explicitly use
 # `node-cli` in your command, e.g. `cargo run -p node-cli --features try-runtime ...`.
 [[bin]]
-name = "substrate"
+name = "xnet"
 path = "bin/node/cli/bin/main.rs"
 
 [workspace]
 resolver = "2"
 
 members = [
-	"bin/xnetx-node/node",
-	"bin/xnetx-node/pallets/template",
-	"bin/xnetx-node/runtime",
+	"bin/xnet-node/node",
+	"bin/xnet-node/pallets/template",
+	"bin/xnet-node/runtime",
 	"bin/node/bench",
 	"bin/node/cli",
 	"bin/node/executor",

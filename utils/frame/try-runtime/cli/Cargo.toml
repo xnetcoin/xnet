@@ -1,6 +1,6 @@
 [package]
 name = "try-runtime-cli"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -12,9 +12,9 @@ description = "Cli command runtime testing and dry-running"
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-remote-externalities = { version = "0.10.0-dev", path = "../../remote-externalities", package = "frame-remote-externalities" }
-sc-cli = { version = "0.10.0-dev", path = "../../../../client/cli" }
-sc-executor = { version = "0.10.0-dev", path = "../../../../client/executor" }
+remote-externalities = { version = "1.0.0-dev", path = "../../remote-externalities", package = "frame-remote-externalities" }
+sc-cli = { version = "1.0.0-dev", path = "../../../../client/cli" }
+sc-executor = { version = "1.0.0-dev", path = "../../../../client/executor" }
 sp-consensus-aura = { path = "../../../../primitives/consensus/aura" }
 sp-consensus-babe = { path = "../../../../primitives/consensus/babe" }
 sp-core = { version = "21.0.0", path = "../../../../primitives/core" }

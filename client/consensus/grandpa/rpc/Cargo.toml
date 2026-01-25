@@ -1,6 +1,6 @@
 [package]
 name = "sc-consensus-grandpa-rpc"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 authors = ["Parity Technologies <admin@parity.io>"]
 description = "RPC extensions for the GRANDPA finality gadget"
 repository = "https://github.com/paritytech/substrate/"
@@ -18,14 +18,14 @@ parity-scale-codec = { version = "3.6.1", features = ["derive"] }
 serde = { version = "1.0.163", features = ["derive"] }
 thiserror = "1.0"
 sc-client-api = { version = "4.0.0-dev", path = "../../../api" }
-sc-consensus-grandpa = { version = "0.10.0-dev", path = "../" }
+sc-consensus-grandpa = { version = "1.0.0-dev", path = "../" }
 sc-rpc = { version = "4.0.0-dev", path = "../../../rpc" }
 sp-blockchain = { version = "4.0.0-dev", path = "../../../../primitives/blockchain" }
 sp-core = { version = "21.0.0", path = "../../../../primitives/core" }
 sp-runtime = { version = "24.0.0", path = "../../../../primitives/runtime" }
 
 [dev-dependencies]
-sc-block-builder = { version = "0.10.0-dev", path = "../../../block-builder" }
+sc-block-builder = { version = "1.0.0-dev", path = "../../../block-builder" }
 sc-rpc = { version = "4.0.0-dev", features = ["test-helpers"], path = "../../../rpc" }
 sp-core = { version = "21.0.0", path = "../../../../primitives/core" }
 sp-consensus-grandpa = { version = "4.0.0-dev", path = "../../../../primitives/consensus/grandpa" }

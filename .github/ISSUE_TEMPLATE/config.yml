@@ -1,7 +1,11 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: Support & Troubleshooting with the Substrate Stack Exchange Community
-    url: https://substrate.stackexchange.com
-    about: |
-      For general problems with Substrate or related technologies, please search here first
-      for solutions, by keyword and tags. If you discover no solution, please then ask and questions in our community! We highly encourage everyone also share their understanding by answering questions for others.
+  - name: "XNETHQ Official Telegram"
+    url: https://t.me/xnethq
+    about: "Get instant technical help from the core developers on Telegram."
+  - name: "XNET Official X"
+    url: https://x.com/xnethq
+    about: "Join our X for governance discussions and community building."
+  - name: "XNET Official Website"
+    url: https://xnetcoin.org
+    about: "Explore the documentation and the whitepaper."

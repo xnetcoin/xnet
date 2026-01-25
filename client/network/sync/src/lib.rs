@@ -2166,7 +2166,7 @@ where
 			.collect::<Vec<_>>();
 
 		for (id, request, response) in ready_responses {
-			self.pending_responses
+			let _ = self.pending_responses
 				.remove(&id)
 				.expect("Logic error: peer id from pending response is missing in the map.");
 

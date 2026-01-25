@@ -1,6 +1,6 @@
 {
-  "name": "XnetX Testnet v1",
-  "id": "XnetX Testnet v1",
+  "name": "Xnet Testnet",
+  "id": "xnet_testnet",
   "chainType": "Local",
   "bootNodes": [
     "/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWNpYHQYTjTKxqnvXd39qvpwmCYnquWRmDF81FD6N2wCbE"
@@ -10,7 +10,7 @@
   "properties": {
     "ss58Format": 42,
     "tokenDecimals": 12,
-    "tokenSymbol": "XNX"
+    "tokenSymbol": "XNC"
   },
   "forkBlocks": null,
   "badBlocks": null,

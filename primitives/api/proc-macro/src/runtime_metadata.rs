@@ -63,7 +63,7 @@ fn collect_docs(attrs: &[syn::Attribute], crate_: &TokenStream2) -> TokenStream2
 	if cfg!(feature = "no-metadata-docs") {
 		quote!(#crate_::vec![])
 	} else {
-		let docs = get_doc_literals(&attrs);
+		let docs = get_doc_literals(attrs);
 		quote!(#crate_::vec![ #( #docs, )* ])
 	}
 }
@@ -192,14 +192,14 @@ pub fn generate_impl_runtime_metadata(impls: &[ItemImpl]) -> Result<TokenStream2
 
 	// Get the name of the runtime for which the traits are implemented.
 	let runtime_name = &impls
-		.get(0)
+		.first()
 		.expect("Traits should contain at least one implementation; qed")
 		.self_ty;
 
 	let mut metadata = Vec::new();
 
 	for impl_ in impls {
-		let mut trait_ = extract_impl_trait(&impl_, RequireQualifiedTraitPath::Yes)?.clone();
+		let mut trait_ = extract_impl_trait(impl_, RequireQualifiedTraitPath::Yes)?.clone();
 
 		// Implementation traits are always references with a path `impl client::Core<generics> ...`
 		// The trait name is the last segment of this path.
@@ -224,7 +224,7 @@ pub fn generate_impl_runtime_metadata(impls: &[ItemImpl]) -> Result<TokenStream2
 			})
 			.expect("Trait path should always contain at least one generic parameter; qed");
 
-		let mod_name = generate_runtime_mod_name_for_trait(&trait_name_ident);
+		let mod_name = generate_runtime_mod_name_for_trait(trait_name_ident);
 		// Get absolute path to the `runtime_decl_for_` module by replacing the last segment.
 		if let Some(segment) = trait_.segments.last_mut() {
 			*segment = parse_quote!(#mod_name);

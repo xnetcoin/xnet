@@ -94,41 +94,41 @@ fn remove_supported_attributes(attrs: &mut Vec<Attribute>) -> HashMap<&'static s
 /// ```ignore
 /// // The trait version implicitly is 1
 /// decl_runtime_apis!(
-/// 	trait SomeApi {
-/// 		fn method1(); 	// this is a 'stable method'
+///     trait SomeApi {
+///         fn method1();     // this is a 'stable method'
 ///
-/// 		#[api_version(2)]
-/// 		fn method2();
+///         #[api_version(2)]
+///         fn method2();
 ///
-/// 		#[api_version(2)]
-/// 		fn method3();
+///         #[api_version(2)]
+///         fn method3();
 ///
-/// 		#[api_version(3)]
-/// 		fn method4();
-/// 	}
+///         #[api_version(3)]
+///         fn method4();
+///     }
 /// );
 /// ```
 /// This trait has got three different versions. The function below will generate the following
 /// code:
 /// ```
 /// trait SomeApiV1 {
-/// 	// in V1 only the stable methods are required. The rest has got default implementations.
-/// 	fn method1();
+///     // in V1 only the stable methods are required. The rest has got default implementations.
+///     fn method1();
 /// }
 ///
 /// trait SomeApiV2 {
-/// 	// V2 contains all methods from V1 and V2. V3 not required so they are skipped.
-/// 	fn method1();
-/// 	fn method2();
-/// 	fn method3();
+///     // V2 contains all methods from V1 and V2. V3 not required so they are skipped.
+///     fn method1();
+///     fn method2();
+///     fn method3();
 /// }
 ///
 /// trait SomeApiV3 {
-/// 	// And V3 contains all methods from the trait.
-/// 	fn method1();
-/// 	fn method2();
-/// 	fn method3();
-/// 	fn method4();
+///     // And V3 contains all methods from the trait.
+///     fn method1();
+///     fn method2();
+///     fn method3();
+///     fn method4();
 /// }
 /// ```
 fn generate_versioned_api_traits(
@@ -136,14 +136,14 @@ fn generate_versioned_api_traits(
 	methods: BTreeMap<u64, Vec<TraitItemFn>>,
 ) -> Vec<ItemTrait> {
 	let mut result = Vec::<ItemTrait>::new();
-	for (version, _) in &methods {
+	for version in methods.keys() {
 		let mut versioned_trait = api.clone();
 		versioned_trait.ident = versioned_trait_name(&versioned_trait.ident, *version);
 		versioned_trait.items = Vec::new();
 		// Add the methods from the current version and all previous one. Versions are sorted so
 		// it's safe to stop early.
 		for (_, m) in methods.iter().take_while(|(v, _)| v <= &version) {
-			versioned_trait.items.extend(m.iter().cloned().map(|m| TraitItem::Fn(m)));
+			versioned_trait.items.extend(m.iter().cloned().map(TraitItem::Fn));
 		}
 
 		result.push(versioned_trait);
@@ -157,7 +157,7 @@ fn parse_renamed_attribute(renamed: &Attribute) -> Result<(String, u32)> {
 	let err = || {
 		Error::new(
 			renamed.span(),
-			&format!(
+			format!(
 				"Unexpected `{RENAMED_ATTRIBUTE}` attribute. \
 				 The supported format is `{RENAMED_ATTRIBUTE}(\"old_name\", version_it_was_renamed)`",
 			),
@@ -204,58 +204,55 @@ fn generate_runtime_decls(decls: &[ItemTrait]) -> Result<TokenStream> {
 
 		// Process the items in the declaration. The filter_map function below does a lot of stuff
 		// because the method attributes are stripped at this point
-		decl.items.iter_mut().for_each(|i| match i {
-			TraitItem::Fn(ref mut method) => {
-				let method_attrs = remove_supported_attributes(&mut method.attrs);
-				let mut method_version = trait_api_version;
-				// validate the api version for the method (if any) and generate default
-				// implementation for versioned methods
-				if let Some(version_attribute) = method_attrs.get(API_VERSION_ATTRIBUTE) {
-					method_version = match parse_runtime_api_version(version_attribute) {
-						Ok(method_api_ver) if method_api_ver < trait_api_version => {
-							let method_ver = method_api_ver.to_string();
-							let trait_ver = trait_api_version.to_string();
-							let mut err1 = Error::new(
-								version_attribute.span(),
-								format!(
-										"Method version `{}` is older than (or equal to) trait version `{}`.\
-										 Methods can't define versions older than the trait version.",
-										method_ver,
-										trait_ver,
-									),
-							);
-
-							let err2 = match found_attributes.get(&API_VERSION_ATTRIBUTE) {
-								Some(attr) => Error::new(attr.span(), "Trait version is set here."),
-								None => Error::new(
-									decl_span,
-									"Trait version is not set so it is implicitly equal to 1.",
+		decl.items.iter_mut().for_each(|i| if let TraitItem::Fn(ref mut method) = i {
+			let method_attrs = remove_supported_attributes(&mut method.attrs);
+			let mut method_version = trait_api_version;
+			// validate the api version for the method (if any) and generate default
+			// implementation for versioned methods
+			if let Some(version_attribute) = method_attrs.get(API_VERSION_ATTRIBUTE) {
+				method_version = match parse_runtime_api_version(version_attribute) {
+					Ok(method_api_ver) if method_api_ver < trait_api_version => {
+						let method_ver = method_api_ver.to_string();
+						let trait_ver = trait_api_version.to_string();
+						let mut err1 = Error::new(
+							version_attribute.span(),
+							format!(
+									"Method version `{}` is older than (or equal to) trait version `{}`.\
+									 Methods can't define versions older than the trait version.",
+									method_ver,
+									trait_ver,
 								),
-							};
-							err1.combine(err2);
-							result.push(err1.to_compile_error());
+						);
 
-							trait_api_version
-						},
-						Ok(method_api_ver) => method_api_ver,
-						Err(e) => {
-							result.push(e.to_compile_error());
-							trait_api_version
-						},
-					};
-				}
+						let err2 = match found_attributes.get(&API_VERSION_ATTRIBUTE) {
+							Some(attr) => Error::new(attr.span(), "Trait version is set here."),
+							None => Error::new(
+								decl_span,
+								"Trait version is not set so it is implicitly equal to 1.",
+							),
+						};
+						err1.combine(err2);
+						result.push(err1.to_compile_error());
 
-				// Any method with the `changed_in` attribute isn't required for the runtime
-				// anymore.
-				if !method_attrs.contains_key(CHANGED_IN_ATTRIBUTE) {
-					// Make sure we replace all the wild card parameter names.
-					replace_wild_card_parameter_names(&mut method.sig);
+						trait_api_version
+					},
+					Ok(method_api_ver) => method_api_ver,
+					Err(e) => {
+						result.push(e.to_compile_error());
+						trait_api_version
+					},
+				};
+			}
 
-					// partition methods by api version
-					methods_by_version.entry(method_version).or_default().push(method.clone());
-				}
-			},
-			_ => (),
+			// Any method with the `changed_in` attribute isn't required for the runtime
+			// anymore.
+			if !method_attrs.contains_key(CHANGED_IN_ATTRIBUTE) {
+				// Make sure we replace all the wild card parameter names.
+				replace_wild_card_parameter_names(&mut method.sig);
+
+				// partition methods by api version
+				methods_by_version.entry(method_version).or_default().push(method.clone());
+			}
 		});
 
 		let versioned_api_traits = generate_versioned_api_traits(decl.clone(), methods_by_version);
@@ -374,7 +371,7 @@ impl<'a> ToClientSideDecl<'a> {
 		for (_, a) in found_attributes.iter().filter(|a| a.0 == &RENAMED_ATTRIBUTE) {
 			match parse_renamed_attribute(a) {
 				Ok((old_name, version)) => {
-					renames.push((version, prefix_function_with_trait(&self.trait_, &old_name)));
+					renames.push((version, prefix_function_with_trait(self.trait_, &old_name)));
 				},
 				Err(e) => self.errors.push(e.to_compile_error()),
 			}
@@ -392,7 +389,7 @@ impl<'a> ToClientSideDecl<'a> {
 
 		// Generate the function name before we may rename it below to
 		// `function_name_before_version_{}`.
-		let function_name = prefix_function_with_trait(&self.trait_, &method.sig.ident);
+		let function_name = prefix_function_with_trait(self.trait_, &method.sig.ident);
 
 		// If the method has a `changed_in` attribute, we need to alter the method name to
 		// `method_before_version_VERSION`.

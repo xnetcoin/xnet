@@ -374,6 +374,7 @@ pub trait HostFunctions: 'static + Send + Sync {
 #[impl_trait_for_tuples::impl_for_tuples(30)]
 impl HostFunctions for Tuple {
 	fn host_functions() -> Vec<&'static dyn Function> {
+		#[allow(clippy::let_and_return)]
 		let mut host_functions = Vec::new();
 
 		for_tuples!( #( host_functions.extend(Tuple::host_functions()); )* );

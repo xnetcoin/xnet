@@ -2943,7 +2943,7 @@ dependencies = [
 
 [[package]]
 name = "frame-remote-externalities"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-recursion",
  "futures",
@@ -3144,7 +3144,7 @@ dependencies = [
 
 [[package]]
 name = "frame-try-runtime"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "frame-support",
  "parity-scale-codec",
@@ -4332,7 +4332,7 @@ dependencies = [
  "sp-transaction-pool",
  "sp-version",
  "static_assertions",
- "substrate-wasm-builder",
+ "xnet-wasm-builder",
 ]
 
 [[package]]
@@ -6585,7 +6585,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-elections-phragmen"
-version = "5.0.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -7487,21 +7487,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-template"
-version = "4.0.0-dev"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "pallet-timestamp"
 version = "4.0.0-dev"
 dependencies = [
@@ -7706,6 +7691,21 @@ dependencies = [
  "parity-scale-codec",
  "scale-info",
  "sp-api",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-xnet-template"
+version = "1.0.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "scale-info",
  "sp-core",
  "sp-io",
  "sp-runtime",
@@ -9021,7 +9021,7 @@ dependencies = [
 
 [[package]]
 name = "sc-authority-discovery"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "futures",
@@ -9044,14 +9044,14 @@ dependencies = [
  "sp-keystore",
  "sp-runtime",
  "sp-tracing",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
  "thiserror",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-basic-authorship"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "futures",
  "futures-timer",
@@ -9070,13 +9070,13 @@ dependencies = [
  "sp-core",
  "sp-inherents",
  "sp-runtime",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-block-builder"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "parity-scale-codec",
  "sc-client-api",
@@ -9120,7 +9120,7 @@ dependencies = [
 
 [[package]]
 name = "sc-cli"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "chrono",
@@ -9182,14 +9182,14 @@ dependencies = [
  "sp-statement-store",
  "sp-storage",
  "sp-test-primitives",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime",
  "thiserror",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-client-db"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "criterion",
@@ -9222,7 +9222,7 @@ dependencies = [
 
 [[package]]
 name = "sc-consensus"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "futures",
@@ -9241,13 +9241,13 @@ dependencies = [
  "sp-runtime",
  "sp-state-machine",
  "sp-test-primitives",
- "substrate-prometheus-endpoint",
  "thiserror",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-consensus-aura"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "futures",
@@ -9276,16 +9276,16 @@ dependencies = [
  "sp-runtime",
  "sp-timestamp",
  "sp-tracing",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
  "tempfile",
  "thiserror",
  "tokio",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-consensus-babe"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "fork-tree",
@@ -9321,15 +9321,15 @@ dependencies = [
  "sp-runtime",
  "sp-timestamp",
  "sp-tracing",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
  "thiserror",
  "tokio",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-consensus-babe-rpc"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "futures",
  "jsonrpsee",
@@ -9389,12 +9389,12 @@ dependencies = [
  "sp-mmr-primitives",
  "sp-runtime",
  "sp-tracing",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
  "tempfile",
  "thiserror",
  "tokio",
  "wasm-timer",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
@@ -9420,7 +9420,7 @@ dependencies = [
 
 [[package]]
 name = "sc-consensus-epochs"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "fork-tree",
  "parity-scale-codec",
@@ -9432,7 +9432,7 @@ dependencies = [
 
 [[package]]
 name = "sc-consensus-grandpa"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "ahash 0.8.3",
  "array-bytes",
@@ -9471,15 +9471,15 @@ dependencies = [
  "sp-keystore",
  "sp-runtime",
  "sp-tracing",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
  "thiserror",
  "tokio",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-consensus-grandpa-rpc"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "finality-grandpa",
  "futures",
@@ -9503,7 +9503,7 @@ dependencies = [
 
 [[package]]
 name = "sc-consensus-manual-seal"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "assert_matches",
  "async-trait",
@@ -9532,16 +9532,16 @@ dependencies = [
  "sp-keystore",
  "sp-runtime",
  "sp-timestamp",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
  "substrate-test-runtime-transaction-pool",
  "thiserror",
  "tokio",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-consensus-pow"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "futures",
@@ -9559,13 +9559,13 @@ dependencies = [
  "sp-core",
  "sp-inherents",
  "sp-runtime",
- "substrate-prometheus-endpoint",
  "thiserror",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-consensus-slots"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "futures",
@@ -9588,7 +9588,7 @@ dependencies = [
 
 [[package]]
 name = "sc-executor"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "assert_matches",
@@ -9626,7 +9626,7 @@ dependencies = [
 
 [[package]]
 name = "sc-executor-common"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "sc-allocator",
  "sp-maybe-compressed-blob",
@@ -9637,7 +9637,7 @@ dependencies = [
 
 [[package]]
 name = "sc-executor-wasmtime"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -9660,7 +9660,7 @@ dependencies = [
 
 [[package]]
 name = "sc-informant"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "ansi_term",
  "futures",
@@ -9689,7 +9689,7 @@ dependencies = [
 
 [[package]]
 name = "sc-network"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "assert_matches",
@@ -9726,7 +9726,6 @@ dependencies = [
  "sp-runtime",
  "sp-test-primitives",
  "sp-tracing",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime",
  "substrate-test-runtime-client",
  "tempfile",
@@ -9736,12 +9735,13 @@ dependencies = [
  "tokio-util",
  "unsigned-varint",
  "wasm-timer",
+ "xnet-prometheus-endpoint",
  "zeroize",
 ]
 
 [[package]]
 name = "sc-network-bitswap"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-channel",
  "cid",
@@ -9767,7 +9767,7 @@ dependencies = [
 
 [[package]]
 name = "sc-network-common"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "bitflags",
@@ -9784,7 +9784,7 @@ dependencies = [
 
 [[package]]
 name = "sc-network-gossip"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "ahash 0.8.3",
  "futures",
@@ -9796,15 +9796,15 @@ dependencies = [
  "sc-network-common",
  "schnellru",
  "sp-runtime",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
  "tokio",
  "tracing",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-network-light"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "async-channel",
@@ -9824,7 +9824,7 @@ dependencies = [
 
 [[package]]
 name = "sc-network-statement"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "async-channel",
@@ -9836,12 +9836,12 @@ dependencies = [
  "sc-network-common",
  "sp-consensus",
  "sp-statement-store",
- "substrate-prometheus-endpoint",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-network-sync"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "async-channel",
@@ -9872,10 +9872,10 @@ dependencies = [
  "sp-runtime",
  "sp-test-primitives",
  "sp-tracing",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime-client",
  "thiserror",
  "tokio",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
@@ -9910,7 +9910,7 @@ dependencies = [
 
 [[package]]
 name = "sc-network-transactions"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "futures",
@@ -9922,7 +9922,7 @@ dependencies = [
  "sc-utils",
  "sp-consensus",
  "sp-runtime",
- "substrate-prometheus-endpoint",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
@@ -9968,10 +9968,10 @@ dependencies = [
 
 [[package]]
 name = "sc-proposer-metrics"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "log",
- "substrate-prometheus-endpoint",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
@@ -10015,7 +10015,7 @@ dependencies = [
 
 [[package]]
 name = "sc-rpc-api"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "jsonrpsee",
  "parity-scale-codec",
@@ -10039,15 +10039,15 @@ dependencies = [
  "jsonrpsee",
  "log",
  "serde_json",
- "substrate-prometheus-endpoint",
  "tokio",
  "tower",
  "tower-http",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
 name = "sc-rpc-spec-v2"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "array-bytes",
  "assert_matches",
@@ -10090,12 +10090,12 @@ dependencies = [
  "sp-runtime",
  "sp-runtime-interface",
  "sp-std",
- "substrate-wasm-builder",
+ "xnet-wasm-builder",
 ]
 
 [[package]]
 name = "sc-service"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "directories",
@@ -10148,7 +10148,6 @@ dependencies = [
  "sp-trie",
  "sp-version",
  "static_init",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime",
  "substrate-test-runtime-client",
  "tempfile",
@@ -10156,6 +10155,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-futures",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
@@ -10196,7 +10196,7 @@ dependencies = [
 
 [[package]]
 name = "sc-state-db"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "log",
  "parity-scale-codec",
@@ -10219,9 +10219,9 @@ dependencies = [
  "sp-core",
  "sp-runtime",
  "sp-statement-store",
- "substrate-prometheus-endpoint",
  "tempfile",
  "tokio",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
@@ -10239,7 +10239,7 @@ dependencies = [
 
 [[package]]
 name = "sc-sync-state-rpc"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "jsonrpsee",
  "parity-scale-codec",
@@ -10357,11 +10357,11 @@ dependencies = [
  "sp-runtime",
  "sp-tracing",
  "sp-transaction-pool",
- "substrate-prometheus-endpoint",
  "substrate-test-runtime",
  "substrate-test-runtime-client",
  "substrate-test-runtime-transaction-pool",
  "thiserror",
+ "xnet-prometheus-endpoint",
 ]
 
 [[package]]
@@ -11102,7 +11102,7 @@ dependencies = [
 
 [[package]]
 name = "sp-consensus"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "futures",
@@ -11117,7 +11117,7 @@ dependencies = [
 
 [[package]]
 name = "sp-consensus-aura"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "parity-scale-codec",
@@ -11133,7 +11133,7 @@ dependencies = [
 
 [[package]]
 name = "sp-consensus-babe"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "parity-scale-codec",
@@ -11188,7 +11188,7 @@ dependencies = [
 
 [[package]]
 name = "sp-consensus-pow"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "parity-scale-codec",
  "sp-api",
@@ -11199,7 +11199,7 @@ dependencies = [
 
 [[package]]
 name = "sp-consensus-slots"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "parity-scale-codec",
  "scale-info",
@@ -11579,7 +11579,7 @@ dependencies = [
  "sp-io",
  "sp-runtime-interface",
  "sp-std",
- "substrate-wasm-builder",
+ "xnet-wasm-builder",
 ]
 
 [[package]]
@@ -11589,7 +11589,7 @@ dependencies = [
  "sp-core",
  "sp-io",
  "sp-runtime-interface",
- "substrate-wasm-builder",
+ "xnet-wasm-builder",
 ]
 
 [[package]]
@@ -11974,26 +11974,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "substrate"
-version = "0.0.0"
-dependencies = [
- "aquamarine",
- "chain-spec-builder",
- "frame-support",
- "node-cli",
- "sc-cli",
- "sc-consensus-aura",
- "sc-consensus-babe",
- "sc-consensus-beefy",
- "sc-consensus-grandpa",
- "sc-consensus-manual-seal",
- "sc-consensus-pow",
- "sc-service",
- "sp-runtime",
- "subkey",
-]
-
-[[package]]
 name = "substrate-bip39"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -12080,19 +12060,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "substrate-prometheus-endpoint"
-version = "0.10.0-dev"
-dependencies = [
- "hyper",
- "log",
- "prometheus",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "substrate-rpc-client"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "async-trait",
  "jsonrpsee",
@@ -12192,8 +12161,8 @@ dependencies = [
  "sp-trie",
  "sp-version",
  "substrate-test-runtime-client",
- "substrate-wasm-builder",
  "trie-db",
+ "xnet-wasm-builder",
 ]
 
 [[package]]
@@ -12241,7 +12210,7 @@ dependencies = [
 
 [[package]]
 name = "substrate-test-utils-derive"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -12256,23 +12225,6 @@ dependencies = [
  "sc-service",
  "substrate-test-utils",
  "tokio",
-]
-
-[[package]]
-name = "substrate-wasm-builder"
-version = "5.0.0-dev"
-dependencies = [
- "ansi_term",
- "build-helper",
- "cargo_metadata",
- "filetime",
- "parity-wasm",
- "sp-maybe-compressed-blob",
- "strum",
- "tempfile",
- "toml 0.7.4",
- "walkdir",
- "wasm-opt",
 ]
 
 [[package]]
@@ -12903,7 +12855,7 @@ checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
 
 [[package]]
 name = "try-runtime-cli"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 dependencies = [
  "assert_cmd",
  "async-trait",
@@ -14234,8 +14186,28 @@ dependencies = [
 ]
 
 [[package]]
-name = "xnetx-node"
-version = "4.0.0-dev"
+name = "xnet"
+version = "1.0.0"
+dependencies = [
+ "aquamarine",
+ "chain-spec-builder",
+ "frame-support",
+ "node-cli",
+ "sc-cli",
+ "sc-consensus-aura",
+ "sc-consensus-babe",
+ "sc-consensus-beefy",
+ "sc-consensus-grandpa",
+ "sc-consensus-manual-seal",
+ "sc-consensus-pow",
+ "sc-service",
+ "sp-runtime",
+ "subkey",
+]
+
+[[package]]
+name = "xnet-node"
+version = "1.0.0"
 dependencies = [
  "clap 4.3.2",
  "frame-benchmarking",
@@ -14274,12 +14246,23 @@ dependencies = [
  "substrate-build-script-utils",
  "substrate-frame-rpc-system",
  "try-runtime-cli",
- "xnetx-runtime",
+ "xnet-runtime",
 ]
 
 [[package]]
-name = "xnetx-runtime"
-version = "4.0.0-dev"
+name = "xnet-prometheus-endpoint"
+version = "1.0.0-dev"
+dependencies = [
+ "hyper",
+ "log",
+ "prometheus",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "xnet-runtime"
+version = "1.0.0"
 dependencies = [
  "frame-benchmarking",
  "frame-election-provider-support",
@@ -14300,10 +14283,10 @@ dependencies = [
  "pallet-staking",
  "pallet-staking-reward-curve",
  "pallet-sudo",
- "pallet-template",
  "pallet-timestamp",
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
+ "pallet-xnet-template",
  "parity-scale-codec",
  "scale-info",
  "sp-api",
@@ -14320,7 +14303,24 @@ dependencies = [
  "sp-storage",
  "sp-transaction-pool",
  "sp-version",
- "substrate-wasm-builder",
+ "xnet-wasm-builder",
+]
+
+[[package]]
+name = "xnet-wasm-builder"
+version = "1.0.0-dev"
+dependencies = [
+ "ansi_term",
+ "build-helper",
+ "cargo_metadata",
+ "filetime",
+ "parity-wasm",
+ "sp-maybe-compressed-blob",
+ "strum",
+ "tempfile",
+ "toml 0.7.4",
+ "walkdir",
+ "wasm-opt",
 ]
 
 [[package]]

@@ -19,7 +19,7 @@ codec = { package = "parity-scale-codec", version = "3.6.1" }
 jsonrpsee = { version = "0.16.2", features = ["jsonrpsee-types"] }
 serde = "1"
 frame-support = { version = "4.0.0-dev", path = "../../../../frame/support" }
-sc-rpc-api = { version = "0.10.0-dev", path = "../../../../client/rpc-api" }
+sc-rpc-api = { version = "1.0.0-dev", path = "../../../../client/rpc-api" }
 sp-storage = { version = "13.0.0", path = "../../../../primitives/storage" }
 
 [dev-dependencies]

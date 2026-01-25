@@ -1,6 +1,6 @@
 [package]
 name = "sp-consensus-aura"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 authors = ["Parity Technologies <admin@parity.io>"]
 description = "Primitives for Aura consensus"
 edition = "2021"
@@ -18,7 +18,7 @@ codec = { package = "parity-scale-codec", version = "3.6.1", default-features = 
 scale-info = { version = "2.5.0", default-features = false, features = ["derive"] }
 sp-api = { version = "4.0.0-dev", default-features = false, path = "../../api" }
 sp-application-crypto = { version = "23.0.0", default-features = false, path = "../../application-crypto" }
-sp-consensus-slots = { version = "0.10.0-dev", default-features = false, path = "../slots" }
+sp-consensus-slots = { version = "1.0.0-dev", default-features = false, path = "../slots" }
 sp-inherents = { version = "4.0.0-dev", default-features = false, path = "../../inherents" }
 sp-runtime = { version = "24.0.0", default-features = false, path = "../../runtime" }
 sp-std = { version = "8.0.0", default-features = false, path = "../../std" }

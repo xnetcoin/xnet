@@ -21,7 +21,7 @@
 
 pub use self::generic::{
 	RemoteCallRequest, RemoteChangesRequest, RemoteChangesResponse, RemoteHeaderRequest,
-	RemoteHeaderResponse, RemoteReadChildRequest, RemoteReadRequest,
+	RemoteHeaderResponse,
 };
 use codec::{Decode, Encode};
 use sc_client_api::StorageProof;

@@ -1,6 +1,6 @@
 [package]
 name = "sc-rpc-spec-v2"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
@@ -42,9 +42,9 @@ serde_json = "1.0"
 tokio = { version = "1.22.0", features = ["macros"] }
 substrate-test-runtime-client = { version = "2.0.0", path = "../../test-utils/runtime/client" }
 substrate-test-runtime = { version = "2.0.0", path = "../../test-utils/runtime" }
-sp-consensus = { version = "0.10.0-dev", path = "../../primitives/consensus/common" }
+sp-consensus = { version = "1.0.0-dev", path = "../../primitives/consensus/common" }
 sp-maybe-compressed-blob = { version = "4.1.0-dev", path = "../../primitives/maybe-compressed-blob" }
-sc-block-builder = { version = "0.10.0-dev", path = "../block-builder" }
-sc-service = { version = "0.10.0-dev", features = ["test-helpers"], path = "../service" }
+sc-block-builder = { version = "1.0.0-dev", path = "../block-builder" }
+sc-service = { version = "1.0.0-dev", features = ["test-helpers"], path = "../service" }
 assert_matches = "1.3.0"
 pretty_assertions = "1.2.1"

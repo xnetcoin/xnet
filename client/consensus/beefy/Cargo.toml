@@ -19,18 +19,18 @@ log = "0.4"
 parking_lot = "0.12.1"
 thiserror = "1.0"
 wasm-timer = "0.2.5"
-prometheus = { package = "substrate-prometheus-endpoint", version = "0.10.0-dev", path = "../../../utils/prometheus" }
+prometheus = { package = "xnet-prometheus-endpoint", version = "1.0.0-dev", path = "../../../utils/prometheus" }
 sc-client-api = { version = "4.0.0-dev", path = "../../api" }
-sc-consensus = { version = "0.10.0-dev", path = "../../consensus/common" }
-sc-network = { version = "0.10.0-dev", path = "../../network" }
-sc-network-gossip = { version = "0.10.0-dev", path = "../../network-gossip" }
-sc-network-sync = { version = "0.10.0-dev", path = "../../network/sync" }
+sc-consensus = { version = "1.0.0-dev", path = "../../consensus/common" }
+sc-network = { version = "1.0.0-dev", path = "../../network" }
+sc-network-gossip = { version = "1.0.0-dev", path = "../../network-gossip" }
+sc-network-sync = { version = "1.0.0-dev", path = "../../network/sync" }
 sc-utils = { version = "4.0.0-dev", path = "../../utils" }
 sp-api = { version = "4.0.0-dev", path = "../../../primitives/api" }
 sp-application-crypto = { version = "23.0.0", path = "../../../primitives/application-crypto" }
 sp-arithmetic = { version = "16.0.0", path = "../../../primitives/arithmetic" }
 sp-blockchain = { version = "4.0.0-dev", path = "../../../primitives/blockchain" }
-sp-consensus = { version = "0.10.0-dev", path = "../../../primitives/consensus/common" }
+sp-consensus = { version = "1.0.0-dev", path = "../../../primitives/consensus/common" }
 sp-consensus-beefy = { version = "4.0.0-dev", path = "../../../primitives/consensus/beefy" }
 sp-core = { version = "21.0.0", path = "../../../primitives/core" }
 sp-keystore = { version = "0.27.0", path = "../../../primitives/keystore" }
@@ -41,7 +41,7 @@ sp-runtime = { version = "24.0.0", path = "../../../primitives/runtime" }
 serde = "1.0.163"
 tempfile = "3.1.0"
 tokio = "1.22.0"
-sc-block-builder = { version = "0.10.0-dev", path = "../../block-builder" }
+sc-block-builder = { version = "1.0.0-dev", path = "../../block-builder" }
 sc-network-test = { version = "0.8.0", path = "../../network/test" }
 sp-consensus-grandpa = { version = "4.0.0-dev", path = "../../../primitives/consensus/grandpa" }
 sp-keyring = { version = "24.0.0", path = "../../../primitives/keyring" }

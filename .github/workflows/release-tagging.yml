@@ -1,20 +1,20 @@
-# Github action to ensure the `release` tag always tracks latest release
-
-name: Retag release
+name: "XNET: Version Tagging"
 
 on:
-  release:
-    types: [ published ]
+  push:
+    branches:
+      - master
 
 jobs:
-  build:
+  tag:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Set Git tag
-        uses: s3krit/walking-tag-action@d04f7a53b72ceda4e20283736ce3627011275178 # latest version from master
+      - uses: actions/checkout@v4
         with:
-          tag-name: release
-          tag-message: Latest release
+          fetch-depth: 0
+      - name: "Generate Solid Tag"
+        uses: anothrNick/github-tag-action@1.64.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch

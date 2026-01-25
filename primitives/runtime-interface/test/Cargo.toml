@@ -14,8 +14,8 @@ targets = ["x86_64-unknown-linux-gnu"]
 [dependencies]
 tracing = "0.1.29"
 tracing-core = "0.1.28"
-sc-executor = { version = "0.10.0-dev", path = "../../../client/executor" }
-sc-executor-common = { version = "0.10.0-dev", path = "../../../client/executor/common" }
+sc-executor = { version = "1.0.0-dev", path = "../../../client/executor" }
+sc-executor-common = { version = "1.0.0-dev", path = "../../../client/executor/common" }
 sp-io = { version = "23.0.0", path = "../../io" }
 sp-runtime = { version = "24.0.0", path = "../../runtime" }
 sp-runtime-interface = { version = "17.0.0", path = "../" }

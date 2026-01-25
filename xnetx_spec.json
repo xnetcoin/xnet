@@ -1,6 +1,6 @@
 {
-  "name": "XnetX Testnet v1",
-  "id": "XnetX Testnet v1",
+  "name": "Xnet Testnet",
+  "id": "xnet_testnet",
   "chainType": "Local",
   "bootNodes": [
     "/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWNpYHQYTjTKxqnvXd39qvpwmCYnquWRmDF81FD6N2wCbE"
@@ -8,7 +8,7 @@
   "telemetryEndpoints": null,
   "protocolId": null,
   "properties": {
-    "tokenSymbol": "XNX",
+    "tokenSymbol": "XNC",
     "tokenDecimals": 12,
     "ss58Format": 42
   },
@@ -37,8 +37,8 @@
       "balances": {
         "balances": [
           [
-            "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq",
-            6000000000000000000
+            "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL",
+            "6000000000000000000"
           ]
         ]
       },
@@ -46,18 +46,18 @@
         "multiplier": "1000000000000000000"
       },
       "staking": {
-        "validatorCount": 1,
-        "minimumValidatorCount": 1,
+        "validatorCount": 2,
+        "minimumValidatorCount": 2,
         "invulnerables": [
-          "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq"
+          "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL"
         ],
         "forceEra": "NotForcing",
         "slashRewardFraction": 100000000,
         "canceledPayout": 0,
         "stakers": [
           [
-            "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq",
-            "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq",
+            "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL",
+            "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL",
             10000000000000000,
             "Validator"
           ]
@@ -67,16 +67,16 @@
         "maxValidatorCount": null,
         "maxNominatorCount": null
       },
-      "session": {
+     "session": {
         "keys": [
           [
-            "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq",
-            "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq",
+            "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL",
+            "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL",
             {
-              "grandpa": "5GdHumXwCpCf6TVW1YBsDMUsdWatadk8wvAB3wGY5hkLwrZ7",
-              "babe": "5GsgcmXMBQMvWwjeJDA511y9AsMPAtux6vaGA7GmMK7FaM7z",
-              "im_online": "5GsgcmXMBQMvWwjeJDA511y9AsMPAtux6vaGA7GmMK7FaM7z",
-              "authority_discovery": "5GsgcmXMBQMvWwjeJDA511y9AsMPAtux6vaGA7GmMK7FaM7z"
+              "grandpa": "5Ce7CVmGFT2w28KDsT8HxXkJeXCr4hFuD2jywrBuRU8sbftF",
+              "aura": "5F9v4y5hrhjnYxCCUEUuhMabTFMbpMjEPUr9BQUbbpb37fWQ",
+              "im_online": "5F9v4y5hrhjnYxCCUEUuhMabTFMbpMjEPUr9BQUbbpb37fWQ",
+              "authority_discovery": "5F9v4y5hrhjnYxCCUEUuhMabTFMbpMjEPUr9BQUbbpb37fWQ"
             }
           ]
         ]
@@ -87,13 +87,13 @@
       },
       "technicalCommittee": {
         "members": [
-          "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq"
+          "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL"
         ]
       },
       "elections": {
         "members": [
           [
-            "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq",
+            "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL",
             6000000000000000000
           ]
         ]
@@ -106,7 +106,7 @@
       },
       "treasury": {},
       "sudo": {
-        "key": "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq"
+        "key": "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL"
       },
       "imOnline": {
         "keys": []
@@ -129,7 +129,7 @@
         "assets": [
           [
             9,
-            "5GdzGM3RWnujVxMYYdYHH5HacBvVBVjtUqWsPWdMnN8JpDhq",
+            "5GWw5Zt8qdcCXJJH9bd5ogwRAUTkcPUPUwXvW3CxtARszdNL",
             true,
             1
           ]

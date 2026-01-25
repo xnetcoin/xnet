@@ -14,8 +14,8 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 sp-application-crypto = { version = "23.0.0", default-features = false, path = "../../primitives/application-crypto", features = ["serde"]  }
-sp-consensus-aura = { version = "0.10.0-dev", default-features = false, path = "../../primitives/consensus/aura", features = ["serde"] }
-sp-consensus-babe = { version = "0.10.0-dev", default-features = false, path = "../../primitives/consensus/babe", features = ["serde"] }
+sp-consensus-aura = { version = "1.0.0-dev", default-features = false, path = "../../primitives/consensus/aura", features = ["serde"] }
+sp-consensus-babe = { version = "1.0.0-dev", default-features = false, path = "../../primitives/consensus/babe", features = ["serde"] }
 sp-genesis-builder = { version = "0.1.0-dev", default-features = false, path = "../../primitives/genesis-builder" }
 sp-block-builder = { version = "4.0.0-dev", default-features = false, path = "../../primitives/block-builder" }
 codec = { package = "parity-scale-codec", version = "3.6.1", default-features = false, features = ["derive"] }
@@ -41,7 +41,7 @@ sp-consensus-grandpa = { version = "4.0.0-dev", default-features = false, path =
 sp-trie = { version = "22.0.0", default-features = false, path = "../../primitives/trie" }
 sp-transaction-pool = { version = "4.0.0-dev", default-features = false, path = "../../primitives/transaction-pool" }
 trie-db = { version = "0.27.0", default-features = false }
-sc-service = { version = "0.10.0-dev", default-features = false, optional = true, features = ["test-helpers"], path = "../../client/service" }
+sc-service = { version = "1.0.0-dev", default-features = false, optional = true, features = ["test-helpers"], path = "../../client/service" }
 sp-state-machine = { version = "0.28.0", default-features = false, path = "../../primitives/state-machine" }
 sp-externalities = { version = "0.19.0", default-features = false, path = "../../primitives/externalities" }
 
@@ -53,16 +53,16 @@ serde_json = { version = "1.0.85", default-features = false, features = ["alloc"
 
 [dev-dependencies]
 futures = "0.3.21"
-sc-block-builder = { version = "0.10.0-dev", path = "../../client/block-builder" }
-sc-executor = { version = "0.10.0-dev", path = "../../client/executor" }
-sc-executor-common = { version = "0.10.0-dev", path = "../../client/executor/common" }
-sp-consensus = { version = "0.10.0-dev", path = "../../primitives/consensus/common" }
+sc-block-builder = { version = "1.0.0-dev", path = "../../client/block-builder" }
+sc-executor = { version = "1.0.0-dev", path = "../../client/executor" }
+sc-executor-common = { version = "1.0.0-dev", path = "../../client/executor/common" }
+sp-consensus = { version = "1.0.0-dev", path = "../../primitives/consensus/common" }
 substrate-test-runtime-client = { version = "2.0.0", path = "./client" }
 sp-tracing = { version = "10.0.0", path = "../../primitives/tracing" }
 json-patch = { version = "1.0.0", default-features = false }
 
 [build-dependencies]
-substrate-wasm-builder = { version = "5.0.0-dev", path = "../../utils/wasm-builder", optional = true }
+xnet-wasm-builder = { version = "1.0.0-dev", path = "../../utils/wasm-builder", optional = true }
 
 [features]
 default = [ "std" ]
@@ -102,7 +102,7 @@ std = [
 	"sp-transaction-pool/std",
 	"sp-trie/std",
 	"sp-version/std",
-	"substrate-wasm-builder",
+	"xnet-wasm-builder",
 	"trie-db/std",
 ]
 # Special feature to disable logging

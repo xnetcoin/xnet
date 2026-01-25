@@ -71,10 +71,10 @@
 //! look into the [`frame_support`] crate, which is the entry point crate into runtime development
 //! with FRAME.
 //!
-//! > Side note, it is entirely possible to craft a substrate-based runtime without FRAME, an
-//! > example of which can be found [here](https://github.com/JoshOrndorff/frameless-xnetx-node).
+//! > Side note, it is entirely possible to craft a xnet-based runtime without FRAME, an
+//! > example of which can be found [here](https://github.com/xnetxcoin/xnet).
 //!
-//! In more broad terms, the following avenues exist into developing with substrate:
+//! In more broad terms, the following avenues exist into developing with xnet:
 //!
 //! * **Templates**: A number of substrate-based templates exist and they can be used for various
 //!   purposes, with zero to little additional code needed. All of these templates contain runtimes
@@ -133,12 +133,12 @@
 //!       node. Other projects typically contain a `build-spec` subcommand that does the same.
 //! * [`xnetx-node`]: a template node that contains a minimal set of features and can act as a
 //!   starting point of a project.
-//! * [`subkey`]: Substrate's key management utility.
+//! * [`subkey`]: Xnet's key management utility.
 //!
 //! ### Anatomy of a Binary Crate
 //!
-//! From the above, [`node`] and [`xnetx-node`] are essentially blueprints of a substrate-based
-//! project, as the name of the latter is implying. Each substrate-based project typically contains
+//! From the above, [`node`] and [`xnet-node`] are essentially blueprints of a xnet-based
+//! project, as the name of the latter is implying. Each xnet-based project typically contains
 //! the following:
 //!
 //! * Under `./runtime`, a `./runtime/src/lib.rs` which is the top level runtime amalgamator file.
@@ -190,7 +190,7 @@
 //!
 //! Templates:
 //!
-//! - classic [`substrate-xnetx-node`](https://github.com/substrate-developer-hub/substrate-xnetx-node)
+//! - classic [`xnet-node`](https://github.com/xnetxcoin/xnet)
 //! - classic [cumulus-parachain-template](https://github.com/substrate-developer-hub/substrate-parachain-template)
 //! - [`extended-parachain-template`](https://github.com/paritytech/extended-parachain-template)
 //! - [`frontier-parachain-template`](https://github.com/paritytech/frontier-parachain-template)
@@ -214,7 +214,7 @@
 //! [`sc-consensus-manual-seal`]: ../sc_consensus_manual_seal/index.html
 //! [`sc-consensus-pow`]: ../sc_consensus_pow/index.html
 //! [`node`]: ../node_cli/index.html
-//! [`xnetx-node`]: ../node_template/index.html
+//! [`xnet-node`]: ../node_template/index.html
 //! [`kitchensink_runtime`]: ../kitchensink_runtime/index.html
 //! [`subkey`]: ../subkey/index.html
 //! [`chain-spec-builder`]: ../chain_spec_builder/index.html

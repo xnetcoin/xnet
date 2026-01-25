@@ -1,34 +1,79 @@
-name: Bug Report
-description: Let us know about an issue you experienced with this software
-# labels: ["some existing label","another one"]
+name: "🔴 Technical Bug Report"
+description: "High-priority technical analysis of XNET Protocol issues"
+labels: ["bug", "internal-core", "critical-triage"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 💎 XNET Core Resources
+        Official Hubs: [Website](https://xnetcoin.org) | [Discord](https://discord.gg/XnetHQ) | [X](https://x.com/xnethq) | [Telegram](https://t.me/xnethq)
+        ---
+        *Please provide as much technical detail as possible to help us strengthen the protocol.*
+
   - type: checkboxes
     attributes:
-      label: Is there an existing issue?
-      description: Please search to see if an issue already exists and leave a comment that you also experienced this issue or add your specifics that are related to an existing issue.
+      label: "Submission Quality Assurance"
       options:
-        - label: I have searched the existing issues
+        - label: "I have cross-referenced existing issues and discussions."
           required: true
-  - type: checkboxes
+        - label: "I am reporting a protocol-level bug, not a configuration error."
+          required: true
+
+  - type: dropdown
+    id: technical-area
     attributes:
-      label: Experiencing problems? Have you tried our Stack Exchange first?
-      description: Please search <https://substrate.stackexchange.com> to see if an post already exists, and ask if not. Please do not file support issues here.
+      label: "Protocol Layer"
+      description: "Which part of the engine is failing?"
       options:
-        - label: This is not a support question.
-          required: true
-  - type: textarea
-    id: bug
-    attributes:
-      label: Description of bug
-      # description: What seems to be the problem?
-      # placeholder: Describe the problem.
+        - "Consensus Mechanism (BABE/GRANDPA)"
+        - "Runtime Logic (Pallets & State Machine)"
+        - "P2P Networking & Sync"
+        - "Database & Storage (RocksDB/ParityDB)"
+        - "RPC-API & JSON-RPC Infrastructure"
+        - "Cryptography & Transaction Signing"
     validations:
       required: true
+
   - type: textarea
-    id: steps
+    id: summary
     attributes:
-      label: Steps to reproduce
-      description: Provide the steps that led to the discovery of the issue.
-      # placeholder: Describe what you were doing so we can reproduce the problem.
+      label: "Technical Summary"
+      description: "A deep-dive description of the unexpected behavior."
+      placeholder: "Example: State transition failed at block #X due to storage corruption..."
     validations:
-      required: false
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Deterministic Steps to Reproduce"
+      description: "How can we replicate this failure on our test-net?"
+      placeholder: |
+        1. Build from source: cargo build --release
+        2. Launch node with: --chain xnet-mainnet --validator
+        3. Triggering event: [Describe action]
+    validations:
+      required: true
+
+  - type: textarea
+    id: traces
+    attributes:
+      label: "Expected vs. Actual Result"
+      description: "What should have happened according to XNET specs?"
+      placeholder: "Expected: Block finality in 6s. Actual: Infinite stall."
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Infrastructure Details"
+      description: "Hardware, OS, and Compiler information."
+      placeholder: "CPU: AMD EPYC | OS: Ubuntu 22.04 | Rust: 1.77.x | XNET-Core: v1.0.0-rev"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Node Logs & Backtraces"
+      description: "Paste RUST_LOG=debug output here."
+      render: shell

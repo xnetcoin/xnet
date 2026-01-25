@@ -1,7 +1,7 @@
 [package]
 description = "Substrate network common"
 name = "sc-network-common"
-version = "0.10.0-dev"
+version = "1.0.0-dev"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -23,8 +23,8 @@ codec = { package = "parity-scale-codec", version = "3.6.1", features = [
 ] }
 futures = "0.3.21"
 libp2p-identity = { version = "0.1.2", features = ["peerid"] }
-sc-consensus = { version = "0.10.0-dev", path = "../../consensus/common" }
-sp-consensus = { version = "0.10.0-dev", path = "../../../primitives/consensus/common" }
+sc-consensus = { version = "1.0.0-dev", path = "../../consensus/common" }
+sp-consensus = { version = "1.0.0-dev", path = "../../../primitives/consensus/common" }
 sp-consensus-grandpa = { version = "4.0.0-dev", path = "../../../primitives/consensus/grandpa" }
 sp-runtime = { version = "24.0.0", path = "../../../primitives/runtime" }
 

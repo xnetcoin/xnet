@@ -1,17 +1,30 @@
-# If the author of the issues is not a contributor to the project, label
-# the issue with 'Z0-unconfirmed'
+name: "XNET: Issue Sentinel"
 
-name: Label New Issues
 on:
   issues:
     types: [opened]
 
 jobs:
-  label-new-issues:
+  label-and-notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Label drafts
-        uses: andymckay/labeler@e6c4322d0397f3240f0e7e30a33b5c5df2d39e90 # 1.0.4
+      - name: Apply Status Label
+        uses: andymckay/labeler@e6c4322d0397f3240f0e7e30a33b5c5df2d39e90
         if: github.event.issue.author_association == 'NONE'
         with:
-          add-labels: "J2-unconfirmed"
+          add-labels: "status:pending-review"
+
+      - name: Send Telegram Notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            **XNET - Core**
+
+            *New Issue Opened:*
+             **Title:** ${{ github.event.issue.title }}
+             **Author:** ${{ github.event.issue.user.login }}
+
+            [Open Issue on GitHub](${{ github.event.issue.html_url }})

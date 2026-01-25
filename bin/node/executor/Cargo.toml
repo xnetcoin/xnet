@@ -18,7 +18,7 @@ scale-info = { version = "2.5.0", features = ["derive"] }
 frame-benchmarking = { version = "4.0.0-dev", path = "../../../frame/benchmarking" }
 node-primitives = { version = "2.0.0", path = "../primitives" }
 kitchensink-runtime = { version = "3.0.0-dev", path = "../runtime" }
-sc-executor = { version = "0.10.0-dev", path = "../../../client/executor" }
+sc-executor = { version = "1.0.0-dev", path = "../../../client/executor" }
 sp-core = { version = "21.0.0", path = "../../../primitives/core" }
 sp-keystore = { version = "0.27.0", path = "../../../primitives/keystore" }
 sp-state-machine = { version = "0.28.0", path = "../../../primitives/state-machine" }
@@ -43,7 +43,7 @@ pallet-treasury = { version = "4.0.0-dev", path = "../../../frame/treasury" }
 pallet-transaction-payment = { version = "4.0.0-dev", path = "../../../frame/transaction-payment" }
 sp-application-crypto = { version = "23.0.0", path = "../../../primitives/application-crypto" }
 pallet-root-testing = { version = "1.0.0-dev", path = "../../../frame/root-testing" }
-sp-consensus-babe = { version = "0.10.0-dev", path = "../../../primitives/consensus/babe" }
+sp-consensus-babe = { version = "1.0.0-dev", path = "../../../primitives/consensus/babe" }
 sp-externalities = { version = "0.19.0", path = "../../../primitives/externalities" }
 sp-keyring = { version = "24.0.0", path = "../../../primitives/keyring" }
 sp-runtime = { version = "24.0.0", path = "../../../primitives/runtime" }

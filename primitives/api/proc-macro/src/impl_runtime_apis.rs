@@ -852,7 +852,7 @@ fn filter_cfg_attrs(attrs: &[Attribute]) -> Vec<Attribute> {
 
 /// Parse feature flagged api_version.
 /// E.g. `#[cfg_attr(feature = "enable-staging-api", api_version(99))]`
-fn extract_cfg_api_version(attrs: &Vec<Attribute>, span: Span) -> Result<Option<(String, u64)>> {
+fn extract_cfg_api_version(attrs: &[Attribute], span: Span) -> Result<Option<(String, u64)>> {
 	let cfg_attrs = attrs.iter().filter(|a| a.path().is_ident("cfg_attr")).collect::<Vec<_>>();
 
 	let mut cfg_api_version_attr = Vec::new();
@@ -907,7 +907,7 @@ struct ApiVersion {
 // Returns:
 // - Err if the version is malformed
 // - `ApiVersion` on success. If a version is set or not is determined by the fields of `ApiVersion`
-fn extract_api_version(attrs: &Vec<Attribute>, span: Span) -> Result<ApiVersion> {
+fn extract_api_version(attrs: &[Attribute], span: Span) -> Result<ApiVersion> {
 	// First fetch all `API_VERSION_ATTRIBUTE` values (should be only one)
 	let api_ver = attrs
 		.iter()
