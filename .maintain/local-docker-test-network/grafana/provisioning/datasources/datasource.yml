@@ -40,6 +40,11 @@ datasources:
      graphiteVersion: "1.1"
      tlsAuth: false
      tlsAuthWithCACert: false
+     # [XNET Update]: Added for stability
+     httpMethod: POST
+     # [XNET Update]: High-frequency monitoring (5s)
+     timeInterval: "5s"
+     queryTimeout: "30s"
   # <string> json object of data that will be encrypted.
   secureJsonData:
     tlsCACert: "..."
@@ -47,4 +52,5 @@ datasources:
     tlsClientKey: "..."
   version: 1
   # <bool> allow users to edit datasources from the UI.
-  editable: true
+  # [XNET Update]: Set to false to prevent manual tampering in Production
+  editable: false

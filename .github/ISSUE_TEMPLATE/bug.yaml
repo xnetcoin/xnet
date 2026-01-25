@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         ### 💎 XNET Core Resources
-        Official Hubs: [Website](https://xnetcoin.org) | [Discord](https://discord.gg/XnetHQ) | [X](https://x.com/xnethq) | [Telegram](https://t.me/xnethq)
+        Official Hubs: [Website](https://xnetcoin.org) | [Discord](https://discord.gg/mFGzaskFTM) | [X](https://x.com/xnethq) | [Telegram](https://t.me/xnethq)
         ---
         *Please provide as much technical detail as possible to help us strengthen the protocol.*
 
@@ -49,9 +49,6 @@ body:
       label: "Deterministic Steps to Reproduce"
       description: "How can we replicate this failure on our test-net?"
       placeholder: |
-        1. Build from source: cargo build --release
-        2. Launch node with: --chain xnet-mainnet --validator
-        3. Triggering event: [Describe action]
     validations:
       required: true
 

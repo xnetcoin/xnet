@@ -2,19 +2,19 @@
 name = "xnet-node"
 version = "1.0.0"
 description = "Xnet - Decentralized blockchain node"
-authors = ["Xnet Technologies <info@xnethub.org>"]
-homepage = "https://xnethub.org/"
+authors = ["Xnet Technologies <info@xnetcoin.org>"]
+homepage = "https://xnetcoin.org/"
 edition = "2021"
 license = "GPL-3.0-or-later"
 publish = false
-repository = "https://github.com/xnetxcoin/xnet/"
+repository = "https://github.com/xnetcoin/xnet/"
 build = "build.rs"
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [[bin]]
-name = "xnetx-node"
+name = "xnet-node"
 path = "bin/main.rs"
 required-features = ["cli"]
 

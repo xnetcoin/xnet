@@ -15,14 +15,14 @@ use hex_literal::hex; // Hex kodni o'qish uchun maxsus kutubxona
 // XnetXCoin Master Settings
 // ============================================================================
 
-/// Token sozlamalari: 1 XNX = 10^12 (12 decimals)
-pub const XNX: u128 = 1_000_000_000_000;
+/// Token sozlamalari: 1 XNC = 10^18 (18 decimals)
+pub const XNX: u128 = 1_000_000_000_000_000_000;
 
-/// Founder uchun 6 million XNX
-pub const PREMINE: u128 = 6_000_000 * XNX;
+/// Founder uchun 6 million XNC
+pub const PREMINE: u128 = 6_000_000 * XNC;
 
 /// Validator bo'lish uchun minimal balans
-const VALIDATOR_STAKE: u128 = 10_000 * XNX;
+const VALIDATOR_STAKE: u128 = 10_000 * XNC;
 
 /// Sizning hamyoningiz (Master Wallet)
 /// Bu yerda hex format ishlatilmoqda
@@ -84,18 +84,18 @@ pub fn development_config() -> Result<ChainSpec, String> {
 				// Pre-funded accounts
 				vec![
 					(FOUNDER_ACCOUNT.into(), PREMINE),
-					(get_account_id_from_seed::<sr25519::Public>("Alice"), 100_000 * XNX),
+					(get_account_id_from_seed::<sr25519::Public>("Alice"), 100_000 * XNC),
 				],
 				true,
 			)
 		},
 		vec![],
 		None,
-		Some("xnx"),
+		Some("xnc"),
 		None,
 		Some(json!({
-			"tokenSymbol": "XNX",
-			"tokenDecimals": 12,
+			"tokenSymbol": "XNC",
+			"tokenDecimals": 18,
 			"ss58Format": 42
 		}).as_object().unwrap().clone()),
 		None,
@@ -107,8 +107,8 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Local testnet wasm not available".to_string())?;
 
 	Ok(ChainSpec::from_genesis(
-		"XnetXCoin Local Testnet",
-		"xnx_local",
+		"XnetCoin Local Testnet",
+		"xnc_local",
 		ChainType::Local,
 		move || {
 			testnet_genesis(
@@ -120,19 +120,19 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				FOUNDER_ACCOUNT.into(),
 				vec![
 					(FOUNDER_ACCOUNT.into(), PREMINE),
-					(get_account_id_from_seed::<sr25519::Public>("Alice"), 10_000 * XNX),
-					(get_account_id_from_seed::<sr25519::Public>("Bob"), 10_000 * XNX),
+					(get_account_id_from_seed::<sr25519::Public>("Alice"), 10_000 * XNC),
+					(get_account_id_from_seed::<sr25519::Public>("Bob"), 10_000 * XNC),
 				],
 				true,
 			)
 		},
 		vec![],
 		None,
-		Some("xnx"),
+		Some("xnc"),
 		None,
 		Some(json!({
-			"tokenSymbol": "XNX",
-			"tokenDecimals": 12,
+			"tokenSymbol": "XNC",
+			"tokenDecimals": 18,
 			"ss58Format": 42
 		}).as_object().unwrap().clone()),
 		None,
@@ -173,11 +173,11 @@ pub fn mainnet_config() -> Result<ChainSpec, String> {
 		},
 		vec![],
 		None,
-		Some("xnx"),
+		Some("xnc"),
 		None,
 		Some(json!({
-			"tokenSymbol": "XNX",
-			"tokenDecimals": 12,
+			"tokenSymbol": "XNC",
+			"tokenDecimals": 18,
 			"ss58Format": 42
 		}).as_object().unwrap().clone()),
 		None,

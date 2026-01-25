@@ -1,15 +1,33 @@
 global:
-  scrape_interval: 15s
+  # Monitoring intervali: 5s. 
+  # Kuchli tizimlar blok vaqti bilan deyarli bir xil tezlikda ma'lumot yig'ishi shart.
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  # Aloqa uzilsa, 3 soniyada taymaut beradi (tarmoq qotib qolishini oldini oladi).
+  scrape_timeout: 3s
 
 scrape_configs:
-  - job_name: 'substrate-nodes'
+  - job_name: 'xnet-core-metrics'
+    # Har bir target uchun alohida sozlamalar
     static_configs:
-      - targets: ['validator-a:9615']
+      - targets: ['xnet-validator-a:9615']
         labels:
-          network: dev
-      - targets: ['validator-b:9615']
+          network: 'xnet-mainnet'
+          role: 'authority'
+          instance: 'validator-01'
+
+      - targets: ['xnet-validator-b:9615']
         labels:
-          network: dev
-      - targets: ['light-c:9615']
+          network: 'xnet-mainnet'
+          role: 'authority'
+          instance: 'validator-02'
+
+      - targets: ['xnet-sentry-node:9615']
         labels:
-          network: dev
+          network: 'xnet-mainnet'
+          role: 'sentry'
+          instance: 'sentry-01'
+
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: internal_ip

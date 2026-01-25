@@ -128,8 +128,8 @@ pub fn session_keys(aura: AuraId, grandpa: GrandpaId) -> opaque::SessionKeys {
 // https://docs.substrate.io/main-docs/build/upgrade#runtime-versioning
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("xnetxcoin"),
-	impl_name: create_runtime_str!("xnetxcoin"),
+	spec_name: create_runtime_str!("xnetcoin"),
+	impl_name: create_runtime_str!("xnetcoin"),
 	authoring_version: 1,
 	// The version of the runtime specification. A full node will not attempt to use its native
 	//   runtime in substitute for the on-chain Wasm runtime unless all of `spec_name`,
@@ -411,9 +411,9 @@ parameter_types! {
 	pub const MaxNominatorRewardedPerValidator: u32 = 256;
 	pub const OffendingValidatorsThreshold: Perbill = Perbill::from_percent(17);
 	pub const MaxNominations: u32 = 16;
-	// Minimum stake: 10,000 XNX
-	pub const MinValidatorBond: Balance = 10_000 * XNX;
-	pub const MinNominatorBond: Balance = 1_000 * XNX;
+	// Minimum stake: 10,000 XNC
+	pub const MinValidatorBond: Balance = 10_000 * XNC;
+	pub const MinNominatorBond: Balance = 1_000 * XNC;
 	pub StakingPalletId: PalletId = PalletId(*b"staking!");
 	pub const HistoryDepth: u32 = 84;
 }
@@ -479,11 +479,11 @@ impl pallet_template::Config for Runtime {
 }
 
 parameter_types! {
-	/// Initial block reward: 1.565 XNX = 1_565_000_000_000_000_000
+	/// Initial block reward: 1.565 XNC = 1_565_000_000_000_000_000
 	pub const InitialBlockReward: Balance = INITIAL_BLOCK_REWARD;
 	/// Halving interval: 4 years = 10,512,000 blocks
 	pub const HalvingInterval: BlockNumber = HALVING_INTERVAL_BLOCKS;
-	/// Max emission: 47,000,000 XNX
+	/// Max emission: 47,000,000 XNC
 	pub const MaxEmission: Balance = TOTAL_EMISSION;
 }
 
@@ -506,7 +506,7 @@ impl frame_support::traits::FindAuthor<AccountId> for FindAuthorFromSession {
 	}
 }
 
-/// Configure the block-rewards pallet for XnetXCoin
+/// Configure the block-rewards pallet for XnetCoin
 impl pallet_block_rewards::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type Currency = Balances;

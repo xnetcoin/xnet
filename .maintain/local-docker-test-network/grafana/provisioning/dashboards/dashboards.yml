@@ -1,11 +1,11 @@
 apiVersion: 1
 
 providers:
-- name: 'Prometheus'
-  orgId: 1
-  folder: ''
-  type: file
-  disableDeletion: false
-  editable: false
-  options:
-    path: /etc/grafana/provisioning/dashboard-definitions
+  - name: 'XNET Core Monitor'
+    orgId: 1
+    folder: 'XNET Infrastructure'
+    type: file
+    disableDeletion: true # Dashboardlarni o'chirib bo'lmaydi
+    editable: false       # Faqat ko'rish uchun, o'zgartirish taqiqlanadi
+    options:
+      path: /etc/grafana/provisioning/dashboard-definitions
