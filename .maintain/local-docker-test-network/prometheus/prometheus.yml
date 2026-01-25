@@ -7,7 +7,7 @@ global:
   scrape_timeout: 3s
 
 scrape_configs:
-  - job_name: 'xnet-core-metrics'
+  - job_name: 'xnet'
     # Har bir target uchun alohida sozlamalar
     static_configs:
       - targets: ['xnet-validator-a:9615']
