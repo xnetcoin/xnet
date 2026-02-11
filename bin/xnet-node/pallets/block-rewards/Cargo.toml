@@ -1,53 +1,53 @@
 [package]
-name = "pallet-block-rewards"
+name = "pallet-block-reward"
 version = "1.0.0"
-description = "XnetXCoin block rewards pallet with halving mechanism"
-authors = ["XnetXCoin Team"]
+description = "XNET Block Reward Logic with Halving"
+authors = ["XNET Protocol Team"]
 edition = "2021"
-license = "MIT"
+license = "GPL-3.0-or-later"
 publish = false
-repository = "https://github.com/xnetxcoin/xnetxcoin"
+repository = "https://github.com/xnetcoin/xnet"
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-codec = { package = "parity-scale-codec", version = "3.6.1", default-features = false, features = [
-	"derive",
-] }
-scale-info = { version = "2.5.0", default-features = false, features = ["derive"] }
-frame-benchmarking = { version = "4.0.0-dev", default-features = false, optional = true, path = "../../../../frame/benchmarking" }
-frame-support = { version = "4.0.0-dev", default-features = false, path = "../../../../frame/support" }
-frame-system = { version = "4.0.0-dev", default-features = false, path = "../../../../frame/system" }
-sp-std = { version = "8.0.0", default-features = false, path = "../../../../primitives/std" }
-pallet-balances = { version = "4.0.0-dev", default-features = false, path = "../../../../frame/balances" }
-sp-runtime = { version = "24.0.0", default-features = false, path = "../../../../primitives/runtime" }
+codec = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
+scale-info = { version = "2.11.1", default-features = false, features = ["derive"] }
 
-[dev-dependencies]
-sp-core = { version = "21.0.0", path = "../../../../primitives/core" }
-sp-io = { version = "23.0.0", path = "../../../../primitives/io" }
+
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-std = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+
+frame-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false, optional = true }
 
 [features]
-default = [ "std" ]
+default = ["std"]
 std = [
 	"codec/std",
-	"frame-benchmarking?/std",
+	"scale-info/std",
 	"frame-support/std",
 	"frame-system/std",
-	"scale-info/std",
-	"sp-core/std",
-	"sp-io/std",
 	"sp-runtime/std",
 	"sp-std/std",
 	"pallet-balances/std",
+	"frame-benchmarking?/std",
 ]
+
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
 	"frame-support/runtime-benchmarks",
 	"frame-system/runtime-benchmarks",
+	"pallet-balances/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 ]
+
 try-runtime = [
 	"frame-support/try-runtime",
 	"frame-system/try-runtime",
+	"pallet-balances/try-runtime",
+	"sp-runtime/try-runtime",
 ]
