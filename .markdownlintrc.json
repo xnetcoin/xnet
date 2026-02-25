@@ -1,0 +1,9 @@
+{
+  "extends": "default",
+  "line-length": false,
+  "no-multiple-blanks": true,
+  "no-hard-tabs": true,
+  "MD003": { "style": "consistent" },
+  "MD004": { "style": "consistent" },
+  "MD007": { "indent": 2 }
+}

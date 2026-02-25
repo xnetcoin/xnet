@@ -1,0 +1,10 @@
+# Funding options for XNet
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-funding-options-file-in-your-repository
+
+github: [xnetcoin]
+patreon: 
+open_collective: xnetcoin
+ko_fi: xnetcoin
+liberapay: xnetcoin
+issuehunt: xnetcoin
+custom: ['https://xnetcoin.org/donate']

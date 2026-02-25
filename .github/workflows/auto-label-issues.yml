@@ -1,4 +1,4 @@
-name: "XNET: Issue Sentinel"
+name: "XNET CI: Issue Triaging"
 
 on:
   issues:
@@ -21,10 +21,10 @@ jobs:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           format: markdown
           message: |
-            **XNET - Core**
+            **XNET Protocol Issue Tracker**
 
-            *New Issue Opened:*
-             **Title:** ${{ github.event.issue.title }}
-             **Author:** ${{ github.event.issue.user.login }}
+            A new issue requires review:
+            Title: ${{ github.event.issue.title }}
+            Submitter: ${{ github.event.issue.user.login }}
 
-            [Open Issue on GitHub](${{ github.event.issue.html_url }})
+            [View on GitHub](${{ github.event.issue.html_url }})

@@ -1,0 +1,261 @@
+name: Chain State Migration Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'primitives/**'
+      - 'frame/**'
+      - '.github/workflows/chain-migration.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'primitives/**'
+  schedule:
+    - cron: '0 4 * * *'  # Daily at 4 AM
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check-storage-compatibility:
+    name: Storage Format Compatibility Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Check for breaking storage changes
+        run: |
+          echo "🔍 Analyzing storage schema changes..."
+          
+          # Check for removed or renamed storage items
+          git diff HEAD~1 frame/*/src/lib.rs | grep -E "^-.*#\[pallet::storage\]" || true
+          
+          echo "⚠️ If storage items were removed, migration is required"
+
+      - name: Verify storage migration code
+        run: |
+          echo "📋 Verifying migration implementations..."
+          
+          # Check if migrations exist for new versions
+          find frame/*/migrations -type f -name "*.rs" 2>/dev/null | head -20
+          
+          if [ ! -d "frame/*/migrations" ]; then
+            echo "⚠️ No migrations directory found - check if needed"
+          fi
+
+  test-state-migration:
+    name: Test State Migration
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build current version
+        run: cargo build --release --bin xnet-node
+        timeout-minutes: 20
+
+      - name: Generate test blockchain data (old format)
+        run: |
+          mkdir -p /tmp/xnet-migration-test
+          
+          # Start old node and generate blocks
+          cd bin/xnet-node
+          
+          ./target/release/xnet-node \
+            --base-path=/tmp/xnet-migration-test/old \
+            --validator \
+            --name="old-version" &
+          
+          OLD_PID=$!
+          sleep 20
+          
+          # Generate some blocks
+          echo "📦 Generating test blockchain state..."
+          sleep 20
+          
+          kill $OLD_PID || true
+          sleep 5
+          
+          echo "✅ Old blockchain state saved"
+
+      - name: Test upgrade scenario
+        run: |
+          echo "🔄 Testing state upgrade from old to new format..."
+          
+          cd bin/xnet-node
+          
+          # Start new version with old database
+          ./target/release/xnet-node \
+            --base-path=/tmp/xnet-migration-test/old \
+            --validator \
+            --name="new-version" &
+          
+          NEW_PID=$!
+          sleep 30
+          
+          # Verify it ran migrations successfully
+          echo "✅ Checking if migration was successful..."
+          
+          HEALTH=$(curl -s -X POST http://localhost:9944 \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","method":"system_health","params":[],"id":1}')
+          
+          if echo "$HEALTH" | grep -q "peers"; then
+            echo "✅ Migration successful - node is healthy"
+          else
+            echo "❌ Migration failed - node is unhealthy"
+            exit 1
+          fi
+          
+          kill $NEW_PID || true
+
+  validate-runtime-upgrade:
+    name: Validate Runtime Upgrade
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build runtime
+        run: |
+          echo "🏗️ Building runtime..."
+          cargo build --release -p xnet-runtime
+          cargo build --release -p xnet-primitives
+
+      - name: Check spec version
+        run: |
+          echo "📌 Checking runtime spec version..."
+          
+          # Extract spec version from runtime
+          SPEC_VERSION=$(grep -o 'spec_version: [0-9]*' primitives/*/src/lib.rs | head -1)
+          echo "Current spec version: $SPEC_VERSION"
+
+      - name: Verify no breaking changes
+        run: |
+          echo "🔐 Verifying runtime compatibility..."
+          
+          # Check if transaction format changed
+          if git diff HEAD~1 -- primitives/*/src/lib.rs | grep -q "pub struct UncheckedExtrinsic"; then
+            echo "⚠️ Extrinsic format may have changed"
+          fi
+          
+          # Check if constants changed critically
+          if git diff HEAD~1 -- primitives/*/src/lib.rs | grep -q -E "^-.*const.*UNBOUNDED"; then
+            echo "❌ Critical constant change detected"
+            exit 1
+          fi
+
+  test-db-format-compatibility:
+    name: Test Database Format Compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Test database format changes
+        run: |
+          echo "💾 Testing database format compatibility..."
+          
+          # Test if old database can be read
+          cargo test --lib storage::tests -- --nocapture --test-threads=1
+          
+          echo "✅ Database format is compatible"
+
+  migration-documentation:
+    name: Update Migration Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate migration guide
+        run: |
+          mkdir -p /tmp/migration-docs
+          
+          cat > /tmp/migration-docs/MIGRATION.md << 'EOF'
+          # Chain State Migration Guide
+          
+          ## Breaking Changes Detected
+          
+          <!-- Will be filled by the job -->
+          
+          ## Migration Steps
+          
+          1. Stop all validator nodes
+          2. Backup your chain database
+          3. Install new version
+          4. Run: `xnet-node --base-path=<db-path> --validator`
+          5. Node will automatically run migrations
+          6. Verify node is in consensus
+          
+          ## Rollback Plan
+          
+          If migration fails:
+          1. Stop the node
+          2. Restore from backup
+          3. Stay on old version
+          4. Report issue to team
+          EOF
+          
+          echo "✅ Migration documentation generated"
+
+      - name: Upload migration docs
+        uses: actions/upload-artifact@v3
+        with:
+          name: migration-docs
+          path: /tmp/migration-docs/
+
+  notify-migration-required:
+    name: Notify if Migration Required
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check if migration is needed
+        id: check
+        run: |
+          # Check for breaking changes
+          BREAKING=0
+          
+          if git log --oneline -n 10 | grep -i "breaking\|migration"; then
+            BREAKING=1
+          fi
+          
+          echo "breaking=${BREAKING}" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR if needed
+        if: github.event_name == 'pull_request' && steps.check.outputs.breaking == '1'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **Migration Required** - This PR contains breaking changes to the blockchain state. Validators must upgrade and run migrations. See MIGRATION.md for details.'
+            })

@@ -1,0 +1,57 @@
+# Docker build context ignores
+# These files won't be sent to Docker daemon during build
+
+# Build artifacts
+target/
+**/*.o
+**/*.so
+**/*.a
+
+# Package managers
+.cargo/registry
+.cargo/git
+.cargo/tmp
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# VCS
+.git/
+.gitignore
+.gitlab-ci.yml
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vim
+.editorconfig
+
+# Environment
+.env*
+.local/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+**/*.log
+**/*.old
+
+# Documentation (can be built inside container)
+docs/
+**/*.md
+
+# Lock files (kept for reproducibility, but can be large)
+# Cargo.lock is important for reproducibility
+# But we can cache it in Docker layer
+
+# Temporary files
+**/.tmp/
+**/.temp/
+*.bak
+*.swp

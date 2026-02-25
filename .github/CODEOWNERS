@@ -1,0 +1,26 @@
+/**
+ * CODEOWNERS file for XNet project
+ * https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+ */
+
+# Default owners for all code
+* @xnetcoin/core-team
+
+# Client specific
+/client/ @xnetcoin/client-team
+
+# Frame modules
+/frame/ @xnetcoin/frame-team
+/frame/contracts/ @xnetcoin/smart-contract-team
+
+# Primitives
+/primitives/ @xnetcoin/core-team
+
+# Documentation
+*.md @xnetcoin/docs-team
+/docs/ @xnet-org/docs-team
+
+# Configuration
+Cargo.toml @xnet-org/core-team
+rustfmt.toml @xnet-org/core-team
+.github/ @xnet-org/core-team

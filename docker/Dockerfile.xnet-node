@@ -1,0 +1,65 @@
+FROM rust:latest as builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    clang \
+    llvm \
+    libclang-dev \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only dependency files first (for layer caching)
+COPY Cargo.toml Cargo.lock ./
+COPY primitives ./primitives
+
+# Create dummy lib to build dependencies
+RUN mkdir -p src && \
+    echo "fn main() {}" > src/main.rs && \
+    cargo build --release || true && \
+    rm -rf src
+
+# Copy full source code
+COPY . .
+
+# Build the actual project
+RUN cargo build --release --bin xnet-node
+
+# Runtime stage
+FROM debian:bookworm-slim
+
+WORKDIR /root
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy binary from builder
+COPY --from=builder /app/target/release/xnet-node /usr/local/bin/
+
+# Create data directory
+RUN mkdir -p /data && chmod 755 /data
+
+# Volume for chain data
+VOLUME ["/data"]
+
+# RPC Port
+EXPOSE 9944
+
+# P2P Port
+EXPOSE 30333
+
+# WebSocket Port
+EXPOSE 9945
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:9944/health || exit 1
+
+# Default command
+ENTRYPOINT ["xnet-node"]
+CMD ["--base-path=/data", "--validator"]

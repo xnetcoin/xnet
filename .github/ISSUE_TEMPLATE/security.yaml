@@ -1,0 +1,34 @@
+name: "🔒 Security Report"
+description: Report a security vulnerability
+labels: ["security", "high-priority"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Please do not disclose security vulnerabilities publicly!**
+        
+        For security issues, please email security@xnet.org instead of using this form.
+  - type: textarea
+    attributes:
+      label: "Vulnerability Description"
+      description: "Describe the security vulnerability"
+      placeholder: "Detailed description of the vulnerability"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Steps to reproduce the vulnerability"
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Potential Impact"
+      description: "Describe the potential impact"
+      placeholder: "What is the severity and impact of this vulnerability?"
+    validations:
+      required: true

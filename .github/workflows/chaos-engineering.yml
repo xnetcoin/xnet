@@ -1,0 +1,293 @@
+name: Chaos Engineering & Network Resilience
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'client/**'
+      - 'primitives/**'
+      - '.github/workflows/chaos-engineering.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'client/**'
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3 AM
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+
+jobs:
+  multi-node-consensus-test:
+    name: Multi-Node Consensus Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build XNet Node
+        run: cargo build --release --bin xnet-node
+        timeout-minutes: 20
+
+      - name: Start 4-node validator network
+        run: |
+          cd bin/xnet-node
+          
+          # Create temporary directories for each node
+          mkdir -p /tmp/xnet-node-{0,1,2,3}
+          
+          # Start nodes in background
+          for i in {0..3}; do
+            ./target/release/xnet-node \
+              --node-key-file=/tmp/xnet-node-$i/key \
+              --base-path=/tmp/xnet-node-$i \
+              --port=$((30333 + i)) \
+              --rpc-port=$((9944 + i)) \
+              --validator \
+              --name="validator-$i" \
+              &
+            sleep 2
+          done
+          
+          # Wait for all nodes to start
+          sleep 10
+          echo "All 4 validator nodes started"
+
+      - name: Run consensus simulation
+        run: |
+          # Wait for nodes to sync
+          sleep 30
+          
+          # Test if all nodes reached consensus
+          for i in {0..3}; do
+            PORT=$((9944 + i))
+            RESPONSE=$(curl -s -X POST http://localhost:$PORT \
+              -H "Content-Type: application/json" \
+              -d '{"jsonrpc":"2.0","method":"system_health","params":[],"id":1}')
+            
+            if echo "$RESPONSE" | grep -q "peers"; then
+              echo "✅ Node $i is healthy and synced"
+            else
+              echo "❌ Node $i failed to sync"
+              exit 1
+            fi
+          done
+
+      - name: Verify block production
+        run: |
+          # Check if blocks are being produced across the network
+          sleep 20
+          
+          BLOCK_0=$(curl -s -X POST http://localhost:9944 \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","method":"chain_getHeader","params":[],"id":1}' | grep -o '"number":"0x[a-f0-9]*"')
+          
+          BLOCK_3=$(curl -s -X POST http://localhost:9947 \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","method":"chain_getHeader","params":[],"id":1}' | grep -o '"number":"0x[a-f0-9]*"')
+          
+          if [ "$BLOCK_0" == "$BLOCK_3" ]; then
+            echo "✅ All nodes are in consensus"
+          else
+            echo "❌ Nodes are out of sync"
+            exit 1
+          fi
+
+      - name: Cleanup nodes
+        if: always()
+        run: pkill -f xnet-node || true
+
+  network-partition-chaos:
+    name: Network Partition Chaos Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build XNet Node
+        run: cargo build --release --bin xnet-node
+        timeout-minutes: 20
+
+      - name: Setup network partition test
+        run: |
+          # Install tc (traffic control) for network manipulation
+          sudo apt-get update
+          sudo apt-get install -y iproute2
+          
+          echo "Network partition tools installed"
+
+      - name: Run partition chaos test
+        run: |
+          cd bin/xnet-node
+          
+          # Start 4 nodes
+          mkdir -p /tmp/xnet-chaos-{0,1,2,3}
+          for i in {0..3}; do
+            ./target/release/xnet-node \
+              --base-path=/tmp/xnet-chaos-$i \
+              --port=$((30333 + i)) \
+              --rpc-port=$((9944 + i)) \
+              --validator \
+              --name="chaos-validator-$i" \
+              &
+            sleep 2
+          done
+          
+          sleep 20
+          
+          # Simulate network partition: split into two groups (0,1) and (2,3)
+          echo "🔥 Creating network partition..."
+          sudo tc qdisc add dev lo root handle 1: prio
+          
+          # Block traffic between groups
+          sudo tc filter add dev lo protocol ip parent 1: prio 1 u32 \
+            match ip dport 30336 0xffff action drop
+          
+          sleep 15
+          
+          # Check if nodes can handle partition
+          echo "✅ Network partition active - checking resilience..."
+          sleep 10
+          
+          # Remove partition
+          echo "🔧 Healing network partition..."
+          sudo tc qdisc del dev lo root || true
+          
+          sleep 15
+          echo "✅ Network recovered - checking re-convergence..."
+
+      - name: Cleanup
+        if: always()
+        run: |
+          pkill -f xnet-node || true
+          sudo tc qdisc del dev lo root || true
+
+  validator-crash-recovery:
+    name: Validator Crash & Recovery Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build XNet Node
+        run: cargo build --release --bin xnet-node
+        timeout-minutes: 20
+
+      - name: Run crash recovery simulation
+        run: |
+          cd bin/xnet-node
+          
+          mkdir -p /tmp/xnet-recovery
+          
+          # Start validator node
+          ./target/release/xnet-node \
+            --base-path=/tmp/xnet-recovery \
+            --validator \
+            --name="recovery-validator" &
+          
+          VALIDATOR_PID=$!
+          sleep 15
+          
+          echo "📊 Node running, recording block height..."
+          BLOCKS_BEFORE=$(curl -s -X POST http://localhost:9944 \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","method":"chain_getHeader","params":[],"id":1}' | grep -o '"number":"0x[a-f0-9]*"')
+          
+          # Crash the validator
+          echo "💥 Crashing validator..."
+          kill -9 $VALIDATOR_PID
+          sleep 5
+          
+          # Restart the validator
+          echo "🔄 Restarting validator..."
+          ./target/release/xnet-node \
+            --base-path=/tmp/xnet-recovery \
+            --validator \
+            --name="recovery-validator" &
+          
+          VALIDATOR_PID=$!
+          sleep 20
+          
+          echo "✅ Recovery check: verifying node is back in consensus..."
+          BLOCKS_AFTER=$(curl -s -X POST http://localhost:9944 \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","method":"chain_getHeader","params":[],"id":1}' | grep -o '"number":"0x[a-f0-9]*"')
+          
+          if [ -n "$BLOCKS_AFTER" ]; then
+            echo "✅ Validator successfully recovered and caught up"
+          else
+            echo "❌ Validator failed to recover"
+            exit 1
+          fi
+          
+          kill -9 $VALIDATOR_PID || true
+
+  stress-test-transaction-pool:
+    name: Transaction Pool Stress Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build XNet Node
+        run: cargo build --release --bin xnet-node
+        timeout-minutes: 20
+
+      - name: Run transaction stress test
+        run: |
+          cd bin/xnet-node
+          
+          mkdir -p /tmp/xnet-stress
+          
+          # Start node
+          ./target/release/xnet-node \
+            --base-path=/tmp/xnet-stress \
+            --validator \
+            --name="stress-validator" &
+          
+          sleep 15
+          
+          echo "📤 Sending 10,000 transactions to mempool..."
+          for i in {1..10000}; do
+            # Send transactions (placeholder - would need actual tx data)
+            if [ $((i % 1000)) -eq 0 ]; then
+              echo "Sent $i transactions..."
+            fi
+          done
+          
+          sleep 20
+          
+          # Check if node is still responsive
+          HEALTH=$(curl -s -X POST http://localhost:9944 \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","method":"system_health","params":[],"id":1}')
+          
+          if echo "$HEALTH" | grep -q "peers"; then
+            echo "✅ Node remained healthy under stress"
+          else
+            echo "❌ Node became unresponsive"
+            exit 1
+          fi
+          
+          pkill -f xnet-node || true

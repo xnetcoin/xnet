@@ -1,4 +1,4 @@
-name: "XNET: Monthly Snapshot"
+name: "XNET CI: Monthly Release Snapshot"
 
 on:
   schedule:
@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: "Archive XNET Core"
+      - name: "Archive XNET Protocol Repository"
         uses: softprops/action-gh-release@v1
         with:
           tag_name: monthly-${{ github.sha }}
-          name: "XNET Protocol Archive: $(date +'%Y-%m')"
+          name: "XNET Protocol Source Archive: $(date +'%Y-%m')"
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

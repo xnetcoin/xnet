@@ -1,7 +1,20 @@
+# xnet-runtime
+#
+# The core WASM runtime for the XNET blockchain. This crate defines every pallet
+# configuration, the `construct_runtime!` macro call, and all Runtime API
+# implementations. It compiles to a WASM blob that is embedded in the node binary
+# and can be upgraded on-chain without restarting nodes.
+#
+# Feature flags
+# -------------
+# std              — Native/host build (development, benchmarking, RPC).
+# runtime-benchmarks — Activates weight measurement blocks inside pallets.
+# try-runtime      — Enables state-migration testing via try-runtime-cli.
+
 [package]
 name = "xnet-runtime"
 version = "1.0.0"
-description = "XNET Protocol Runtime"
+description = "XNET Protocol Runtime — dual EVM + ink! smart-contract blockchain"
 authors = ["XNET Protocol Team"]
 homepage = "https://xnetcoin.org"
 edition = "2021"
@@ -12,131 +25,215 @@ repository = "https://github.com/xnetcoin/xnet"
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
 
+# =============================================================================
+# Dependencies
+# =============================================================================
+
 [dependencies]
-codec = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
-scale-info = { version = "2.11.1", default-features = false, features = ["derive"] }
-smallvec = { version = "1.13.0", default-features = false, optional = true }
-serde = { version = "1.0.197", default-features = false, optional = true, features = ["derive"] }
+# Serialization — SCALE codec is the canonical encoding for all on-chain data.
+codec      = { workspace = true }
+scale-info = { workspace = true }
+# serde is optional — only needed when serializing chain state to JSON (std builds).
+serde      = { workspace = true, optional = true }
 
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-frame-executive = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-frame-try-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false, optional = true }
-frame-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false, optional = true }
-frame-system-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false, optional = true }
+# --- FRAME Core ---
+frame-support                  = { workspace = true }
+frame-system                   = { workspace = true }
+frame-executive                = { workspace = true }
+frame-try-runtime              = { workspace = true, optional = true }
+frame-benchmarking             = { workspace = true, optional = true }
+frame-system-benchmarking      = { workspace = true, optional = true }
+frame-election-provider-support = { workspace = true }
+frame-system-rpc-runtime-api   = { workspace = true }
 
-sp-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-block-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-consensus-babe = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false, features = ["serde"] }
-sp-consensus-grandpa = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false, features = ["serde"] }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-inherents = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-offchain = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-session = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-std = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-version = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-genesis-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-staking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+# --- Substrate Primitives ---
+sp-api              = { workspace = true }
+sp-block-builder    = { workspace = true }
+sp-consensus-babe   = { workspace = true, features = ["serde"] }
+sp-consensus-grandpa = { workspace = true, features = ["serde"] }
+sp-core             = { workspace = true }
+sp-inherents        = { workspace = true }
+sp-offchain         = { workspace = true }
+sp-runtime          = { workspace = true }
+sp-session          = { workspace = true }
+sp-std              = { workspace = true }
+sp-transaction-pool = { workspace = true }
+sp-version          = { workspace = true }
+sp-genesis-builder  = { workspace = true }
+sp-staking          = { workspace = true }
 
-frame-election-provider-support = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-election-provider-multi-phase = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+# --- Pallets — RPC Runtime APIs ---
+pallet-transaction-payment-rpc-runtime-api = { workspace = true }
+pallet-election-provider-multi-phase       = { workspace = true }
 
-# Pallets
-pallet-babe = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-grandpa = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-sudo = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-transaction-payment = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-utility = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-authorship = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-session = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-staking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-offences = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-im-online = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-staking-reward-curve = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-treasury = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+# --- Substrate Pallets ---
+pallet-babe                 = { workspace = true }
+pallet-balances             = { workspace = true }
+pallet-grandpa              = { workspace = true }
+pallet-sudo                 = { workspace = true }
+pallet-timestamp            = { workspace = true }
+pallet-transaction-payment  = { workspace = true }
+pallet-utility              = { workspace = true }
+pallet-authorship           = { workspace = true }
+pallet-session              = { workspace = true }
+pallet-staking              = { workspace = true }
+pallet-staking-reward-curve = { workspace = true }
+pallet-offences             = { workspace = true }
+pallet-im-online            = { workspace = true }
+pallet-treasury             = { workspace = true }
+# ink! WASM smart contracts — deploy ink! contracts via cargo-contract or Contracts UI.
+pallet-contracts            = { workspace = true }
+pallet-vesting              = { workspace = true }
 
-# Custom Pallets
-pallet-block-reward = { path = "../pallets/block-rewards", default-features = false }
+# --- Frontier / EVM Stack ---
+# Frontier provides Ethereum RPC compatibility and EVM execution on top of Substrate.
+fp-rpc          = { workspace = true }
+fp-evm          = { workspace = true }
+fp-self-contained = { workspace = true, features = ["serde"] }
+pallet-evm      = { workspace = true }
+pallet-ethereum = { workspace = true }
+pallet-base-fee = { workspace = true }
+
+# --- EVM Precompiles (standard Ethereum precompile set 0x01–0x09) ---
+precompile-utils                = { workspace = true }
+pallet-evm-precompile-simple    = { workspace = true }
+pallet-evm-precompile-modexp    = { workspace = true }
+pallet-evm-precompile-bn128     = { workspace = true }
+pallet-evm-precompile-blake2    = { workspace = true }
+
+# --- Custom Pallets ---
+pallet-block-reward = { workspace = true }
+
+# =============================================================================
+# Build Dependencies
+# =============================================================================
 
 [build-dependencies]
-substrate-wasm-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+# Compiles this crate to a WASM blob and embeds it via include_bytes! in the node.
+substrate-wasm-builder = { workspace = true }
+
+# =============================================================================
+# Feature Flags
+# =============================================================================
 
 [features]
 default = ["std"]
+
+# std — enables the Rust standard library for native (non-WASM) builds.
+# All pallets and primitives must expose a matching /std feature.
 std = [
-	"codec/std",
-	"scale-info/std",
-	"serde/std",
-	"frame-support/std",
-	"frame-system/std",
-	"frame-executive/std",
-	"frame-try-runtime?/std",
-	"frame-benchmarking?/std",
-	"frame-system-benchmarking?/std",
-	"pallet-babe/std",
-	"pallet-balances/std",
-	"pallet-grandpa/std",
-	"pallet-sudo/std",
-	"pallet-timestamp/std",
-	"pallet-transaction-payment/std",
-	"pallet-utility/std",
-	"pallet-authorship/std",
-	"pallet-session/std",
-	"pallet-staking/std",
-	"pallet-offences/std",
-	"pallet-im-online/std",
-	"pallet-treasury/std",
-	"pallet-block-reward/std",
-	"sp-api/std",
-	"sp-block-builder/std",
-	"sp-consensus-babe/std",
-	"sp-consensus-grandpa/std",
-	"sp-core/std",
-	"sp-inherents/std",
-	"sp-offchain/std",
-	"sp-runtime/std",
-	"sp-session/std",
-	"sp-std/std",
-	"sp-staking/std",
-	"sp-transaction-pool/std",
-	"sp-version/std",
-	"sp-genesis-builder/std",
-	"frame-election-provider-support/std",
-	"frame-system-rpc-runtime-api/std",
-	"pallet-transaction-payment-rpc-runtime-api/std",
+    "codec/std",
+    "scale-info/std",
+    "serde/std",
+
+    # Frame
+    "frame-support/std",
+    "frame-system/std",
+    "frame-executive/std",
+    "frame-try-runtime?/std",
+    "frame-benchmarking?/std",
+    "frame-system-benchmarking?/std",
+    "frame-election-provider-support/std",
+    "frame-system-rpc-runtime-api/std",
+
+    # Substrate primitives
+    "sp-api/std",
+    "sp-block-builder/std",
+    "sp-consensus-babe/std",
+    "sp-consensus-grandpa/std",
+    "sp-core/std",
+    "sp-inherents/std",
+    "sp-offchain/std",
+    "sp-runtime/std",
+    "sp-session/std",
+    "sp-std/std",
+    "sp-staking/std",
+    "sp-transaction-pool/std",
+    "sp-version/std",
+    "sp-genesis-builder/std",
+
+    # Substrate pallets
+    "pallet-transaction-payment-rpc-runtime-api/std",
+    "pallet-election-provider-multi-phase/std",
+    "pallet-babe/std",
+    "pallet-balances/std",
+    "pallet-grandpa/std",
+    "pallet-sudo/std",
+    "pallet-timestamp/std",
+    "pallet-transaction-payment/std",
+    "pallet-utility/std",
+    "pallet-authorship/std",
+    "pallet-session/std",
+    "pallet-staking/std",
+    "pallet-offences/std",
+    "pallet-im-online/std",
+    "pallet-treasury/std",
+    "pallet-contracts/std",
+    "pallet-block-reward/std",
+    "pallet-vesting/std",
+
+    # Frontier / EVM
+    "fp-rpc/std",
+    "fp-self-contained/std",
+    "fp-evm/std",
+    "pallet-evm/std",
+    "pallet-ethereum/std",
+    "pallet-base-fee/std",
+    # EVM Precompiles
+    "precompile-utils/std",
+    "pallet-evm-precompile-simple/std",
+    "pallet-evm-precompile-modexp/std",
+    "pallet-evm-precompile-bn128/std",
+    "pallet-evm-precompile-blake2/std",
 ]
+
+# runtime-benchmarks — activates weight-measurement macros inside each pallet.
 runtime-benchmarks = [
-	"frame-benchmarking/runtime-benchmarks",
-	"frame-support/runtime-benchmarks",
-	"frame-system-benchmarking/runtime-benchmarks",
-	"frame-system/runtime-benchmarks",
-	"pallet-balances/runtime-benchmarks",
-	"pallet-grandpa/runtime-benchmarks",
-	"pallet-sudo/runtime-benchmarks",
-	"pallet-timestamp/runtime-benchmarks",
-	"pallet-utility/runtime-benchmarks",
-	"pallet-treasury/runtime-benchmarks",
-	"pallet-block-reward/runtime-benchmarks",
-	"sp-runtime/runtime-benchmarks",
+    "frame-benchmarking/runtime-benchmarks",
+    "frame-support/runtime-benchmarks",
+    "frame-system-benchmarking/runtime-benchmarks",
+    "frame-system/runtime-benchmarks",
+
+    "pallet-balances/runtime-benchmarks",
+    "pallet-grandpa/runtime-benchmarks",
+    "pallet-sudo/runtime-benchmarks",
+    "pallet-timestamp/runtime-benchmarks",
+    "pallet-utility/runtime-benchmarks",
+    "pallet-treasury/runtime-benchmarks",
+    "pallet-staking/runtime-benchmarks",
+    "pallet-election-provider-multi-phase/runtime-benchmarks",
+    "pallet-babe/runtime-benchmarks",
+    "pallet-contracts/runtime-benchmarks",
+    "pallet-evm/runtime-benchmarks",
+    "pallet-block-reward/runtime-benchmarks",
+    "pallet-vesting/runtime-benchmarks",
+
+    "sp-runtime/runtime-benchmarks",
+    "sp-staking/runtime-benchmarks",
 ]
+
+# try-runtime — enables on-chain state migration testing.
 try-runtime = [
-	"frame-try-runtime/try-runtime",
-	"frame-executive/try-runtime",
-	"frame-system/try-runtime",
-	"frame-support/try-runtime",
-	"pallet-babe/try-runtime",
-	"pallet-balances/try-runtime",
-	"pallet-grandpa/try-runtime",
-	"pallet-sudo/try-runtime",
-	"pallet-timestamp/try-runtime",
-	"pallet-transaction-payment/try-runtime",
-	"pallet-utility/try-runtime",
-	"pallet-treasury/try-runtime",
-	"pallet-block-reward/try-runtime",
+    "frame-try-runtime/try-runtime",
+    "frame-executive/try-runtime",
+    "frame-system/try-runtime",
+    "frame-support/try-runtime",
+
+    "pallet-babe/try-runtime",
+    "pallet-balances/try-runtime",
+    "pallet-grandpa/try-runtime",
+    "pallet-sudo/try-runtime",
+    "pallet-timestamp/try-runtime",
+    "pallet-transaction-payment/try-runtime",
+    "pallet-utility/try-runtime",
+    "pallet-treasury/try-runtime",
+    "pallet-staking/try-runtime",
+    "pallet-offences/try-runtime",
+    "pallet-im-online/try-runtime",
+    "pallet-session/try-runtime",
+    "pallet-contracts/try-runtime",
+    "pallet-evm/try-runtime",
+    "pallet-ethereum/try-runtime",
+    "pallet-block-reward/try-runtime",
+    "pallet-vesting/try-runtime",
 ]

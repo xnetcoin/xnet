@@ -1,0 +1,48 @@
+FROM rust:latest as builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    clang \
+    llvm \
+    libclang-dev \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency files first (cached layer)
+COPY Cargo.toml Cargo.lock ./
+COPY primitives ./primitives
+
+# Build dependencies only
+RUN mkdir -p src && \
+    echo "fn main() {}" > src/main.rs && \
+    cargo build --release --features contract-enabled || true && \
+    rm -rf src
+
+# Copy full source
+COPY . .
+
+# Build with contract support
+RUN cargo build --release --features contract-enabled
+
+FROM debian:bookworm-slim
+
+WORKDIR /root
+
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/target/release/xnet-node /usr/local/bin/
+
+RUN mkdir -p /data
+VOLUME ["/data"]
+
+EXPOSE 9944 30333 9945
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:9944/health || exit 1
+
+ENTRYPOINT ["xnet-node"]
+CMD ["--base-path=/data", "--validator"]

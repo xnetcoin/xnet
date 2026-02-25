@@ -1,0 +1,124 @@
+name: Smart Contract Security Analysis
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'frame/contracts/**'
+      - '.github/workflows/smart-contract-security.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'frame/contracts/**'
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  rust-contract-tests:
+    name: Contract Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - name: Run contract tests
+        run: cargo test -p pallet-contracts --lib
+      - name: Run integration tests
+        run: cargo test -p pallet-contracts --test '*'
+
+  contract-clippy:
+    name: Contract Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Run clippy on contracts
+        run: cargo clippy -p pallet-contracts -- -D warnings
+      - name: Check formatting
+        run: cargo fmt -p pallet-contracts -- --check
+
+  unsafe-code-detection:
+    name: Unsafe Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Check for unsafe code patterns
+        run: |
+          echo "🔍 Scanning for unsafe code..."
+          grep -r "unsafe {" frame/contracts/src --include="*.rs" && \
+          echo "⚠️ Unsafe code found - review required" || \
+          echo "✅ No unsafe code detected"
+      - name: Check for unwrap usage
+        run: |
+          echo "🔍 Scanning for unwrap() calls..."
+          grep -r "\.unwrap()" frame/contracts/src --include="*.rs" && \
+          echo "⚠️ Unwrap calls found - consider using Result handling" || \
+          echo "✅ No unwrap() calls detected"
+      - name: Check for panic patterns
+        run: |
+          echo "🔍 Scanning for panic patterns..."
+          grep -r "panic!\|todo!\|unimplemented!" frame/contracts/src --include="*.rs" && \
+          echo "⚠️ Panic patterns found" || \
+          echo "✅ No panic patterns detected"
+
+  test-coverage:
+    name: Test Coverage Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: taiki-e/install-action@cargo-tarpaulin
+      - name: Generate coverage
+        run: |
+          cd frame/contracts
+          cargo tarpaulin -p pallet-contracts --out Xml --timeout 300
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./frame/contracts/cobertura.xml
+
+  dependency-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  lint-documentation:
+    name: Documentation Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Check doc comments
+        run: cargo doc -p pallet-contracts --no-deps
+        env:
+          RUSTDOCFLAGS: "-D warnings"

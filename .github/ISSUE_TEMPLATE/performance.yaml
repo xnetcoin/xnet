@@ -1,0 +1,40 @@
+name: "Performance Regression Detection"
+description: "Report potential performance regression"
+labels: ["performance", "investigation"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: "Help us identify and track performance regressions!"
+  - type: textarea
+    attributes:
+      label: "Description"
+      description: "Describe the performance issue"
+      placeholder: "Explain what performance regression you've noticed"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Reproduction Steps"
+      description: "Steps to reproduce the performance regression"
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Expected vs Actual"
+      description: "What was the expected performance vs what you observed?"
+      placeholder: |
+        Expected: ...
+        Actual: ...
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Environment"
+      description: "Your system information"
+      placeholder: "OS, CPU, RAM, Rust version"
+    validations:
+      required: false

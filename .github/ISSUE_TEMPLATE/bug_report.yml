@@ -1,0 +1,48 @@
+name: Bug Report
+description: Create a report to help us improve XNet's core runtime, consensus, or node implementation.
+title: "[Bug] <Short description>"
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! 
+        **Security Issues:** Please DO NOT report security vulnerabilities here. See [SECURITY.md](../SECURITY.md) instead.
+        **Testnet Note:** Remember we are currently in an active Testnet phase bridging Substrate NPoS, EVM, and Wasm/ink!. Breakages are expected, but your reports help stabilize the network.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Start a local node with `./target/release/xnet-node --dev`
+        2. Submit extrinsic `...`
+        3. See error `...`
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Environment Info
+      description: What OS and compiler are you using? What git commit hash or branch are you on?
+      placeholder: OS: Ubuntu 22.04 | Rust: nightly-202X-XX-XX | Commit: abcdef1
+    validations:
+      required: true

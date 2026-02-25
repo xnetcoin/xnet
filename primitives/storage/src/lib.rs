@@ -128,7 +128,7 @@ impl PrefixedStorageKey {
 	}
 
 	/// Create a prefixed storage key reference.
-	pub fn new_ref(inner: &[u8]) -> &Self {
+	pub fn new_ref(inner: &Vec<u8>) -> &Self {
 		PrefixedStorageKey::ref_cast(inner)
 	}
 

@@ -1,0 +1,29 @@
+name: "📚 Documentation Issue"
+description: Report missing or unclear documentation
+labels: ["documentation", "help-wanted"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: "Help us improve our documentation!"
+  - type: textarea
+    attributes:
+      label: "Description"
+      description: "What documentation is missing or unclear?"
+      placeholder: "Describe the documentation issue"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Suggested Improvement"
+      description: "How should we improve this documentation?"
+      placeholder: "Your suggestions for improvement"
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: "Documentation Link"
+      description: "Link to the relevant documentation (if applicable)"
+      placeholder: "https://docs.xnet.org/..."
+    validations:
+      required: false

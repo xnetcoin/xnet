@@ -1,4 +1,4 @@
-name: "XNET: Core Review Audit"
+name: "XNET CI: Pull Request Authority"
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ jobs:
   review-check:
     runs-on: ubuntu-latest
     steps:
-      - name: "Validate Core Authority"
+      - name: "Core Integrity Check"
         run: |
-          echo "Analyzing PR from: ${{ github.event.pull_request.user.login }}"
-          echo "XNET Core verification in progress..."
+          echo "Analyzing Pull Request from author: ${{ github.event.pull_request.user.login }}"
+          echo "Initiating XNET protocol compliance checks..."

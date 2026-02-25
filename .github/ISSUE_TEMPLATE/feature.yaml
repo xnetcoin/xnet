@@ -1,28 +1,28 @@
-name: "🚀 Feature Request / Proposal"
-description: "Suggest a core improvement or a new functionality for XNET Protocol"
+name: "Feature Request / XNET Improvement Proposal (XIP)"
+description: "Suggest a core improvement or a new functionality for the XNET Protocol"
 labels: ["enhancement", "XIP-proposal"]
 body:
   - type: markdown
     attributes:
       value: |
-        ### 💡 Feature Proposal Guidelines
-        Before submitting, ensure this aligns with the **XNET Roadmap**.
-        We prioritize scalability, security, and economic efficiency.
+        ### XNET Improvement Proposal (XIP) Guidelines
+        Before submitting, ensure this proposal aligns with the XNET roadmap and architectural goals.
+        We prioritize network scalability, consensus security, and economic efficiency.
 
   - type: checkboxes
     id: check
     attributes:
       label: "Proposal Readiness"
       options:
-        - label: "I have confirmed this feature is not already implemented or planned."
+        - label: "I have verified this feature is not already implemented or planned."
           required: true
 
   - type: textarea
     id: motivation
     attributes:
-      label: "Business Logic & Motivation"
-      description: "Why does XNET need this? What is the economic or technical advantage?"
-      placeholder: "Explain the value proposition for the network..."
+      label: "Motivation"
+      description: "Why is this improvement necessary? What is the technical or economic rationale?"
+      placeholder: "Explain the value proposition for the network infrastructure..."
     validations:
       required: true
 
@@ -30,26 +30,33 @@ body:
     id: request
     attributes:
       label: "Technical Specification"
-      description: "Describe the functionality in depth."
-      placeholder: "Architecture changes, new pallet requirements, or API updates..."
+      description: "Describe the proposed functionality, architecture changes, or API modifications."
+      placeholder: "Provide detailed technical requirements and architectural designs..."
     validations:
       required: true
 
   - type: textarea
+    id: backward_compatibility
+    attributes:
+      label: "Backward Compatibility"
+      description: "Does this proposal introduce breaking changes to existing nodes, pallets, or APIs?"
+      placeholder: "Describe any potential disruptions and the proposed migration path..."
+
+  - type: textarea
     id: impact
     attributes:
-      label: "Ecosystem Impact"
-      description: "How does this change affect existing validators and users?"
-      placeholder: "Gas fees impact, block time changes, or breaking changes..."
+      label: "Ecosystem and Security Impact"
+      description: "How does this change affect network performance, validators, or security assumptions?"
+      placeholder: "Consider implications for gas fees, block times, and attack vectors..."
 
   - type: dropdown
     id: help
     attributes:
-      label: "Collaboration"
-      description: "Are you willing to contribute to the development of this feature?"
+      label: "Implementation Contribution"
+      description: "Are you prepared to contribute to the technical implementation of this feature?"
       options:
-        - "Yes, I can provide the code (PR)."
-        - "I can assist with the technical design."
-        - "No, I am just proposing the idea."
+        - "Yes, I will submit a Pull Request."
+        - "I can assist with the architectural design."
+        - "No, I am submitting this proposal for discussion."
     validations:
       required: true

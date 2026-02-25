@@ -43,9 +43,15 @@ path = "bin/node/cli/bin/main.rs"
 [workspace]
 resolver = "2"
 
+default-members = [
+    "bin/xnet-node/node",
+	"bin/xnet-node/pallets/block-rewards",
+    "bin/xnet-node/runtime",
+]
+
 members = [
 	"bin/xnet-node/node",
-	"bin/xnet-node/pallets/template",
+	"bin/xnet-node/pallets/block-rewards",
 	"bin/xnet-node/runtime",
 	"bin/node/bench",
 	"bin/node/cli",
@@ -306,6 +312,141 @@ members = [
 	"utils/binary-merkle-tree",
 ]
 
+# ==========================================
+# Dependencies from bin/xnet-node/node
+# ==========================================
+[workspace.dependencies]
+
+# --- General utilities ---
+clap            = { version = "4.5.3", features = ["derive"] }
+futures         = { version = "0.3.30", features = ["thread-pool"] }
+hex-literal     = "0.4"
+parking_lot     = "0.12.1"
+jsonrpsee       = { version = "0.23", features = ["server"] }
+serde_json      = "1.0.114"
+
+# --- Substrate Client (sc-*) ---
+sc-basic-authorship      = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-cli                   = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-client-api            = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-consensus             = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-consensus-babe        = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-consensus-babe-rpc    = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-consensus-grandpa     = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-consensus-grandpa-rpc = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-executor              = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-network               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-network-sync          = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-offchain              = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-rpc                   = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-rpc-api               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-service               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-telemetry             = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-transaction-pool      = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sc-transaction-pool-api  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+substrate-frame-rpc-system      = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sp-transaction-storage-proof    = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+
+# --- Frontier Client (fc-*) ---
+fc-cli          = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-consensus    = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-db           = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-mapping-sync = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-rpc          = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-rpc-core     = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-storage      = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fp-dynamic-fee  = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+
+# --- XNET local crates ---
+xnet-runtime = { path = "bin/xnet-node/runtime" }
+
+# ==========================================
+# Shared Substrate Primitives (sp-* / frame-* / pallet-* / fp-*)
+# Used by BOTH node AND runtime — default-features = false so runtime
+# compiles no_std; node adds features = ["std"] where needed.
+# ==========================================
+
+# --- Serialization (no_std safe) ---
+codec      = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
+scale-info = { version = "2.11.1", default-features = false, features = ["derive"] }
+serde      = { version = "1.0.197", default-features = false, features = ["derive"] }
+
+# --- Substrate Primitives (sp-*) ---
+sp-api               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-block-builder     = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-blockchain        = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sp-consensus         = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sp-consensus-babe    = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-consensus-grandpa = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-core              = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-genesis-builder   = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-inherents         = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-io                = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sp-keyring           = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sp-offchain          = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-runtime           = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-session           = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-staking           = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-std               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-timestamp         = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+sp-transaction-pool  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-version           = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+
+# --- FRAME ---
+frame-benchmarking              = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+frame-benchmarking-cli          = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+frame-election-provider-support = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+frame-executive                 = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+frame-support                   = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+frame-system                    = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+frame-system-benchmarking       = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+frame-system-rpc-runtime-api    = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+frame-try-runtime               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+
+# --- Pallets ---
+pallet-authorship               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-babe                     = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-balances                 = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-contracts                = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-election-provider-multi-phase = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-grandpa                  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-im-online                = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-offences                 = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-session                  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-staking                  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-staking-reward-curve     = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-sudo                     = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-timestamp                = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-transaction-payment      = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-transaction-payment-rpc  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-treasury                 = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-utility                  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+pallet-vesting                  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+
+# --- Frontier / EVM ---
+fp-evm                       = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+fp-rpc                       = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+fp-self-contained            = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+pallet-base-fee              = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+pallet-ethereum              = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+pallet-evm                   = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+pallet-evm-precompile-blake2 = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+pallet-evm-precompile-bn128  = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+pallet-evm-precompile-modexp = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+pallet-evm-precompile-simple = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+precompile-utils             = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
+
+# --- Custom pallet ---
+pallet-block-reward = { path = "bin/xnet-node/pallets/block-rewards", default-features = false }
+
+# ==========================================
+# Build Dependencies
+# ==========================================
+substrate-build-script-utils = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+substrate-wasm-builder       = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+
+
 # The list of dependencies below (which can be both direct and indirect dependencies) are crates
 # that are suspected to be CPU-intensive, and that are unlikely to require debugging (as some of
 # their debug info might be missing) or to require to be frequently recompiled. We compile these
@@ -366,9 +507,24 @@ x25519-dalek = { opt-level = 3 }
 yamux = { opt-level = 3 }
 zeroize = { opt-level = 3 }
 
+# =============================================================================
+# Release Profile
+# =============================================================================
+# Optimised for production validator nodes.
+# Key flags:
+#   lto = "fat"          — link-time optimisation across all crates (smaller, faster binary)
+#   codegen-units = 1    — single codegen unit for maximum inlining
+#   overflow-checks = false — disabled for performance (Substrate uses saturating math)
+#   strip = "symbols"    — removes debug symbols to reduce binary size
+
 [profile.release]
-# Substrate runtime requires unwinding.
-panic = "unwind"
+panic           = "unwind"  # Substrate requires unwind for proper cleanup on panics
+opt-level       = 3         # Maximum compiler optimisation
+lto             = "fat"     # Cross-crate link-time optimisation
+codegen-units   = 1         # One codegen unit → better inlining, slower compile
+overflow-checks = false     # Off — all arithmetic uses saturating/checked variants explicitly
+debug           = false     # No debug info in release builds
+strip           = "symbols" # Strip symbol table to minimise binary size
 
 [profile.production]
 inherits = "release"

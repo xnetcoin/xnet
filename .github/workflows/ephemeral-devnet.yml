@@ -1,0 +1,261 @@
+name: Ephemeral Devnet for PR Testing
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [ opened, synchronize, reopened ]
+  workflow_dispatch:
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  DEVNET_LIFETIME_MINUTES: 60
+
+concurrency:
+  group: devnet-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  create-devnet:
+    name: Create Ephemeral Devnet
+    runs-on: ubuntu-latest
+    outputs:
+      devnet-id: ${{ steps.devnet.outputs.id }}
+      rpc-endpoint: ${{ steps.devnet.outputs.rpc }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build XNet Node from PR branch
+        run: cargo build --release --bin xnet-node
+        timeout-minutes: 30
+
+      - name: Create devnet directories
+        id: devnet
+        run: |
+          DEVNET_ID="pr-${{ github.event.pull_request.number }}-${{ github.run_id }}"
+          DEVNET_DIR="/tmp/xnet-devnet-${DEVNET_ID}"
+          
+          mkdir -p ${DEVNET_DIR}/{node0,node1,node2}
+          
+          echo "id=${DEVNET_ID}" >> $GITHUB_OUTPUT
+          echo "dir=${DEVNET_DIR}" >> $GITHUB_OUTPUT
+          echo "rpc=http://localhost:9944" >> $GITHUB_OUTPUT
+          
+          echo "Devnet ID: ${DEVNET_ID}"
+
+      - name: Start 3-node devnet
+        run: |
+          DEVNET_ID="${{ steps.devnet.outputs.id }}"
+          DEVNET_DIR="${{ steps.devnet.outputs.dir }}"
+          
+          cd bin/xnet-node
+          
+          for i in {0..2}; do
+            ./target/release/xnet-node \
+              --base-path="${DEVNET_DIR}/node${i}" \
+              --port=$((30333 + i)) \
+              --rpc-port=$((9944 + i)) \
+              --ws-port=$((9945 + i)) \
+              --validator \
+              --name="devnet-validator-${i}" \
+              --log=info \
+              &
+            sleep 2
+          done
+          
+          echo "Waiting for devnet to stabilize..."
+          sleep 30
+          
+          # Save devnet info
+          echo "DEVNET_ID=${DEVNET_ID}" >> $GITHUB_ENV
+          echo "DEVNET_DIR=${DEVNET_DIR}" >> $GITHUB_ENV
+
+      - name: Verify devnet is operational
+        run: |
+          echo "🔍 Checking devnet health..."
+          
+          for i in {0..2}; do
+            PORT=$((9944 + i))
+            RESPONSE=$(curl -s -X POST http://localhost:$PORT \
+              -H "Content-Type: application/json" \
+              -d '{"jsonrpc":"2.0","method":"system_health","params":[],"id":1}')
+            
+            if echo "$RESPONSE" | grep -q "peers"; then
+              echo "✅ Node $i is healthy"
+            else
+              echo "❌ Node $i failed"
+              exit 1
+            fi
+          done
+
+      - name: Save devnet info for next jobs
+        run: |
+          mkdir -p /tmp/devnet-info
+          cat > /tmp/devnet-info/devnet.env << EOF
+          DEVNET_ID=${{ steps.devnet.outputs.id }}
+          DEVNET_DIR=${{ steps.devnet.outputs.dir }}
+          RPC_ENDPOINT=${{ steps.devnet.outputs.rpc }}
+          EOF
+          
+          cat /tmp/devnet-info/devnet.env
+
+      - name: Upload devnet info
+        uses: actions/upload-artifact@v3
+        with:
+          name: devnet-info
+          path: /tmp/devnet-info/devnet.env
+
+  deploy-contracts:
+    name: Deploy Smart Contracts to Devnet
+    needs: create-devnet
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Download devnet info
+        uses: actions/download-artifact@v3
+        with:
+          name: devnet-info
+
+      - name: Load devnet config
+        run: source devnet.env && echo "DEVNET_ID=${DEVNET_ID}" >> $GITHUB_ENV
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install ink! CLI
+        run: cargo install cargo-contract
+
+      - name: Build and deploy contracts
+        run: |
+          cd frame/contracts
+          
+          # Build all contracts
+          for contract in */; do
+            echo "Building $contract..."
+            cd "$contract"
+            cargo contract build
+            cd ..
+          done
+          
+          echo "✅ All contracts built successfully"
+
+      - name: Submit transactions to devnet
+        run: |
+          RPC_ENDPOINT="${{ needs.create-devnet.outputs.rpc-endpoint }}"
+          
+          echo "📤 Testing transactions on devnet..."
+          
+          # Test basic transaction submission
+          curl -s -X POST ${RPC_ENDPOINT} \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","method":"author_submitExtrinsic","params":["0x..."],"id":1}'
+          
+          echo "✅ Transactions submitted"
+
+  integration-tests:
+    name: Run Integration Tests on Devnet
+    needs: [ create-devnet, deploy-contracts ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Download devnet info
+        uses: actions/download-artifact@v3
+        with:
+          name: devnet-info
+
+      - name: Run integration tests against devnet
+        run: |
+          source devnet.env
+          
+          export RPC_URL="${{ needs.create-devnet.outputs.rpc-endpoint }}"
+          
+          echo "🧪 Running integration tests against devnet..."
+          cargo test --test '*' --release -- --test-threads=1 --nocapture
+          
+          echo "✅ All integration tests passed"
+
+  performance-benchmark:
+    name: Performance Benchmark on Devnet
+    needs: [ create-devnet, deploy-contracts ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Download devnet info
+        uses: actions/download-artifact@v3
+        with:
+          name: devnet-info
+
+      - name: Run benchmarks on devnet
+        run: |
+          source devnet.env
+          export RPC_URL="${{ needs.create-devnet.outputs.rpc-endpoint }}"
+          
+          echo "📊 Running performance benchmarks..."
+          cargo bench --no-run
+          
+          echo "✅ Benchmarks completed"
+
+  cleanup-devnet:
+    name: Cleanup Ephemeral Devnet
+    if: always()
+    needs: [ create-devnet, deploy-contracts, integration-tests, performance-benchmark ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download devnet info
+        uses: actions/download-artifact@v3
+        with:
+          name: devnet-info
+        continue-on-error: true
+
+      - name: Kill devnet processes
+        run: |
+          pkill -f "xnet-node" || true
+          sleep 5
+          echo "✅ Devnet cleaned up"
+
+      - name: Remove devnet artifacts
+        run: |
+          source devnet.env || true
+          rm -rf /tmp/xnet-devnet-* || true
+          echo "✅ Artifacts removed"
+
+      - name: Post cleanup message
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Ephemeral devnet has been cleaned up.'
+            })

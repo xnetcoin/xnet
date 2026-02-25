@@ -2,10 +2,10 @@ blank_issues_enabled: false
 contact_links:
   - name: "XNETHQ Official Telegram"
     url: https://t.me/xnethq
-    about: "Get instant technical help from the core developers on Telegram."
+    about: "Technical discussion and development support for XNET."
   - name: "XNET Official X"
     url: https://x.com/xnethq
-    about: "Join our X for governance discussions and community building."
+    about: "Protocol updates and ecosystem announcements."
   - name: "XNET Official Website"
     url: https://xnetcoin.org
-    about: "Explore the documentation and the whitepaper."
+    about: "Protocol specification and technical documentation."

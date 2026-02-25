@@ -1,4 +1,4 @@
-name: "XNET: Audit Review"
+name: "XNET CI: Pull Request Authority"
 on:
   pull_request:
     types: [opened, synchronize]
@@ -7,5 +7,5 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - name: "Integrity Check"
-        run: echo "Starting XNET Core Audit..."
+      - name: "Core Integrity Check"
+        run: echo "Initiating XNET protocol checks..."

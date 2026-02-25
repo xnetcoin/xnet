@@ -1,7 +1,15 @@
+# pallet-block-reward
+#
+# Custom FRAME pallet that mints a block reward for the block author on every
+# finalized block and halves that reward every HalvingInterval blocks,
+# mirroring Bitcoin's fixed-supply emission schedule.
+#
+# Crate type: `no_std` pallet (compiles to both native and WASM targets).
+
 [package]
 name = "pallet-block-reward"
 version = "1.0.0"
-description = "XNET Block Reward Logic with Halving"
+description = "XNET Block Reward Pallet — fixed-supply emission with Bitcoin-style halving"
 authors = ["XNET Protocol Team"]
 edition = "2021"
 license = "GPL-3.0-or-later"
@@ -11,21 +19,37 @@ repository = "https://github.com/xnetcoin/xnet"
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
 
+# =============================================================================
+# Dependencies
+# =============================================================================
+
 [dependencies]
-codec = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
-scale-info = { version = "2.11.1", default-features = false, features = ["derive"] }
+# SCALE codec + metadata — required by all FRAME pallets.
+codec      = { workspace = true }
+scale-info = { workspace = true }
 
+# Core FRAME infrastructure.
+frame-support = { workspace = true }
+frame-system  = { workspace = true }
 
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-sp-std = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+# Runtime primitives.
+sp-runtime = { workspace = true }
+sp-std     = { workspace = true }
 
-frame-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false, optional = true }
+# Used for the `Currency` and `deposit_creating` traits.
+pallet-balances = { workspace = true }
+
+# Optional: only compiled when the `runtime-benchmarks` feature is active.
+frame-benchmarking = { workspace = true, optional = true }
+
+# =============================================================================
+# Feature Flags
+# =============================================================================
 
 [features]
 default = ["std"]
+
+# Enable std library — used for native (non-WASM) builds.
 std = [
 	"codec/std",
 	"scale-info/std",
@@ -37,6 +61,7 @@ std = [
 	"frame-benchmarking?/std",
 ]
 
+# Unlocks `#[benchmarks]` blocks inside the pallet for weight measurement.
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
 	"frame-support/runtime-benchmarks",
@@ -45,6 +70,7 @@ runtime-benchmarks = [
 	"sp-runtime/runtime-benchmarks",
 ]
 
+# Enables `try-runtime` state-transition testing hooks.
 try-runtime = [
 	"frame-support/try-runtime",
 	"frame-system/try-runtime",

@@ -1,4 +1,9 @@
-//! XNET Protocol CLI library.
+//! # XNET Node — Entry Point
+//!
+//! Thin binary crate that wires together the CLI, service, and chain-spec modules,
+//! then hands control to the command dispatcher. All the real work lives in the
+//! sub-modules listed below.
+
 #![warn(missing_docs)]
 
 mod chain_spec;

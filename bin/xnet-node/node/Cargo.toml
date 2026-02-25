@@ -1,87 +1,138 @@
+# xnet-node
+#
+# The binary crate that boots the XNET blockchain node. It links together the
+# runtime WASM blob (xnet-runtime), the Substrate client stack (sc-*), Frontier
+# EVM node components (fc-*), and the Substrate primitives (sp-*) needed to run
+# a full validator or RPC node.
+#
+# Feature flags
+# -------------
+# runtime-benchmarks — pass through to xnet-runtime; enables weight benchmarking.
+# try-runtime        — pass through to xnet-runtime; enables state-migration tests.
+
 [package]
 name = "xnet-node"
 version = "1.0.0"
-description = "XNET"
-authors = ["XNET Protocol"]
+description = "XNET Protocol Node"
+authors = ["XNET Protocol Team"]
 homepage = "https://xnetcoin.org"
 edition = "2021"
 license = "GPL-3.0-or-later"
 publish = false
 repository = "https://github.com/xnetcoin/xnet"
+# build.rs embeds the Git commit hash so --version reports the exact source revision.
 build = "build.rs"
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
 
+# =============================================================================
+# Dependencies
+# =============================================================================
+
 [dependencies]
-clap = { version = "4.5.3", features = ["derive"] }
-futures = { version = "0.3.30", features = ["thread-pool"] }
-serde = { workspace = true }
-serde_json = "1.0.114"
+# General utilities.
+clap        = { workspace = true }
+futures     = { workspace = true }
+serde       = { workspace = true, features = ["std"] }
+serde_json  = { workspace = true }
+hex-literal = { workspace = true }
+parking_lot = { workspace = true }
 
-# RPC - MUHIM: workspace'dan foydalanish
-jsonrpsee = { workspace = true }
-sc-rpc-api = { workspace = true }
-pallet-transaction-payment-rpc = { workspace = true }
-substrate-frame-rpc-system = { workspace = true }
-sp-transaction-storage-proof = { workspace = true }
+# --- JSON-RPC Server ---
+jsonrpsee                       = { workspace = true }
+sc-rpc-api                      = { workspace = true }
+pallet-transaction-payment-rpc  = { workspace = true }
+substrate-frame-rpc-system      = { workspace = true }
+sp-transaction-storage-proof    = { workspace = true }
 
-# XNET Runtime
-xnet-runtime = { path = "../runtime" }
+# --- XNET Runtime (local path) ---
+xnet-runtime = { workspace = true }
 
-# Substrate stable2407 - Client
-sc-cli = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-client-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-consensus = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-consensus-babe = { workspace = true }
-sc-consensus-grandpa = { workspace = true }
-sc-executor = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-network = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-offchain = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-service = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-telemetry = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-transaction-pool-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sc-basic-authorship = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+# --- Substrate Client (sc-*) ---
+sc-cli                  = { workspace = true }
+sc-client-api           = { workspace = true }
+sc-consensus            = { workspace = true }
+sc-consensus-babe       = { workspace = true }
+sc-consensus-babe-rpc   = { workspace = true }
+sc-consensus-grandpa    = { workspace = true }
+sc-consensus-grandpa-rpc = { workspace = true }
+sc-executor             = { workspace = true }
+sc-network              = { workspace = true }
+sc-network-sync         = { workspace = true }
+sc-offchain             = { workspace = true }
+sc-service              = { workspace = true }
+sc-telemetry            = { workspace = true }
+sc-transaction-pool     = { workspace = true }
+sc-transaction-pool-api = { workspace = true }
+sc-basic-authorship     = { workspace = true }
+sc-rpc                  = { workspace = true }
 
-# Substrate stable2407 - Primitives
-sp-api = { workspace = true }
-sp-block-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sp-blockchain = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sp-consensus = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sp-consensus-babe = { workspace = true }
-sp-consensus-grandpa = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sp-core = { workspace = true }
-sp-inherents = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sp-runtime = { workspace = true }
-sp-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+# --- Frontier (EVM node-side components) ---
+fc-cli          = { workspace = true }
+fc-consensus    = { workspace = true }
+fc-db           = { workspace = true }
+fc-mapping-sync = { workspace = true }
+fc-rpc          = { workspace = true }
+fc-rpc-core     = { workspace = true }
+fc-storage      = { workspace = true }
+# `fp-*` are the Frontier primitive types shared between the runtime and node.
+fp-rpc           = { workspace = true, features = ["std"] }
+fp-dynamic-fee   = { workspace = true }
+fp-evm           = { workspace = true, features = ["std"] }
+fp-self-contained = { workspace = true, features = ["std"] }
 
-# Frame
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-frame-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-frame-benchmarking-cli = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-pallet-transaction-payment = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-pallet-im-online = { workspace = true }
+# --- Substrate Primitives (sp-*) ---
+sp-api               = { workspace = true, features = ["std"] }
+sp-block-builder     = { workspace = true, features = ["std"] }
+sp-blockchain        = { workspace = true }
+sp-consensus         = { workspace = true }
+sp-consensus-babe    = { workspace = true, features = ["std"] }
+sp-consensus-grandpa = { workspace = true, features = ["std"] }
+sp-core              = { workspace = true, features = ["std"] }
+sp-inherents         = { workspace = true, features = ["std"] }
+sp-io                = { workspace = true }
+sp-keyring           = { workspace = true }
+sp-runtime           = { workspace = true, features = ["std"] }
+sp-timestamp         = { workspace = true }
 
-# Utils
-hex-literal = "0.4"
+# --- FRAME ---
+frame-system            = { workspace = true, features = ["std"] }
+frame-benchmarking      = { workspace = true, features = ["std"] }
+frame-benchmarking-cli  = { workspace = true }
+pallet-transaction-payment = { workspace = true, features = ["std"] }
+pallet-im-online        = { workspace = true, features = ["std"] }
+
+# =============================================================================
+# Build Dependencies
+# =============================================================================
 
 [build-dependencies]
-substrate-build-script-utils = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
+# Injects the Git commit hash into the binary at compile time (used by --version).
+substrate-build-script-utils = { workspace = true }
+
+# =============================================================================
+# Feature Flags
+# =============================================================================
 
 [features]
+# No default features — the runtime controls its own std/no_std switching.
 default = []
+
+# Enables pallet weight benchmarking. Pass to cargo with:
+#   cargo build --release --features runtime-benchmarks
 runtime-benchmarks = [
-	"xnet-runtime/runtime-benchmarks",
-	"frame-benchmarking/runtime-benchmarks",
-	"frame-benchmarking-cli/runtime-benchmarks",
-	"sc-service/runtime-benchmarks",
+    "xnet-runtime/runtime-benchmarks",
+    "frame-benchmarking/runtime-benchmarks",
+    "frame-benchmarking-cli/runtime-benchmarks",
+    "sc-service/runtime-benchmarks",
 ]
+
+# Enables on-chain storage migration testing. Pass to cargo with:
+#   cargo run --release --features try-runtime -- try-runtime ...
 try-runtime = [
-	"xnet-runtime/try-runtime",
-	"frame-system/try-runtime",
-	"pallet-transaction-payment/try-runtime",
-	"sp-runtime/try-runtime",
+    "xnet-runtime/try-runtime",
+    "frame-system/try-runtime",
+    "pallet-transaction-payment/try-runtime",
+    "sp-runtime/try-runtime",
 ]

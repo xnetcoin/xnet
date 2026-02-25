@@ -1,76 +1,80 @@
-name: "🔴 Technical Bug Report"
-description: "High-priority technical analysis of XNET Protocol issues"
-labels: ["bug", "internal-core", "critical-triage"]
+name: "Bug Report"
+description: "Submit a technical bug report for the XNET Protocol"
+labels: ["bug", "triage-needed"]
 body:
   - type: markdown
     attributes:
       value: |
-        ### 💎 XNET Core Resources
-        Official Hubs: [Website](https://xnetcoin.org) | [Discord](https://discord.gg/mFGzaskFTM) | [X](https://x.com/xnethq) | [Telegram](https://t.me/xnethq)
+        ### XNET Protocol Bug Report
+        Documentation: [Website](https://xnetcoin.org) | Support: [Telegram](https://t.me/xnethq) | Updates: [X](https://x.com/xnethq)
         ---
-        *Please provide as much technical detail as possible to help us strengthen the protocol.*
+        Please provide detailed technical constraints and environmental factors to facilitate reproduction.
 
   - type: checkboxes
     attributes:
-      label: "Submission Quality Assurance"
+      label: "Pre-Submission Checklist"
       options:
-        - label: "I have cross-referenced existing issues and discussions."
+        - label: "I have searched the issue tracker for similar bug reports."
           required: true
-        - label: "I am reporting a protocol-level bug, not a configuration error."
+        - label: "I am reporting a reproducible protocol or implementation bug."
           required: true
 
   - type: dropdown
-    id: technical-area
+    id: component
     attributes:
-      label: "Protocol Layer"
-      description: "Which part of the engine is failing?"
+      label: "Protocol Component"
+      description: "Select the subsystem where the error originated."
       options:
-        - "Consensus Mechanism (BABE/GRANDPA)"
-        - "Runtime Logic (Pallets & State Machine)"
-        - "P2P Networking & Sync"
-        - "Database & Storage (RocksDB/ParityDB)"
-        - "RPC-API & JSON-RPC Infrastructure"
-        - "Cryptography & Transaction Signing"
+        - "Consensus Mechanism"
+        - "Runtime / State Transition"
+        - "Networking / P2P"
+        - "Storage Engine"
+        - "RPC API"
+        - "Cryptography / Signing"
+        - "Other / Unknown"
     validations:
       required: true
 
   - type: textarea
     id: summary
     attributes:
-      label: "Technical Summary"
-      description: "A deep-dive description of the unexpected behavior."
-      placeholder: "Example: State transition failed at block #X due to storage corruption..."
+      label: "Description"
+      description: "A clear and concise description of the bug."
+      placeholder: "Example: The node crashes with a segmentation fault during state sync at block..."
     validations:
       required: true
 
   - type: textarea
     id: reproduction
     attributes:
-      label: "Deterministic Steps to Reproduce"
-      description: "How can we replicate this failure on our test-net?"
+      label: "Steps to Reproduce"
+      description: "Please provide deterministic steps to replicate the behavior."
       placeholder: |
+        1. Run node with command '...'
+        2. Send RPC request '...'
+        3. Observe failure mode '...'
     validations:
       required: true
 
   - type: textarea
     id: traces
     attributes:
-      label: "Expected vs. Actual Result"
-      description: "What should have happened according to XNET specs?"
-      placeholder: "Expected: Block finality in 6s. Actual: Infinite stall."
+      label: "Expected vs. Actual Behavior"
+      description: "Describe what should have happened vs what actually happened."
+      placeholder: "Expected: Transaction gets included in the next block. Actual: Transaction is dropped from the mempool."
 
   - type: textarea
     id: environment
     attributes:
-      label: "Infrastructure Details"
-      description: "Hardware, OS, and Compiler information."
-      placeholder: "CPU: AMD EPYC | OS: Ubuntu 22.04 | Rust: 1.77.x | XNET-Core: v1.0.0-rev"
+      label: "Environment Information"
+      description: "Hardware specifications, Operating System, and software versions."
+      placeholder: "OS: Ubuntu 22.04 LTS\nArchitecture: x86_64\nRust version: rustc 1.77.x\nXNET revision: ..."
     validations:
       required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: "Node Logs & Backtraces"
-      description: "Paste RUST_LOG=debug output here."
+      label: "Logs and Backtraces"
+      description: "Include relevant RUST_LOG output or panic backtraces. Use code blocks."
       render: shell
