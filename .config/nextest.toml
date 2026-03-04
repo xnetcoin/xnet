@@ -118,7 +118,7 @@ test-threads = 1
 serial-integration = { max-threads = 1 }
 
 # Running UI tests sequentially
-# More info can be found here: https://github.com/xnetcoin
+# More info can be found here: https://github.com/xnetcoin/xnet
 [[profile.default.overrides]]
 filter = 'test(/(^ui$|_ui|ui_)/)'
 test-group = 'serial-integration'

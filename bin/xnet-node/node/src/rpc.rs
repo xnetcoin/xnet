@@ -195,8 +195,9 @@ where
             fee_history_limit,
             10u64,                                    // Gas-limit multiplier for estimates
             None::<BTreeMap<H256, H256>>,             // No forced parent hash overrides
-            move |_, _| async move {                  // Pending-block inherent provider (no-op)
-                Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
+            move |_, _| async move {
+                let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+                Ok(timestamp)
             },
             Some(Box::new(DummyConsensusDataProvider)),
         )

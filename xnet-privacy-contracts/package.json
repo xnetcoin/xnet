@@ -1,0 +1,22 @@
+{
+  "name": "xnet-privacy",
+  "version": "1.0.0",
+  "description": "XNET Privacy Pool — ZKP asosida maxfiy XNC transfer",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.js --network xnet_local",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network xnet_testnet",
+    "deposit": "node sdk/xnet-privacy-sdk.js deposit",
+    "withdraw": "node sdk/xnet-privacy-sdk.js withdraw",
+    "check": "node sdk/xnet-privacy-sdk.js check"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "circomlibjs": "^0.1.7",
+    "dotenv": "^16.6.1",
+    "ethers": "^6.16.0",
+    "hardhat": "^2.28.6",
+    "snarkjs": "^0.7.6"
+  }
+}

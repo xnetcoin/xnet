@@ -276,7 +276,30 @@ fn testnet_genesis(
             "key": Some(root_key),
         },
         "treasury": {},
-        "transactionPayment": {},
+        "evm": {
+            "accounts": {
+                "0xaaafB3972B05630fCceE866eC69CdADd9baC2771": {
+                    "balance": "0x56BC75E2D630FFFFF",
+                    "code": [],
+                    "nonce": "0x0",
+                    "storage": {}
+                },
+                "0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac": {
+                    "balance": "0x56BC75E2D630FFFFF",
+                    "code": [],
+                    "nonce": "0x0",
+                    "storage": {}
+                }
+            }
+        },
+        "ethereum": {},
+        "baseFee": {
+            "baseFeePerGas": "0x3B9ACA00",
+            "elasticity": 125000
+        },
+        "transactionPayment": {
+            "multiplier": "1000000000000000000"
+        },
             // Vesting schedule:
             // (Who, Start Block, Length in Blocks, Locked Amount)
             // 6_000_000 XNC locked for 2.5 years (13,140,000 blocks at 6s/block).

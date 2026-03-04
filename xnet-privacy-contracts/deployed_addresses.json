@@ -1,0 +1,17 @@
+{
+  "network": "xnet_local",
+  "chainId": "2009",
+  "deployer": "0xaaafB3972B05630fCceE866eC69CdADd9baC2771",
+  "timestamp": "2026-03-03T09:37:37.041Z",
+  "contracts": {
+    "verifier": "0xAc2143FaE1bcc75e2858f2A9319b1c330b70D091",
+    "hasher": "0x1C3fbBCF273B162eB31D41D894918e6cAa83Bb0a",
+    "pools": {
+      "0.1_XNC": "0x4CB467f8960944CD0bE82ce19630B7C376Ee3694",
+      "1_XNC": "0xE3986aC91e49de6e5cae3A8F21175b6667b7dcB3",
+      "10_XNC": "0xe0ae768C7aB413a10d07fDe2aC841C9F63793DD4",
+      "100_XNC": "0xd9CD1B0309269dd2fF1512d3bC9A4C79E203A779"
+    },
+    "factory": "0xA1C6E3B636B2BBD007bcDBe53a0d3a0641C78bAB"
+  }
+}

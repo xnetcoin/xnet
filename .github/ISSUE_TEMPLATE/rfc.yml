@@ -1,0 +1,79 @@
+name: Architecture Request for Comments (RFC)
+description: Submit a formal proposal for a core architectural change to the XNET protocol
+title: "[RFC] <Short Title>"
+labels: ["rfc", "status:discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # XNET Request for Comments (RFC)
+        The RFC process is intended to provide a consistent and controlled path for major changes to XNET (such as core consensus modifications, new Substrate pallets, or networking upgrades).
+        
+        Before submitting an RFC, please ensure you have searched existing proposals.
+
+  - type: input
+    id: author
+    attributes:
+      label: Author(s)
+      description: GitHub usernames or names of the proposal authors.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Protocol Layer
+      description: Which area of the architecture does this RFC affect?
+      options:
+        - Consensus / Finality
+        - Runtime / State Transition
+        - Networking / P2P
+        - Storage Engine
+        - RPC / API
+        - Tooling / Node CLI
+    validations:
+      required: true
+
+  - type: textarea
+    id: abstract
+    attributes:
+      label: Abstract
+      description: A short (~200 word) description of the technical issue being addressed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this change necessary? What problem does it solve in the current architecture?
+    validations:
+      required: true
+
+  - type: textarea
+    id: specification
+    attributes:
+      label: Specification
+      description: The technical specification should describe the syntax and semantics of any new feature.
+      placeholder: |
+        - Data structures
+        - Runtime APIs
+        - Algorithms
+    validations:
+      required: true
+
+  - type: textarea
+    id: drawbacks
+    attributes:
+      label: Drawbacks & Alternatives
+      description: Why should we *not* do this? What other designs have been considered?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Proposal Readiness
+      options:
+        - label: I believe this proposal is structurally complete and ready for core developer review.
+          required: true

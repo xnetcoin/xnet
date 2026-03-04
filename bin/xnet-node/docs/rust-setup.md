@@ -1,114 +1,321 @@
-# 💎 Xnetcoin (XNC)
+# Rust & Development Environment Setup
 
-> **The Obsidian Standard of Blockchain Technology.**
-> High-performance, secure, and scalable Layer-1 blockchain built with the Polkadot SDK.
+This guide installs everything needed to build and run the XNET node from source.
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey)
-![License](https://img.shields.io/badge/license-GPL3.0-blue)
+---
 
-## 📋 Overview
+## Supported Operating Systems
 
-**Xnetcoin** is a next-generation blockchain protocol designed to offer lightning-fast transaction finality and robust security. Built on top of the battle-tested **Substrate** framework, Xnetcoin combines the speed of **BABE** block production with the deterministic finality of **GRANDPA**.
+| OS | Status |
+|----|--------|
+| Ubuntu 20.04 / 22.04 / 24.04 | ✅ Recommended |
+| Debian 11 / 12 | ✅ Supported |
+| macOS 12+ (Intel & Apple Silicon) | ✅ Supported |
+| Windows 11 (WSL2) | ⚠️ Via WSL2 only |
+| Windows native | ❌ Not supported |
 
-Our mission is to provide a solid infrastructure for decentralized finance (DeFi) and secure digital assets, represented by our native token **XNC**.
+---
 
-## ✨ Key Features
-
-* **🛡️ Hybrid Consensus:** Utilizes **BABE** (Blind Assignment for Blockchain Extension) for block production and **GRANDPA** (GHOST-based Recursive Ancestor Deriving Prefix Agreement) for finality.
-* **⚡ High Performance:** Optimized for high throughput and low latency.
-* **🔄 Forkless Upgrades:** The chain runtime can be upgraded without hard forks, ensuring network stability.
-* **💎 Tokenomics:** Deflationary mechanics with a custom block reward halving schedule.
-* **🔌 Interoperability:** Designed to be compatible with the broader Polkadot and Substrate ecosystem.
-
-## 🪙 Tokenomics
-
-* **Token Name:** Xnetcoin
-* **Symbol:** XNC
-* **Decimals:** 18
-* **Total Supply Cap:** ~53,000,000 XNC
-* **Premine:** 6,000,000 XNC (Reserved for Foundation & Development)
-* **Validation:** Proof-of-Stake (NPoS)
-
-## 🚀 Getting Started
-
-Follow these steps to get your local Xnetcoin node up and running.
-
-### Prerequisites
-
-Ensure you have Rust and the support software installed:
+## Step 1 — Install Rust
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf [https://sh.rustup.rs](https://sh.rustup.rs) | sh
-1. Build the Node
-Clone the repository and build the binary (this may take a while):
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
 
-Bash
-git clone [https://github.com/your-username/xnetcoin.git](https://github.com/your-username/xnetcoin.git)
-cd xnetcoin
+When prompted, choose option `1` (default installation).
+
+Then reload your shell:
+
+```bash
+source "$HOME/.cargo/env"
+```
+
+Verify:
+
+```bash
+rustc --version
+# rustc 1.75.0 (or newer)
+
+cargo --version
+# cargo 1.75.0 (or newer)
+```
+
+---
+
+## Step 2 — Add WASM Target
+
+Substrate compiles the runtime to WebAssembly. Add the WASM target:
+
+```bash
+rustup target add wasm32-unknown-unknown
+```
+
+Verify:
+
+```bash
+rustup target list --installed | grep wasm
+# wasm32-unknown-unknown
+```
+
+---
+
+## Step 3 — Install System Dependencies
+
+### Ubuntu / Debian
+
+```bash
+sudo apt update && sudo apt install -y \
+  git \
+  clang \
+  curl \
+  libssl-dev \
+  llvm \
+  libudev-dev \
+  make \
+  protobuf-compiler \
+  pkg-config \
+  build-essential
+```
+
+### macOS
+
+Install [Homebrew](https://brew.sh) first if not already installed:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Then install dependencies:
+
+```bash
+brew install openssl protobuf llvm cmake
+```
+
+Add LLVM to your PATH:
+
+```bash
+echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### Windows (WSL2)
+
+1. Install WSL2: open PowerShell as Administrator and run:
+   ```powershell
+   wsl --install
+   ```
+2. Restart your computer
+3. Open Ubuntu from the Start menu
+4. Follow the **Ubuntu / Debian** steps above inside WSL2
+
+---
+
+## Step 4 — Verify Protobuf Compiler
+
+Substrate's networking layer requires `protoc` version 3.15 or newer:
+
+```bash
+protoc --version
+# libprotoc 3.21.x (or newer)
+```
+
+If the version is too old, install manually:
+
+```bash
+# Ubuntu — remove old version and install latest
+sudo apt remove protobuf-compiler
+sudo apt install -y protobuf-compiler
+```
+
+---
+
+## Step 5 — Clone and Build XNET Node
+
+```bash
+# Clone the repository
+git clone https://github.com/xnetcoin/xnet-node
+cd xnet-node
+
+# Standard release build
 cargo build --release
-2. Run in Development Mode
-To start a single-node development chain (state is cleared on exit):
+```
 
-Bash
+First build takes 10–20 minutes as it compiles all dependencies.
+
+```bash
+# Build with benchmark support (needed for weight generation)
+cargo build --release --features runtime-benchmarks
+```
+
+Compiled binary location:
+
+```
+./target/release/xnet-node
+```
+
+---
+
+## Step 6 — Run a Development Node
+
+```bash
 ./target/release/xnet-node --dev
-3. Run a Local Testnet
-To run a local testnet with two nodes (Alice and Bob):
+```
 
-Node 1 (Alice):
+You should see output like:
 
-Bash
-./target/release/xnet-node \
-  --base-path /tmp/alice \
-  --chain local \
-  --alice \
-  --port 30333 \
-  --rpc-port 9944 \
-  --node-key 0000000000000000000000000000000000000000000000000000000000000001 \
-  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
-  --validator
-Node 2 (Bob):
+```
+2025-01-01 00:00:00 XNET Protocol Node
+2025-01-01 00:00:00 ✌️  version 1.0.0
+2025-01-01 00:00:00 ❤️  by XNET Protocol Team
+2025-01-01 00:00:00 📋 Chain specification: XNET Development
+2025-01-01 00:00:00 🏷  Node name: Alice
+2025-01-01 00:00:00 👤 Role: AUTHORITY
+2025-01-01 00:00:00 💾 Database: RocksDb
+2025-01-01 00:00:00 🔨 Initializing Genesis block/state
+2025-01-01 00:00:00 🚀 Starting consensus session on top of parent
+```
 
-Bash
-./target/release/xnet-node \
-  --base-path /tmp/bob \
-  --chain local \
-  --bob \
-  --port 30334 \
-  --rpc-port 9945 \
-  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
-  --validator \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp
-🛠 Interaction
-You can interact with your node using the Polkadot.js Apps portal.
+The node is producing blocks. Connect at `ws://127.0.0.1:9944`.
 
-Open https://polkadot.js.org/apps/
+---
 
-Click on the top left logo to switch networks.
+## Optional Tools
 
-Choose Development -> Local Node (127.0.0.1:9944).
+### cargo-contract — for ink!/WASM smart contracts
 
-Click Switch.
+```bash
+cargo install cargo-contract --force --locked
+```
 
-📂 Project Structure
-node/: The blockchain node logic (CLI, Service, RPC, Chain Spec).
+Verify:
 
-runtime/: The blockchain logic (Pallets, Runtime configurations).
+```bash
+cargo contract --version
+# cargo-contract 4.x.x
+```
 
-pallets/: Custom modules specific to Xnetcoin.
+### Hardhat — for Solidity/EVM contracts
 
-🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+```bash
+# Requires Node.js 18+
+node --version
 
-Fork the project.
+npm install --save-dev hardhat
+npx hardhat init
+```
 
-Create your feature branch (git checkout -b feature/AmazingFeature).
+### subkey — for key generation and inspection
 
-Commit your changes (git commit -m 'Add some AmazingFeature').
+```bash
+cargo install subkey --locked
+```
 
-Push to the branch (git push origin feature/AmazingFeature).
+Generate a new keypair:
 
-Open a Pull Request.
+```bash
+subkey generate --scheme sr25519
+```
 
-📄 License
-This project is licensed under the GPL-3.0 License.
+---
+
+## Rust Toolchain Management
+
+XNET uses a stable Rust toolchain. The required version is pinned in `rust-toolchain.toml`:
+
+```bash
+# Check active toolchain
+rustup show
+
+# Update to latest stable
+rustup update stable
+
+# If a specific version is required by rust-toolchain.toml, rustup installs it automatically
+cargo build --release
+```
+
+---
+
+## Troubleshooting
+
+### `error: linker 'cc' not found`
+
+```bash
+sudo apt install build-essential
+```
+
+### `error: failed to run custom build command for 'librocksdb-sys'`
+
+```bash
+sudo apt install clang libclang-dev
+```
+
+### `error: Could not find directory of OpenSSL installation`
+
+```bash
+# Ubuntu
+sudo apt install libssl-dev pkg-config
+
+# macOS
+export OPENSSL_DIR=$(brew --prefix openssl)
+```
+
+### `error: protoc not found` or `protoc: command not found`
+
+```bash
+sudo apt install protobuf-compiler
+
+# Verify version >= 3.15
+protoc --version
+```
+
+### `WASM binary not available`
+
+The WASM runtime blob was not compiled. Make sure you ran:
+
+```bash
+cargo build --release
+```
+
+If the error persists:
+
+```bash
+# Force recompile the runtime
+touch runtime/src/lib.rs
+cargo build --release
+```
+
+### Build takes too long / runs out of memory
+
+Substrate builds are memory-intensive. If your machine has less than 8 GB RAM:
+
+```bash
+# Limit parallel compile jobs to reduce memory usage
+CARGO_BUILD_JOBS=2 cargo build --release
+```
+
+---
+
+## Hardware Requirements
+
+| | Minimum | Recommended |
+|--|---------|-------------|
+| CPU | 4 cores | 8+ cores |
+| RAM | 8 GB | 16+ GB |
+| Disk (build) | 50 GB | 100 GB SSD |
+| Disk (validator node) | 100 GB | 500 GB SSD |
+| Network | 10 Mbps | 100+ Mbps |
+
+---
+
+## Next Steps
+
+Once your environment is set up and the node is running:
+
+- [README.md](../README.md) — full node documentation
+- Connect [Polkadot.js Apps](https://polkadot.js.org/apps) to `ws://127.0.0.1:9944`
+- Deploy your first ink! contract with `cargo contract`
+- Deploy your first Solidity contract with Hardhat using Chain ID `2009`
+
+---
+
+*For questions and support: [t.me/xnethq](https://t.me/xnethq)*

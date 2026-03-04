@@ -43,6 +43,6 @@ body:
     attributes:
       label: Environment Info
       description: What OS and compiler are you using? What git commit hash or branch are you on?
-      placeholder: OS: Ubuntu 22.04 | Rust: nightly-202X-XX-XX | Commit: abcdef1
+      placeholder: OS Ubuntu 22.04 | Rust nightly-202X-XX-XX | Commit abcdef1
     validations:
       required: true

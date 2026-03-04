@@ -1,273 +1,333 @@
-# Xnet Blockchain Platform
+<div align="center">
 
-**Xnet (XNX)** is a high-performance, energy-efficient blockchain built on Substrate, combining Bitcoin's proven economic model with modern consensus technology.
+<img src="https://img.shields.io/badge/XNET-Blockchain-blue?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Substrate-Framework-green?style=for-the-badge" />
+<img src="https://img.shields.io/badge/EVM-Compatible-orange?style=for-the-badge" />
+<img src="https://img.shields.io/badge/ink!-WASM-purple?style=for-the-badge" />
+<img src="https://img.shields.io/badge/ZKP-Enabled-red?style=for-the-badge" />
 
-## Overview
+# XNET — Next Generation Layer 1 Blockchain
 
-Xnet is a pure Proof-of-Stake (PoS) blockchain designed for sustainability, security, and decentralization. With a fixed supply of 53 million tokens, deterministic finality, and 12-second block times, Xnet delivers fast, final transactions with minimal environmental impact.
+**A high-performance, privacy-first Layer 1 blockchain built on Substrate with dual smart contract execution (EVM + WASM), Zero-Knowledge Proof support, and cross-chain interoperability via XCM.**
 
-### Key Characteristics
+[Website](xnetcoin.org) · [Documentation](https://github.com/xnetcoin) · [Testnet Explorer](xnetcoin.org) · [Discord]() · [Twitter](xnethq)
 
-| Feature | Specification |
-|---------|---------------|
-| **Consensus** | Nominated Proof-of-Stake (NPoS) with Grandpa Finality |
-| **Max Supply** | 53,000,000 XNX tokens |
-| **Block Time** | 12 seconds |
-| **Finality** | Deterministic (immediate with validator supermajority) |
-| **Emission Schedule** | Halving model (Bitcoin-inspired scarcity) |
-| **Environment** | Energy-efficient, ~99% less than Proof-of-Work |
-| **Network** | Fully decentralized peer-to-peer network |
-
-## Getting Started
-
-### Prerequisites
-
-- **Rust**: 1.70 or later
-- **Cargo**: Latest stable version  
-- **Git**: For repository management
-- **System Requirements**: 
-  - 4GB RAM minimum for validator nodes
-  - 20GB disk space for chain data
-  - Stable internet connection (1Mbps minimum)
-
-### Installation
-
-#### 1. Clone the Repository
-
-```bash
-git clone https://github.com/xnetcoin/xnet.git
-cd xnet
-```
-
-#### 2. Build the Project
-
-```bash
-cargo build --release
-```
-
-The release binary will be located at: `./target/release/xnet-node`
-
-### Running a Validator Node
-
-To become a validator on the Xnet network:
-
-```bash
-./target/release/xnet-node \
-  --validator \
-  --chain mainnet \
-  --name "Your-Validator-Name"
-```
-
-### Running a Full Node (Non-Validator)
-
-To run a full node that syncs the chain without validating:
-
-```bash
-./target/release/xnet-node \
-  --chain mainnet \
-  --name "Your-Node-Name"
-```
-
-### Testnet Access
-
-To join the testnet for testing and development:
-
-```bash
-./target/release/xnet-node \
-  --chain testnet \
-  --name "Your-Testnet-Node"
-```
-
-## Architecture
-
-### Consensus Mechanism
-
-Xnet uses **Nominated Proof-of-Stake (NPoS)** with:
-
-1. **Validators**: Secure the network through block production and finalization
-2. **Nominators**: Delegate tokens to validators to earn staking rewards
-3. **Collators**: Construct blocks for consensus
-4. **Fishermen**: Monitor network for misbehavior
-
-### Finality
-
-Block finality is achieved through **GRANDPA** (GHOST-based Recursive Ancestor Deriving Prefix Agreement):
-- Deterministic finality within a single block
-- Byzantine fault tolerance for up to 1/3 of validators
-- Immediate transaction confirmation
-
-## Token Economics
-
-### Supply Schedule
-
-- **Total Supply**: 53,000,000 XNX (fixed and immutable)
-- **Emission Model**: Halving schedule similar to Bitcoin
-- **Reward Distribution**: 
-  - Validators: Based on staking amount
-  - Nominators: Share of validator rewards (commission-based)
-
-### Transaction Fees
-
-Transaction fees are calculated based on:
-- Extrinsic size (weight)
-- Current network congestion
-- Tip amount (optional priority)
-
-## Development
-
-### Project Structure
-
-```
-xnet/
-├── bin/xnet-node/          # Node implementation
-├── client/                 # Client libraries
-├── frame/                  # FRAME and runtime pallets
-├── primitives/             # Core primitives
-└── docs/                   # Documentation
-```
-
-### Building from Source
-
-```bash
-git clone https://github.com/xnetcoin/xnet.git
-cd xnet
-
-# Install dependencies
-rustup update stable
-rustup target add wasm32-unknown-unknown
-
-# Build
-cargo build --release
-
-# Run tests
-cargo test --release
-```
-
-## Node Configuration
-
-### Important Flags
-
-| Flag | Purpose |
-|------|---------|
-| `--validator` | Enable validator mode (requires staking) |
-| `--chain mainnet` | Connect to mainnet (default) |
-| `--chain testnet` | Connect to testnet |
-| `--name NODE_NAME` | Set node identifier |
-| `--port 30333` | P2P network port |
-| `--rpc-port 9933` | RPC server port |
-| `--ws-port 9944` | WebSocket RPC port |
-
-## Staking Guide
-
-### Staking Requirements
-
-- **Minimum Bond**: As determined by governance
-- **Rewards**: Proportional to your staked amount
-- **Slashing Risk**: Potential penalties for malicious behavior
-
-### How to Stake
-
-1. Get tokens from exchanges or community distributions
-2. Generate a keypair using `subkey` or hardware wallet
-3. Bond tokens via staking transaction
-4. Nominate validators to delegate your stake
-5. Collect staking rewards every era
-
-## Network Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Block Time | 12 seconds |
-| Era Duration | 6 hours |
-| Maximum Validators | 297 |
-| Minimum Commission | 0% |
-| Bonding Duration | 28 days |
-
-## Troubleshooting
-
-### Node Won't Sync
-
-```bash
-# Check network connectivity
-ping one.xnethub.org
-
-# Verify port is open
-netstat -an | grep 30333
-
-# Check system time (must be accurate)
-timedatectl show
-```
-
-### Validator Not Producing Blocks
-
-- Ensure you have minimum bonded tokens
-- Verify you're nominated by nominators
-- Check session keys are properly configured
-- Review logs: `RUST_LOG=debug ./target/release/xnet-node --validator`
-
-## Security Considerations
-
-⚠️ **Important**: 
-- Always keep validator keys secure and offline when possible
-- Use hardware wallets for large amounts
-- Never share seed phrases or private keys
-- Validate chain configuration before joining networks
-- Keep the node software updated
-
-## Contributing
-
-We welcome contributions from the community! Please:
-
-1. Read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines
-2. Fork the repository
-3. Create a feature branch
-4. Submit a Pull Request
-
-## License
-
-Xnet is released under dual licensing:
-- **GPL-3.0-or-later**: For open-source projects
-- **Apache-2.0**: For commercial applications
-
-See [LICENSE-GPL3](LICENSE-GPL3) and [LICENSE-APACHE2](LICENSE-APACHE2) for details.
-
-## Community & Support
-
-- **Website**: [https://xnethub.org](https://xnethub.org)
-- **Email**: info@xnethub.org
-- **GitHub Issues**: [Submit bug reports](https://github.com/xnetcoin/xnet/issues)
-- **Twitter**: [@XnetCoin](https://twitter.com/XnetCoin)
-
-## FAQ
-
-**Q: What is the total supply of XNX tokens?**
-A: Fixed at 53,000,000 tokens. No additional tokens will be created.
-
-**Q: How often do I receive staking rewards?**
-A: Rewards are distributed every era (approximately 6 hours).
-
-**Q: Can I unstake my tokens anytime?**
-A: Yes, but there's a 28-day unbonding period.
-
-**Q: Is Xnet secure?**
-A: Xnet uses proven cryptography and Byzantine fault-tolerant consensus.
-
-## Credits
-
-Xnet is built on [Substrate](https://github.com/paritytech/substrate), the blockchain development framework by Parity Technologies.
-
-## Roadmap
-
-- ✅ Testnet Launch (2026 Q1)
-- ✅ Mainnet Launch (2026 Q1)
-- 🔄 Smart Contracts Support (2026 Q2)
-- 🔄 Cross-chain Bridges (2026 Q3)
-- 🔄 Governance Integration (2026 Q4)
+</div>
 
 ---
 
-**Version**: 2.0  
-**Last Updated**: January 2026  
-**Status**: Mainnet Live
+## 🌐 Overview
 
-For the latest information, visit [https://xnethub.org](https://xnethub.org)
+XNET is a Layer 1 blockchain designed to bridge the gap between **Ethereum compatibility** and **next-generation privacy technology**. By combining a dual smart contract stack (EVM + ink!/WASM), native ZKP support, and Polkadot's XCM cross-chain messaging, XNET provides developers and users with a powerful, flexible, and future-proof platform.
+
+Built on **Substrate**, XNET inherits battle-tested consensus mechanisms (BABE + GRANDPA), forkless runtime upgrades, and seamless interoperability with the broader Polkadot/Kusama ecosystem.
+
+---
+
+## ✨ Key Features
+
+### 🔴 Dual Smart Contract Stack
+- **EVM Compatible** — Deploy any Solidity contract without modification. Full Ethereum tooling support: MetaMask, Hardhat, Foundry, Remix.
+- **ink! / WASM** — Native Rust-based smart contracts for maximum performance and safety. Built with `cargo contract`.
+
+### 🔵 Zero-Knowledge Proofs (ZKP)
+- Native ZKP support for **private transactions** and **confidential smart contracts**
+- BN128 precompiles (BN128Add, BN128Mul, BN128Pairing) — enabling zk-SNARKs on-chain
+- zkEVM-compatible design for future privacy DeFi applications
+
+### 🟢 Cross-Chain Interoperability (XCM)
+- Native **XCM** messaging protocol for seamless asset and data transfer
+- Interoperable with the entire Polkadot/Kusama ecosystem
+- Bridge-ready architecture for Ethereum ↔ XNET ↔ Polkadot
+
+### 🟡 Tokenomics
+- **53,000,000 XNET** hard supply cap — no inflation beyond block rewards
+- Bitcoin-style halving every **21,038,400 blocks** (~4 years)
+- Block reward starts at **1.117 XNET** per block
+- Transparent, predictable supply schedule
+
+### ⚪ NPoS Consensus
+- **BABE** block production + **GRANDPA** finality
+- Nominated Proof-of-Stake (NPoS) with Sequential Phragmén election
+- 2.5%–10% annual staking rewards based on participation rate
+
+---
+
+## 💰 Tokenomics
+
+| Parameter | Value |
+|-----------|-------|
+| **Token Symbol** | XNET |
+| **Total Supply** | 53,000,000 XNET |
+| **Genesis Premine** | 6,000,000 XNET |
+| **Block Rewards** | ~47,000,000 XNET |
+| **Block Reward** | 1.117 XNET/block |
+| **Halving Interval** | 21,038,400 blocks (~4 years) |
+| **Block Time** | 6 seconds |
+| **Min Validator Bond** | 8,000 XNET |
+| **Min Nominator Bond** | 1,000 XNET |
+| **EVM Chain ID** | 2009 |
+| **SS58 Prefix** | 888 |
+
+### Supply Distribution
+
+```
+Total Supply: 53,000,000 XNET
+├── Genesis Premine:  6,000,000 XNET (11.3%)
+│   └── Locked for 2.5 years via on-chain vesting
+└── Block Rewards:   47,000,000 XNET (88.7%)
+    ├── Halving 1 (Years 1-4):  ~23,500,000 XNET
+    ├── Halving 2 (Years 4-8):  ~11,750,000 XNET
+    ├── Halving 3 (Years 8-12):  ~5,875,000 XNET
+    └── Subsequent halvings...
+```
+
+### Fee Distribution
+
+Every transaction fee on XNET is automatically split:
+
+```
+Transaction Fee
+├── 60% → On-chain Treasury  (ecosystem development)
+├── 15% → Grant Pool         (developer grants & bounties)
+└── 25% → Block Validator    (network security)
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│                  XNET Runtime                    │
+├──────────────────┬──────────────────────────────┤
+│   Substrate Core │  BABE + GRANDPA Consensus     │
+│                  │  NPoS Staking                 │
+│                  │  On-chain Treasury            │
+│                  │  Block Reward (Halving)       │
+├──────────────────┼──────────────────────────────┤
+│   Smart          │  EVM (Solidity)               │
+│   Contracts      │  ink! / WASM (Rust)           │
+│                  │  Unified Fee Model            │
+├──────────────────┼──────────────────────────────┤
+│   Privacy        │  ZKP — zk-SNARKs              │
+│                  │  BN128 Precompiles            │
+│                  │  Private Transactions         │
+├──────────────────┼──────────────────────────────┤
+│   Interop        │  XCM Cross-Chain Messaging    │
+│                  │  Polkadot/Kusama Compatible   │
+│                  │  Ethereum Bridge              │
+└──────────────────┴──────────────────────────────┘
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+```bash
+# Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Add WASM target
+rustup target add wasm32-unknown-unknown
+
+# Install substrate dependencies (Ubuntu/Debian)
+sudo apt install -y git clang curl libssl-dev llvm libudev-dev make protobuf-compiler
+```
+
+### Build
+
+```bash
+# Clone the repository
+git clone https://github.com/xnetcoin/xnet
+cd xnet
+
+# Build release binary
+cargo build --release
+
+# Build WASM runtime only
+cargo build --release -p xnet-node 
+```
+
+### Run a Local Development Node
+
+```bash
+# Start a single-node development chain (ephemeral, --dev wipes on restart)
+./target/release/xnet-node --dev
+
+# Start with persistent state
+./target/release/xnet-node --dev --base-path /tmp/xnet-dev
+```
+
+### Connect
+
+Once running, connect via:
+- **Polkadot.js Apps**: https://polkadot.js.org/apps → Settings → Custom endpoint → `ws://127.0.0.1:9944`
+- **MetaMask / EVM**: Add custom network → RPC `http://127.0.0.1:9933` → Chain ID `2009`
+
+---
+
+## 📡 Network Information
+
+| Network | Status | RPC Endpoint | Explorer |
+|---------|--------|--------------|----------|
+| **Mainnet** | 🔜 Coming Soon | — | — |
+| **Testnet** | 🟡 In Development | — | — |
+| **Local Dev** | ✅ Available | `http://127.0.0.1:9933` | Local |
+
+---
+
+## 🛣️ Roadmap
+
+### ✅ Phase 1 — Foundation (Completed)
+- [x] Substrate runtime core
+- [x] BABE + GRANDPA consensus
+- [x] NPoS staking with Bitcoin-style halving
+- [x] EVM compatibility (Frontier)
+- [x] ink! / WASM smart contracts
+- [x] On-chain treasury + grant pool
+- [x] Fee distribution system
+
+### 🔄 Phase 2 — Privacy & Interop (In Progress)
+- [ ] Full ZKP pallet integration (zk-SNARKs)
+- [ ] Private transaction support
+- [ ] XCM cross-chain messaging
+- [ ] Rococo testnet connection
+- [ ] Public testnet launch
+
+### 🔜 Phase 3 — Ecosystem (Q3-Q4 2025)
+- [ ] Public mainnet launch
+- [ ] Native DEX deployment
+- [ ] Ethereum ↔ XNET bridge
+- [ ] Developer grants program launch
+- [ ] CEX listings
+
+### 🔜 Phase 4 — Scale (2026)
+- [ ] zkEVM private smart contracts
+- [ ] Polkadot parachain slot
+- [ ] On-chain governance (replace Sudo)
+- [ ] Mobile wallet
+- [ ] 100+ dApp ecosystem
+
+---
+
+## 🔧 Smart Contract Development
+
+### Deploy a Solidity Contract (EVM)
+
+```javascript
+// hardhat.config.js
+module.exports = {
+  networks: {
+    xnet: {
+      url: "https://rpc.xnetcoin.org",
+      chainId: 2009,
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  }
+}
+```
+
+```bash
+npx hardhat deploy --network xnet
+```
+
+### Deploy an ink! Contract (WASM)
+
+```bash
+# Install cargo-contract
+cargo install cargo-contract
+
+# Create new ink! contract
+cargo contract new my_contract
+cd my_contract
+
+# Build contract
+cargo contract build
+
+# Deploy via contracts UI or CLI
+cargo contract instantiate --suri //Alice --args false
+```
+
+---
+
+## 📊 Technical Specifications
+
+| Parameter | Value |
+|-----------|-------|
+| **Consensus** | BABE (block production) + GRANDPA (finality) |
+| **Block Time** | 6 seconds |
+| **Block Size** | 5 MB max |
+| **Gas Limit** | 75,000,000 per block |
+| **Finality** | ~12 seconds (2 blocks) |
+| **Staking APY** | 2.5% – 10% (variable) |
+| **Epoch Duration** | 1 hour |
+| **Era Duration** | 24 hours |
+| **Unbonding Period** | 28 days |
+| **EVM Chain ID** | 2009 |
+| **Framework** | Substrate (Rust) |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community!
+
+```bash
+# Fork and clone
+git clone https://github.com/xnetcoin/xnet
+cd xnet
+
+# Create feature branch
+git checkout -b feature/your-feature
+
+# Make changes, then test
+cargo test
+
+# Submit pull request
+```
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
+
+---
+
+## 🏆 Grants Program
+
+XNET allocates **15% of all transaction fees** to a dedicated grant pool for:
+- dApp developers building on XNET
+- Security auditors and researchers
+- Community tools and infrastructure
+- Educational content
+
+Apply for a grant: [grants.xnetcoin.org](#)
+
+---
+
+## 📜 License
+
+This project is licensed under the **Apache 2.0 License** — see [LICENSE](LICENSE) for details.
+
+---
+
+## 🔗 Links
+
+| Resource | Link |
+|----------|------|
+| Website | [xnetcoin.org](#) |
+| Documentation | [docs.xnetcoin.org](#) |
+| Block Explorer | [explorer.xnetcoin.org](#) |
+| Discord | [discord.gg/xnet](#) |
+| Twitter/X | [@xnethq](#) |
+| Telegram | [t.me/xnethq](#) |
+
+---
+
+<div align="center">
+
+**Built with ❤️ using Substrate & Rust**
+
+*XNET — Where Privacy Meets Performance*
+
+</div>

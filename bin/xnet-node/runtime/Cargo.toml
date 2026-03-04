@@ -25,9 +25,7 @@ repository = "https://github.com/xnetcoin/xnet"
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
 
-# =============================================================================
 # Dependencies
-# =============================================================================
 
 [dependencies]
 # Serialization — SCALE codec is the canonical encoding for all on-chain data.
@@ -104,17 +102,13 @@ pallet-evm-precompile-blake2    = { workspace = true }
 # --- Custom Pallets ---
 pallet-block-reward = { workspace = true }
 
-# =============================================================================
-# Build Dependencies
-# =============================================================================
+# --- Build Dependencies ---
 
 [build-dependencies]
 # Compiles this crate to a WASM blob and embeds it via include_bytes! in the node.
 substrate-wasm-builder = { workspace = true }
 
-# =============================================================================
-# Feature Flags
-# =============================================================================
+# --- Feature Flags
 
 [features]
 default = ["std"]

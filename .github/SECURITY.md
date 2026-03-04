@@ -1,14 +1,14 @@
 # Security Policy
 
-> ⚠️ **Current Status:** XNet is currently in its **Testnet phase** and undergoing active, heavy development. Core network components such as consensus, Wasm/ink! execution, EVM interoperability, and upcoming features (ZKP, XCM) are continuously being updated.
+> ⚠️ **Current Status:** XNET is currently in an active development phase. Core network components such as consensus mechanisms, runtime logic, and networking are continuously being updated.
 
-Security is our absolute highest priority. As a decentralized infrastructure provider, the integrity of the XNet protocol and the safety of our users' assets are paramount. We appreciate the efforts of the security community in helping us find and fix vulnerabilities.
+Security is our absolute highest priority. As a decentralized infrastructure provider, the integrity of the XNET protocol and the safety of our users' assets are paramount. We appreciate the efforts of the security community in helping us find and fix vulnerabilities.
 
 ## Reporting a Vulnerability
 
 **DO NOT OPEN PUBLIC ISSUES FOR SECURITY VULNERABILITIES.**
 
-If you discover a potential vulnerability in the XNet core node, runtime pallets, EVM integration, or Wasm/ink! components, please report it directly and privately to our security team:
+If you discover a potential vulnerability in the XNET core node or runtime pallets, please report it directly and privately to our security team:
 
 *   **Email:** security@xnetcoin.org
 *   **Telegram:** Reach out directly to the core team admins in our [Official Telegram (xnethq)](https://t.me/xnethq) for a secure communication channel.
@@ -28,20 +28,15 @@ To help us triage and resolve issues quickly, please include:
 *   **Initial Assessment:** Within 1 week.
 *   **Patch Development:** Commences immediately upon verification for critical issues. 
 
-## Bug Bounty Program
-
-Because we are currently in **Testnet** stage, a formal Mainnet bug bounty program with defined tier rewards is not yet open. 
-
-However, we deeply value the contributions of white-hat hackers and security researchers. Significant runtime, EVM, Wasm, or consensus-level vulnerabilities reported during the Testnet phase may be retroactively rewarded or granted standard community grants as a token of appreciation.
-
 ## Supported Versions
 
-During the Testnet phase, we solely provide security support for the `main`/`master` branch and the absolute latest released binaries. 
+We currently provide security support for the `main`/`master` branch and the latest stable binary releases.
 
 | Version | Supported          |
 | ------- | ------------------ |
 | `main` branch (Latest) | :white_check_mark: |
-| Older Testnet Releases  | :x:                |
+| Latest Release | :white_check_mark: |
+| Older Releases | :x:                |
 
 ## Security Disclosures
 

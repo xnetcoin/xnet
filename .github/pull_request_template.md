@@ -17,7 +17,7 @@ Please delete options that are not relevant.
 
 ## Substrate / Node Requirements Checklist
 
-Given that XNet is a Rust-based Substrate chain actively developing EVM, Wasm/ink!, and ZKP features, all PRs touching the core logic **must** adhere to the following checklist:
+Given that XNET is a Substrate-based blockchain, all PRs touching the core logic **must** adhere to the following checklist:
 
 - [ ] I have read the [CONTRIBUTING.md](../CONTRIBUTING.md) guidelines.
 - [ ] My code strictly follows `rustfmt` formatting standards (`cargo fmt --all`).
@@ -30,4 +30,4 @@ Given that XNet is a Rust-based Substrate chain actively developing EVM, Wasm/in
 ---
 
 ## Notes for Reviewers
-(Any specific areas the reviewer should focus on? E.g., EVM precompile logic, consensus configuration, ink! contract dependencies).
+(Any specific areas the reviewer should focus on? E.g., consensus configuration, pallet logic, RPC endpoints).

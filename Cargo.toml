@@ -8,313 +8,14 @@ authors = ["Xnet Technologies <info@xnetcoin.org>"]
 edition = "2021"
 version = "1.0.0"
 
-# This list of dependencies is for documentation purposes only.
-[dependencies]
-aquamarine = "0.3.2"
-
-subkey = { path = "bin/utils/subkey" }
-chain-spec-builder = { path = "bin/utils/chain-spec-builder" }
-
-sc-service = { path = "client/service" }
-sc-cli = { path = "client/cli" }
-sc-consensus-aura = { path = "client/consensus/aura" }
-sc-consensus-babe = { path = "client/consensus/babe" }
-sc-consensus-grandpa = { path = "client/consensus/grandpa" }
-sc-consensus-beefy = { path = "client/consensus/beefy" }
-sc-consensus-manual-seal = { path = "client/consensus/manual-seal" }
-sc-consensus-pow = { path = "client/consensus/pow" }
-
-sp-runtime = { path = "primitives/runtime" }
-frame-support = { path = "frame/support" }
-
-node-cli = { path = "bin/node/cli" }
-
-# Exists here to be backwards compatible and to support `cargo run` in the workspace.
-#
-# Just uses the `node-cli` main binary. `node-cli` itself also again exposes the node as
-# `substrate-node`.
-
-# `cargo run` on its own doesn't support features. To use features you must explicitly use
-# `node-cli` in your command, e.g. `cargo run -p node-cli --features try-runtime ...`.
-[[bin]]
-name = "xnet"
-path = "bin/node/cli/bin/main.rs"
-
 [workspace]
 resolver = "2"
-
-default-members = [
-    "bin/xnet-node/node",
-	"bin/xnet-node/pallets/block-rewards",
-    "bin/xnet-node/runtime",
-]
 
 members = [
 	"bin/xnet-node/node",
 	"bin/xnet-node/pallets/block-rewards",
 	"bin/xnet-node/runtime",
-	"bin/node/bench",
-	"bin/node/cli",
-	"bin/node/executor",
-	"bin/node/inspect",
-	"bin/node/primitives",
-	"bin/node/rpc",
-	"bin/node/runtime",
-	"bin/node/testing",
-	"bin/utils/chain-spec-builder",
-	"bin/utils/subkey",
-	"client/api",
-	"client/authority-discovery",
-	"client/basic-authorship",
-	"client/block-builder",
-	"client/chain-spec",
-	"client/chain-spec/derive",
-	"client/cli",
-	"client/consensus/aura",
-	"client/consensus/babe",
-	"client/consensus/babe/rpc",
-	"client/consensus/beefy",
-	"client/consensus/beefy/rpc",
-	"client/consensus/common",
-	"client/consensus/epochs",
-	"client/consensus/grandpa",
-	"client/consensus/grandpa/rpc",
-	"client/consensus/manual-seal",
-	"client/consensus/pow",
-	"client/consensus/slots",
-	"client/db",
-	"client/executor",
-	"client/executor/common",
-	"client/executor/runtime-test",
-	"client/executor/wasmtime",
-	"client/informant",
-	"client/keystore",
-	"client/merkle-mountain-range",
-	"client/merkle-mountain-range/rpc",
-	"client/network",
-	"client/network/transactions",
-	"client/network/statement",
-	"client/network-gossip",
-	"client/network/bitswap",
-	"client/network/common",
-	"client/network/light",
-	"client/network/sync",
-	"client/network/test",
-	"client/offchain",
-	"client/allocator",
-	"client/proposer-metrics",
-	"client/rpc",
-	"client/rpc-api",
-	"client/rpc-servers",
-	"client/rpc-spec-v2",
-	"client/service",
-	"client/service/test",
-	"client/state-db",
-	"client/statement-store",
-	"client/storage-monitor",
-	"client/sysinfo",
-	"client/sync-state-rpc",
-	"client/telemetry",
-	"client/tracing",
-	"client/tracing/proc-macro",
-	"client/transaction-pool",
-	"client/transaction-pool/api",
-	"client/utils",
-	"frame/alliance",
-	"frame/asset-conversion",
-	"frame/assets",
-	"frame/atomic-swap",
-	"frame/aura",
-	"frame/authority-discovery",
-	"frame/authorship",
-	"frame/babe",
-	"frame/bags-list",
-	"frame/bags-list/fuzzer",
-	"frame/bags-list/remote-tests",
-	"frame/balances",
-	"frame/beefy",
-	"frame/beefy-mmr",
-	"frame/benchmarking",
-	"frame/benchmarking/pov",
-	"frame/bounties",
-	"frame/broker",
-	"frame/child-bounties",
-	"frame/collective",
-	"frame/contracts",
-	"frame/contracts/proc-macro",
-	"frame/contracts/primitives",
-	"frame/conviction-voting",
-	"frame/core-fellowship",
-	"frame/democracy",
-	"frame/fast-unstake",
-	"frame/try-runtime",
-	"frame/elections-phragmen",
-	"frame/election-provider-multi-phase",
-	"frame/election-provider-multi-phase/test-staking-e2e",
-	"frame/election-provider-support",
-	"frame/election-provider-support/benchmarking",
-	"frame/election-provider-support/solution-type",
-	"frame/election-provider-support/solution-type/fuzzer",
-	"frame/nis",
-	"frame/grandpa",
-	"frame/identity",
-	"frame/im-online",
-	"frame/indices",
-	"frame/lottery",
-	"frame/membership",
-	"frame/merkle-mountain-range",
-	"frame/multisig",
-	"frame/nicks",
-	"frame/node-authorization",
-	"frame/offences",
-	"frame/offences/benchmarking",
-	"frame/preimage",
-	"frame/proxy",
-	"frame/message-queue",
-	"frame/nfts",
-	"frame/nfts/runtime-api",
-	"frame/nft-fractionalization",
-	"frame/nomination-pools",
-	"frame/nomination-pools/fuzzer",
-	"frame/nomination-pools/benchmarking",
-	"frame/nomination-pools/test-staking",
-	"frame/nomination-pools/runtime-api",
-	"frame/paged-list",
-	"frame/paged-list/fuzzer",
-	"frame/insecure-randomness-collective-flip",
-	"frame/ranked-collective",
-	"frame/recovery",
-	"frame/referenda",
-	"frame/remark",
-	"frame/tx-pause",
-	"frame/safe-mode",
-	"frame/salary",
-	"frame/scheduler",
-	"frame/scored-pool",
-	"frame/session",
-	"frame/session/benchmarking",
-	"frame/society",
-	"frame/staking",
-	"frame/staking/reward-curve",
-	"frame/staking/reward-fn",
-	"frame/staking/runtime-api",
-	"frame/state-trie-migration",
-	"frame/sudo",
-	"frame/root-offences",
-	"frame/root-testing",
-	"frame/statement",
-	"frame/support",
-	"frame/support/procedural",
-	"frame/support/procedural/tools",
-	"frame/support/procedural/tools/derive",
-	"frame/support/test",
-	"frame/support/test/compile_pass",
-	"frame/support/test/pallet",
-	"frame/system",
-	"frame/system/benchmarking",
-	"frame/system/rpc/runtime-api",
-	"frame/timestamp",
-	"frame/transaction-payment",
-	"frame/transaction-payment/asset-conversion-tx-payment",
-	"frame/transaction-payment/asset-tx-payment",
-	"frame/transaction-payment/rpc",
-	"frame/transaction-payment/rpc/runtime-api",
-	"frame/transaction-storage",
-	"frame/treasury",
-	"frame/asset-rate",
-	"frame/tips",
-	"frame/uniques",
-	"frame/utility",
-	"frame/vesting",
-	"frame/glutton",
-	"frame/whitelist",
-	"primitives/api",
-	"primitives/api/proc-macro",
-	"primitives/api/test",
-	"primitives/application-crypto",
-	"primitives/application-crypto/test",
-	"primitives/arithmetic",
-	"primitives/arithmetic/fuzzer",
-	"primitives/authority-discovery",
-	"primitives/block-builder",
-	"primitives/blockchain",
-	"primitives/consensus/aura",
-	"primitives/consensus/babe",
-	"primitives/consensus/beefy",
-	"primitives/consensus/common",
-	"primitives/consensus/grandpa",
-	"primitives/consensus/pow",
-	"primitives/consensus/slots",
-	"primitives/core",
-	"primitives/core/hashing",
-	"primitives/core/hashing/proc-macro",
-	"primitives/crypto/ec-utils",
-	"primitives/database",
-	"primitives/debug-derive",
-	"primitives/externalities",
-	"primitives/genesis-builder",
-	"primitives/inherents",
-	"primitives/io",
-	"primitives/keyring",
-	"primitives/keystore",
-	"primitives/maybe-compressed-blob",
-	"primitives/merkle-mountain-range",
-	"primitives/metadata-ir",
-	"primitives/npos-elections",
-	"primitives/npos-elections/fuzzer",
-	"primitives/offchain",
-	"primitives/panic-handler",
-	"primitives/rpc",
-	"primitives/runtime",
-	"primitives/runtime-interface",
-	"primitives/runtime-interface/proc-macro",
-	"primitives/runtime-interface/test",
-	"primitives/runtime-interface/test-wasm",
-	"primitives/runtime-interface/test-wasm-deprecated",
-	"primitives/session",
-	"primitives/staking",
-	"primitives/state-machine",
-	"primitives/statement-store",
-	"primitives/std",
-	"primitives/storage",
-	"primitives/test-primitives",
-	"primitives/timestamp",
-	"primitives/tracing",
-	"primitives/transaction-pool",
-	"primitives/transaction-storage-proof",
-	"primitives/trie",
-	"primitives/version",
-	"primitives/version/proc-macro",
-	"primitives/wasm-interface",
-	"primitives/weights",
-	"test-utils",
-	"test-utils/cli",
-	"test-utils/client",
-	"test-utils/derive",
-	"test-utils/runtime",
-	"test-utils/runtime/client",
-	"test-utils/runtime/transaction-pool",
-	"test-utils/test-crate",
-	"utils/build-script-utils",
-	"utils/fork-tree",
-	"utils/frame/benchmarking-cli",
-	"utils/frame/remote-externalities",
-	"utils/frame/frame-utilities-cli",
-	"utils/frame/try-runtime/cli",
-	"utils/frame/rpc/state-trie-migration-rpc",
-	"utils/frame/rpc/support",
-	"utils/frame/rpc/system",
-	"utils/frame/generate-bags",
-	"utils/frame/generate-bags/node-runtime",
-	"utils/frame/rpc/client",
-	"utils/prometheus",
-	"utils/wasm-builder",
-	"utils/binary-merkle-tree",
-]
-
-# ==========================================
-# Dependencies from bin/xnet-node/node
-# ==========================================
+] 
 [workspace.dependencies]
 
 # --- General utilities ---
@@ -324,6 +25,11 @@ hex-literal     = "0.4"
 parking_lot     = "0.12.1"
 jsonrpsee       = { version = "0.23", features = ["server"] }
 serde_json      = "1.0.114"
+serde           = { version = "1.0.197", default-features = false, features = ["derive"] }
+
+# --- Serialization ---
+codec      = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
+scale-info = { version = "2.11.1", default-features = false, features = ["derive"] }
 
 # --- Substrate Client (sc-*) ---
 sc-basic-authorship      = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
@@ -345,31 +51,6 @@ sc-telemetry             = { git = "https://github.com/paritytech/polkadot-sdk.g
 sc-transaction-pool      = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
 sc-transaction-pool-api  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
 substrate-frame-rpc-system      = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-sp-transaction-storage-proof    = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
-
-# --- Frontier Client (fc-*) ---
-fc-cli          = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
-fc-consensus    = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
-fc-db           = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
-fc-mapping-sync = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
-fc-rpc          = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
-fc-rpc-core     = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
-fc-storage      = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
-fp-dynamic-fee  = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
-
-# --- XNET local crates ---
-xnet-runtime = { path = "bin/xnet-node/runtime" }
-
-# ==========================================
-# Shared Substrate Primitives (sp-* / frame-* / pallet-* / fp-*)
-# Used by BOTH node AND runtime — default-features = false so runtime
-# compiles no_std; node adds features = ["std"] where needed.
-# ==========================================
-
-# --- Serialization (no_std safe) ---
-codec      = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
-scale-info = { version = "2.11.1", default-features = false, features = ["derive"] }
-serde      = { version = "1.0.197", default-features = false, features = ["derive"] }
 
 # --- Substrate Primitives (sp-*) ---
 sp-api               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
@@ -390,6 +71,7 @@ sp-staking           = { git = "https://github.com/paritytech/polkadot-sdk.git",
 sp-std               = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
 sp-timestamp         = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
 sp-transaction-pool  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
+sp-transaction-storage-proof    = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
 sp-version           = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
 
 # --- FRAME ---
@@ -425,6 +107,14 @@ pallet-utility                  = { git = "https://github.com/paritytech/polkado
 pallet-vesting                  = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407", default-features = false }
 
 # --- Frontier / EVM ---
+fc-cli          = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-consensus    = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-db           = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-mapping-sync = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-rpc          = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-rpc-core     = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fc-storage      = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+fp-dynamic-fee  = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
 fp-evm                       = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
 fp-rpc                       = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
 fp-self-contained            = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
@@ -437,15 +127,14 @@ pallet-evm-precompile-modexp = { git = "https://github.com/polkadot-evm/frontier
 pallet-evm-precompile-simple = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
 precompile-utils             = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407", default-features = false }
 
-# --- Custom pallet ---
-pallet-block-reward = { path = "bin/xnet-node/pallets/block-rewards", default-features = false }
-
-# ==========================================
-# Build Dependencies
-# ==========================================
+# --- Build Dependencies ---
 substrate-build-script-utils = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
 substrate-wasm-builder       = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
 
+# --- XNET local crates ---
+xnet-runtime = { path = "bin/xnet-node/runtime" }
+pallet-block-reward = { path = "bin/xnet-node/pallets/block-rewards", default-features = false }
+pallet-zk-verifier = { path = "bin/xnet-node/pallets/zk-verifier", default-features = false }
 
 # The list of dependencies below (which can be both direct and indirect dependencies) are crates
 # that are suspected to be CPU-intensive, and that are unlikely to require debugging (as some of
@@ -507,9 +196,7 @@ x25519-dalek = { opt-level = 3 }
 yamux = { opt-level = 3 }
 zeroize = { opt-level = 3 }
 
-# =============================================================================
 # Release Profile
-# =============================================================================
 # Optimised for production validator nodes.
 # Key flags:
 #   lto = "fat"          — link-time optimisation across all crates (smaller, faster binary)

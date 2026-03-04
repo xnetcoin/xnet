@@ -1,0 +1,155 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/xnet/xnet/xnet-privacy-contracts/contracts/Groth16Verifier.sol": {
+      "lastModificationDate": 1772444625689,
+      "contentHash": "420738539b42781be61d1480c2514721",
+      "sourceName": "contracts/Groth16Verifier.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IHasher",
+        "IVerifier",
+        "XnetPrivacyPool",
+        "XnetPrivacyPoolFactory"
+      ]
+    },
+    "/home/xnet/xnet/xnet-privacy-contracts/contracts/XnetPrivacyPool.sol": {
+      "lastModificationDate": 1772444531748,
+      "contentHash": "420738539b42781be61d1480c2514721",
+      "sourceName": "contracts/XnetPrivacyPool.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IHasher",
+        "IVerifier",
+        "XnetPrivacyPool",
+        "XnetPrivacyPoolFactory"
+      ]
+    },
+    "/home/xnet/xnet/xnet-privacy-contracts/contracts/PlonkVerifier.sol": {
+      "lastModificationDate": 1772447913497,
+      "contentHash": "183854c1742b59205e5e4f13bf4e92b0",
+      "sourceName": "contracts/PlonkVerifier.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "PlonkVerifier"
+      ]
+    },
+    "/home/xnet/xnet/xnet-privacy-contracts/contracts/PoseidonHasher.sol": {
+      "lastModificationDate": 1772447722563,
+      "contentHash": "131d2be4484a312a6764cae86f277ae0",
+      "sourceName": "contracts/PoseidonHasher.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "PoseidonHasher"
+      ]
+    }
+  }
+}
