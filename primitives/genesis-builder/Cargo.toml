@@ -1,12 +1,12 @@
 [package]
 name = "sp-genesis-builder"
 version = "0.1.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["XNET Protocol Team <admin@parity.io>"]
 edition = "2021"
 license = "Apache-2.0"
 homepage = "https://substrate.io"
 repository = "https://github.com/paritytech/substrate/"
-description = "Substrate GenesisConfig builder API"
+description = "XNET GenesisConfig builder API"
 readme = "README.md"
 
 [package.metadata.docs.rs]

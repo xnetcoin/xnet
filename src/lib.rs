@@ -1,297 +1,244 @@
-// This file is part of Substrate.
-
-// Copyright (C) Parity Technologies (UK) Ltd.
+// XNET Protocol
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-//! # Substrate
+//! # XNET Node — Crate Overview
 //!
-//! Substrate is a Rust framework for building blockchains in a modular and extensible way. While in
-//! itself un-opinionated, it is the main engine behind the Polkadot ecosystem.
+//! This crate is the top-level documentation entry point for the XNET blockchain node.
+//! It does not contain executable logic of its own; instead it describes the overall
+//! architecture and guides contributors to the relevant sub-crates.
 //!
-//! [![github]](https://github.com/paritytech/substrate/) - [![polkadot]](https://polkadot.network)
+//! ## Architecture
 //!
-//! This crate in itself does not contain any code and is just meant ot be a documentation hub for
-//! substrate-based crates.
+//! The node is split into two major components — the **client** and the **runtime**:
 //!
-//! ## Overview
+//! - The **client** handles networking, database, consensus coordination, RPC, and all
+//!   host-side logic. Client crates are prefixed with `sc-` (substrate-client).
 //!
-//! Substrate approaches blockchain development with an acknowledgement of a few self-evident
-//! truths:
+//! - The **runtime** contains the application-specific state transition logic compiled
+//!   to WebAssembly. Runtime crates are prefixed with `sp-` (primitives) or implemented
+//!   as FRAME pallets under `pallet-` / `frame-`.
 //!
-//! 1. Society and technology evolves.
-//! 2. Humans are fallible.
+//! The client and runtime communicate through two mechanisms:
 //!
-//! This, specifically, makes the task of designing a correct, safe and long-lasting blockchain
-//! system hard.
+//! 1. **Runtime APIs** — the client calls into the Wasm runtime through typed API
+//!    traits defined with the `impl_runtime_apis!` macro. The most fundamental of
+//!    these is `Core`, which every compliant runtime must implement.
 //!
-//! Nonetheless, in order to achieve this goal, substrate embraces the following:
+//! 2. **Host functions** — the Wasm runtime calls back into the client for I/O
+//!    operations such as storage reads/writes and cryptographic primitives, all
+//!    defined under `sp-io`.
 //!
-//! 1. Use of **Rust** as a modern, and safe programming language, which limits human error through
-//!    various means, most notably memory safety.
-//! 2. Substrate is written from the ground-up with a generic, modular and extensible design. This
-//!    ensures that software components can be easily swapped and upgraded. Examples of this is
-//!    multiple consensus mechanisms provided by Substrate, as listed below.
-//! 3. Lastly, the final blockchain system created with the above properties needs to be
-//!    upgradeable. In order to achieve this, Substrate is designed as a meta-protocol, whereby the
-//!    application logic of the blockchain (called "Runtime") is encoded as a Wasm blob, and is
-//!    stored onchain. The rest of the system (called "Client") acts as the executor of the Wasm
-//!    blob.
+//! This separation guarantees that the client is generic and reusable, while the
+//! runtime encapsulates all chain-specific logic and can be upgraded on-chain
+//! without a hard fork.
 //!
-//! In essence, the meta-protocol of all Substrate based chains is the "Runtime as Wasm blob"
-//! accord. This enables the Runtime to become inherently upgradeable (without forks). The upgrade
-//! is merely a matter of the Wasm blob being changed in the chain state, which is, in principle,
-//! same as updating an account's balance.
+//! ## Consensus
 //!
-//! To learn more about the substrate architecture using some visuals, see [`substrate_diagram`].
+//! XNET uses a hybrid consensus model:
 //!
-//! `FRAME`, Substrate's default runtime development library takes the above even further by
-//! embracing a declarative programming model whereby correctness is enhanced and the system is
-//! highly configurable through parameterization.
+//! - **BABE** (Blind Assignment for Blockchain Extension) for block production.
+//!   Validators are assigned slots through a VRF lottery, making authorship
+//!   unpredictable to adversaries until the slot begins.
 //!
-//! All in all, this design enables all substrate-based chains to achieve forkless, self-enacting
-//! upgrades out of the box. Combined with governance abilities that are shipped with `FRAME`, this
-//! enables a chain to survive the test of time.
+//! - **GRANDPA** (GHOST-based Recursive ANcestor Deriving Prefix Agreement) for
+//!   finality. Validators vote on chains — not individual blocks — and a chain is
+//!   finalized once 2/3+ of the active validator set has committed to it.
 //!
-//! ## How to Get Stared
+//! This combination provides strong liveness guarantees (blocks keep being produced
+//! even if finality stalls) alongside deterministic safety (finalized blocks are
+//! irreversible).
 //!
-//! Most developers want to leave the client side code as-is, and focus on the runtime. To do so,
-//! look into the [`frame_support`] crate, which is the entry point crate into runtime development
-//! with FRAME.
+//! ## Staking and Validator Selection
 //!
-//! > Side note, it is entirely possible to craft a xnet-based runtime without FRAME, an
-//! > example of which can be found [here](https://github.com/xnetxcoin/xnet).
+//! XNET implements Nominated Proof-of-Stake (NPoS) using the Sequential Phragmén
+//! election algorithm. Token holders nominate validators they trust; the algorithm
+//! distributes stake across the elected set as evenly as possible to maximize
+//! decentralization. Rewards and slashing both apply proportionally.
 //!
-//! In more broad terms, the following avenues exist into developing with xnet:
+//! Key on-chain parameters:
 //!
-//! * **Templates**: A number of substrate-based templates exist and they can be used for various
-//!   purposes, with zero to little additional code needed. All of these templates contain runtimes
-//!   that are highly configurable and are likely suitable for basic needs.
-//! * `FRAME`: If need, one can customize that runtime even further, by using `FRAME` and developing
-//!   custom modules.
-//! * **Core**: To the contrary, some developers may want to customize the client side software to
-//!   achieve novel goals such as a new consensus engine, or a new database backend. While
-//!   Substrate's main configurability is in the runtime, the client is also highly generic and can
-//!   be customized to a great extent.
+//! - Maximum active validators: 100
+//! - Era duration: 24 hours (1,800 blocks at 6s block time)
+//! - Unbonding period: 28 eras (~28 days)
+//! - Validator minimum bond: 8,000 XNET
+//! - Nominator minimum bond: 1,000 XNET
 //!
-//! ## Structure
+//! ## Smart Contracts
 //!
-//! Substrate is a massive cargo workspace with hundreds of crates, therefore it is useful to know
-//! how to navigate its crates.
+//! XNET supports two independent smart contract environments:
 //!
-//! In broad terms, it is divided into three categories:
+//! - **EVM** via the Frontier pallet stack. Any Solidity contract targeting the
+//!   Ethereum Virtual Machine deploys without modification. XNET's EVM chain ID
+//!   is `2009`. The full set of Ethereum precompiles (0x01–0x09) is available,
+//!   including BN128 pairing for on-chain ZK proof verification.
 //!
-//! * `sc-*` (short for *substrate-client*) crates, located under `./client` folder. These are all
-//!   the client crates. Notable examples are crates such as [`sc-network`], various consensus
-//!   crates, [`sc-rpc-api`] and [`sc-client-db`], all of which are expected to reside in the client
-//!   side.
-//! * `sp-*` (short for *substrate-primitives*) crates, located under `./primitives` folder. These
-//!   are the traits that glue the client and runtime together, but are not opinionated about what
-//!   framework is using for building the runtime. Notable examples are [`sp-api`] and [`sp-io`],
-//!   which form the communication bridge between the client and runtime, as explained in
-//!   [`substrate_diagram`].
-//! * `pallet-*` and `frame-*` crates, located under `./frame` folder. These are the crates related
-//!   to FRAME. See [`frame_support`] for more information.
+//! - **ink!** (WebAssembly) via `pallet-contracts`. Contracts are written in Rust
+//!   using the `ink!` eDSL and compiled to Wasm. They benefit from Rust's type
+//!   system and memory safety, and share the same storage deposit model.
 //!
-//! ### Wasm Build
+//! Both environments are first-class; neither is a secondary integration layer.
 //!
-//! Many of the Substrate crates, such as entire `sp-*`, need to compile to both Wasm (when a Wasm
-//! runtime is being generated) and native (for example, when testing). To achieve this, Substrate
-//! follows the convention of the Rust community, and uses a `feature = "std"` to signify that a
-//!  crate is being built with the standard library, and is built for native. Otherwise, it is built
-//!  for `no_std`.
+//! ## Zero-Knowledge Proof System
 //!
-//! This can be summarized in `#![cfg_attr(not(feature = "std"), no_std)]`, which you can often find
-//! in any Substrate-based runtime.
+//! XNET implements ZK proof capabilities at two distinct layers:
 //!
-//! Substrate-based runtimes use [`substrate-wasm-builder`] in their `build.rs` to automatically
-//! build their Wasm files as a part of normal build commandsOnce built, the wasm file is placed in
-//! `./target/{debug|release}/wbuild/{runtime_name}.wasm`.
+//! - **ZK Layer 1 (EVM)** — Solidity-based ZK verifier contracts deployable today.
+//!   Compatible with the full Ethereum ZK toolchain: Circom, snarkjs, ZoKrates, Noir.
+//!   BN128 precompiles (0x06–0x08) enable efficient on-chain verification.
 //!
-//! ### Binaries
+//! - **ZK Layer 2 (Native)** — `pallet-zk-verifier` implements Groth16 ZK-SNARKs
+//!   directly in the Substrate runtime using BN254 elliptic curve arithmetic, written
+//!   entirely in Rust without external cryptographic library dependencies.
+//!   Features: nullifier registry (replay protection), block-level proof limits
+//!   (DoS protection), full Circom/snarkjs compatibility.
 //!
-//! Multiple binaries are shipped with substrate, the most important of which are located in the
-//! `./bin` folder.
+//! ## Fee Distribution
 //!
-//! * [`node`] is an extensive substrate node that contains the superset of all runtime and client
-//!   side features. The corresponding runtime, called [`kitchensink_runtime`] contains all of the
-//!   modules that are provided with `FRAME`. This node and runtime is only used for testing and
-//!   demonstration.
-//!     * [`chain-spec-builder`]: Utility to build more detailed chain-specs for the aforementioned
-//!       node. Other projects typically contain a `build-spec` subcommand that does the same.
-//! * [`xnetx-node`]: a template node that contains a minimal set of features and can act as a
-//!   starting point of a project.
-//! * [`subkey`]: Xnet's key management utility.
+//! Transaction fees are not paid to validators in full. XNET splits fees at the
+//! pallet level using a custom `DealWithFees` type:
 //!
-//! ### Anatomy of a Binary Crate
+//! - **60%** → on-chain Treasury
+//! - **15%** → developer grant pool (a sub-account of Treasury)
+//! - **25%** → block author (validator)
 //!
-//! From the above, [`node`] and [`xnet-node`] are essentially blueprints of a xnet-based
-//! project, as the name of the latter is implying. Each xnet-based project typically contains
-//! the following:
+//! This model funds protocol development and ecosystem grants sustainably from
+//! ordinary transaction activity, without requiring external fundraising.
 //!
-//! * Under `./runtime`, a `./runtime/src/lib.rs` which is the top level runtime amalgamator file.
-//!   This file typically contains the [`frame_support::construct_runtime`] macro, which is the
-//!   final definition of a runtime.
+//! ## Token Economics
 //!
-//! * Under `./node`, a `main.rs`, which is the point, and a `./service.rs`, which contains all the
-//!   client side components. Skimming this file yields an overview of the networking, database,
-//!   consensus and similar client side components.
+//! The native token is `XNET` with 18 decimal places. The emission schedule mirrors
+//! Bitcoin's design:
 //!
-//! > The above two are conventions, not rules.
+//! - Hard supply cap: **53,000,000 XNET**
+//! - Initial block reward: **1,117 XNET** per block
+//! - Halving interval: every **21,038,400 blocks** (~4 years at 6s block time)
+//! - EVM Chain ID: **2009**
+//! - SS58 Prefix: **888**
 //!
-//! ## Parachain?
+//! The genesis premine is **6,000,000 XNET**, entirely locked via `pallet-vesting`:
 //!
-//! As noted above, Substrate is the main engine behind the Polkadot ecosystem. One of the ways
-//! through which Polkadot can be utilized is by building "parachains", blockchains that are
-//! connected to Polkadot's shared security.
+//! - 1,000,000 XNET — Founder (2.5 years linear vesting)
+//! - 1,000,000 XNET — Investor Reserve (2.5 years linear vesting)
+//! - 2,000,000 XNET — Ecosystem Fund (3 years linear vesting)
+//! - 2,000,000 XNET — Treasury Reserve (governance-controlled)
 //!
-//! To build a parachain, one could use [`Cumulus`](https://github.com/paritytech/cumulus/), the
-//! library on top of Substrate, empowering any substrate-based chain to be a Polkadot parachain.
+//! No premine token can be transferred until the vesting schedule allows it.
 //!
-//! ## Where To Go Next?
+//! ## Runtime Upgrades
 //!
-//! Additional noteworthy crates within substrate:
+//! The XNET runtime is stored on-chain as a Wasm blob. Protocol upgrades are
+//! enacted by replacing this blob through a governance-approved extrinsic. All
+//! connected nodes automatically switch to the new runtime at the upgrade block,
+//! with zero coordination and no network split.
 //!
-//! - RPC APIs of a Substrate node: [`sc-rpc-api`]/[`sc-rpc`]
-//! - CLI Options of a Substrate node: [`sc-cli`]
-//! - All of the consensus related crates provided by Substrate:
-//!     - [`sc-consensus-aura`]
-//!     - [`sc-consensus-babe`]
-//!     - [`sc-consensus-grandpa`]
-//!     - [`sc-consensus-beefy`]
-//!     - [`sc-consensus-manual-seal`]
-//!     - [`sc-consensus-pow`]
+//! Currently the runtime is administered via a sudo key for rapid iteration during
+//! the testnet phase. The sudo key will be removed before mainnet launch, at which
+//! point all upgrades require on-chain governance approval.
 //!
-//! Additional noteworthy external resources:
+//! ## Wasm Build
 //!
-//! - [Substrate Developer Hub](https://substrate.dev)
-//! - [Parity Tech's Documentation Hub](https://paritytech.github.io/)
-//! - [Frontier: Substrate's Ethereum Compatibility Library](https://paritytech.github.io/frontier/)
-//! - [Polkadot Wiki](https://wiki.polkadot.network/en/)
+//! Runtime crates must compile to both native (for off-chain tools and tests) and
+//! Wasm (for the on-chain blob). Substrate's convention of
+//! `#![cfg_attr(not(feature = "std"), no_std)]` gates standard-library usage
+//! behind a feature flag.
 //!
-//! Notable upstream crates:
+//! The `substrate-wasm-builder` crate in `runtime/build.rs` invokes the Wasm
+//! compiler automatically during `cargo build`. The resulting blob is placed at:
 //!
-//! - [`parity-scale-codec`](https://github.com/paritytech/parity-scale-codec)
-//! - [`parity-db`](https://github.com/paritytech/parity-db)
-//! - [`trie`](https://github.com/paritytech/trie)
-//! - [`parity-common`](https://github.com/paritytech/parity-common)
+//! ```text
+//! target/{debug|release}/wbuild/xnet-runtime/xnet_runtime.wasm
+//! ```
 //!
-//! Templates:
+//! ## Repository Layout
 //!
-//! - classic [`xnet-node`](https://github.com/xnetxcoin/xnet)
-//! - classic [cumulus-parachain-template](https://github.com/substrate-developer-hub/substrate-parachain-template)
-//! - [`extended-parachain-template`](https://github.com/paritytech/extended-parachain-template)
-//! - [`frontier-parachain-template`](https://github.com/paritytech/frontier-parachain-template)
+//! ```text
+//! xnet/
+//! ├── .cargo/                       — Cargo config (build flags, target overrides)
+//! ├── .config/                      — Project-level config
+//! ├── .github/                      — CI workflows (lint, test, release, security audit)
+//! ├── .maintain/                    — Maintenance scripts
+//! ├── bin/                          — Node binary entrypoint
+//! ├── contracts/                    — Example smart contracts (EVM + ink!)
+//! ├── docker/                       — Docker & docker-compose configs
+//! ├── docs/                         — Documentation (setup, contributing, security)
+//! ├── ignition/                     — Deployment ignition scripts
+//! ├── node/                         — Node source (CLI, service, RPC, chain_spec)
+//! ├── pallets/                      — Custom XNET-specific FRAME pallets
+//! │   ├── block-rewards/            — Bitcoin-style halving block rewards
+//! │   └── zk-verifier/             — Native Groth16 ZK-SNARK verification
+//! ├── primitives/                   — Shared types and traits
+//! ├── runtime/                      — WASM runtime
+//! │   └── src/
+//! │       ├── lib.rs                — construct_runtime! macro, all pallet configs
+//! │       └── precompiles.rs        — EVM precompile set (0x01–0x09)
+//! ├── scripts/                      — Utility and deployment scripts
+//! ├── src/
+//! │   └── lib.rs                    — this file (documentation only)
+//! ├── test/                         — Integration tests
+//! ├── test-utils/                   — Shared test utilities
+//! ├── utils/                        — General utilities
+//! ├── xnet_wasm/                    — Wasm build artifacts
+//! ├── xnet-privacy-contracts/       — Privacy contract examples
+//! ├── zombienet/                    — Multi-node test network configs
+//! ├── .gitignore
+//! ├── .gitattributes
+//! ├── .gitlab-ci.yml
+//! ├── .markdownlintrc.json
+//! ├── Cargo.toml                    — Workspace manifest
+//! ├── Cargo.lock
+//! ├── HEADER-APACHE2
+//! ├── HEADER-GPL3
+//! ├── LICENSE-APACHE2
+//! ├── LICENSE-GPL3
+//! └── package.json
+//! ```
 //!
-//! [polkadot]:
-//!     https://img.shields.io/badge/polkadot-E6007A?style=for-the-badge&logo=polkadot&logoColor=white
-//! [github]:
-//!     https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github
-//! [`sp-io`]: ../sp_io/index.html
-//! [`sp-api`]: ../sp_api/index.html
-//! [`sp-api`]: ../sp_api/index.html
-//! [`sc-client-db`]: ../sc_client_db/index.html
-//! [`sc-network`]: ../sc_network/index.html
-//! [`sc-rpc-api`]: ../sc_rpc_api/index.html
-//! [`sc-rpc`]: ../sc_rpc/index.html
-//! [`sc-cli`]: ../sc_cli/index.html
-//! [`sc-consensus-aura`]: ../sc_consensus_aura/index.html
-//! [`sc-consensus-babe`]: ../sc_consensus_babe/index.html
-//! [`sc-consensus-grandpa`]: ../sc_consensus_grandpa/index.html
-//! [`sc-consensus-beefy`]: ../sc_consensus_beefy/index.html
-//! [`sc-consensus-manual-seal`]: ../sc_consensus_manual_seal/index.html
-//! [`sc-consensus-pow`]: ../sc_consensus_pow/index.html
-//! [`node`]: ../node_cli/index.html
-//! [`xnet-node`]: ../node_template/index.html
-//! [`kitchensink_runtime`]: ../kitchensink_runtime/index.html
-//! [`subkey`]: ../subkey/index.html
-//! [`chain-spec-builder`]: ../chain_spec_builder/index.html
-//! [`substrate-wasm-builder`]: https://crates.io/crates/substrate-wasm-builder
+//! ## Getting Started
+//!
+//! For runtime development, start with `frame_support` and the `construct_runtime!`
+//! macro in `runtime/src/lib.rs`. For client-side customization (custom RPC, new
+//! consensus adapter), look at `node/src/service.rs`.
+//!
+//! For environment setup, see [`docs/environment-setup.md`].
+//!
+//! [`docs/environment-setup.md`]: ../docs/environment-setup.md
 
 #![deny(rustdoc::broken_intra_doc_links)]
 #![deny(rustdoc::private_intra_doc_links)]
 
-#[cfg_attr(doc, aquamarine::aquamarine)]
-/// In this module, we explore substrate at a more depth. First, let's establish substrate being
-/// divided into a client and runtime.
+/// Architectural overview of the XNET node — client, runtime, and their interface.
+///
+/// ## Client ↔ Runtime Communication
 ///
 /// ```mermaid
 /// graph TB
-/// subgraph Substrate
-/// 	direction LR
-/// 	subgraph Client
-/// 	end
-/// 	subgraph Runtime
-/// 	end
+/// subgraph XNET Node
+///     direction LR
+///     subgraph Client
+///         Networking
+///         Database
+///         Consensus["Consensus (BABE + GRANDPA)"]
+///         RPC
+///     end
+///     subgraph Runtime["Runtime (Wasm)"]
+///         subgraph FRAME
+///             direction LR
+///             Balances["pallet-balances"]
+///             Staking["pallet-staking"]
+///             EVM["pallet-evm (Frontier)"]
+///             Contracts["pallet-contracts (ink!)"]
+///             ZKVerifier["pallet-zk-verifier (Groth16)"]
+///             BlockRewards["pallet-block-rewards"]
+///             Treasury["pallet-treasury"]
+///             Governance["pallet-democracy"]
+///         end
+///     end
+///     Client --"runtime API"--> Runtime
+///     Runtime --"host functions"--> Client
 /// end
 /// ```
 ///
-/// The client and the runtime of course need to communicate. This is done through two concepts:
-///
-/// 1. Host functions: a way for the (Wasm) runtime to talk to the client. All host functions are
-///    defined in [`sp-io`]. For example, [`sp-io::storage`] are the set of host functions that
-///    allow the runtime to read and write data to the on-chain state.
-/// 2. Runtime APIs: a way for the client to talk to the Wasm runtime. Runtime APIs are defined
-///    using macros and utilities in [`sp-api`]. For example, [`sp-api::Core`] is the most basic
-///    runtime API that any blockchain must implement in order to be able to (re) execute blocks.
-///
-/// ```mermaid
-/// graph TB
-/// subgraph Substrate
-/// 	direction LR
-/// 	subgraph Client
-/// 	end
-/// 	subgraph Runtime
-/// 	end
-/// 	Client --runtime-api--> Runtime
-/// 	Runtime --host-functions--> Client
-/// end
-/// ```
-///
-/// Finally, let's expand the diagram a bit further and look at the internals of each component:
-///
-/// ```mermaid
-/// graph TB
-/// subgraph Substrate
-/// 	direction LR
-/// 	subgraph Client
-/// 		Database
-/// 		Networking
-/// 		Consensus
-/// 	end
-/// 	subgraph Runtime
-/// 		subgraph FRAME
-/// 			direction LR
-/// 			Governance
-/// 			Currency
-/// 			Staking
-/// 			Identity
-/// 		end
-/// 	end
-/// 	Client --runtime-api--> Runtime
-/// 	Runtime --host-functions--> Client
-/// end
-/// ```
-///
-/// As noted the runtime contains all of the application specific logic of the blockchain. This is
-/// usually written with `FRAME`. The client, on the other hand, contains reusable and generic
-/// components that are not specific to one single blockchain, such as networking, database, and the
-/// consensus engine.
-///
-/// [`sp-io`]: ../../sp_io/index.html
-/// [`sp-api`]: ../../sp_api/index.html
-/// [`sp-io::storage`]: ../../sp_io/storage/index.html
-/// [`sp-api::Core`]: ../../sp_api/trait.Core.html
-pub mod substrate_diagram {}
+/// The client is chain-agnostic. The runtime is the chain. When the runtime is
+/// upgraded on-chain, the client picks up the new Wasm blob automatically at
+/// the block where the upgrade was enacted — no binary distribution required.
+pub mod xnet_diagram {}

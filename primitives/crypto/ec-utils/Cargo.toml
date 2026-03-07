@@ -1,8 +1,8 @@
 [package]
 name = "sp-crypto-ec-utils"
 version = "0.4.0"
-authors = ["Parity Technologies <admin@parity.io>"]
-description = "Host function interface for common elliptic curve operations in Substrate runtimes"
+authors = ["XNET Protocol Team <admin@parity.io>"]
+description = "Host function interface for common elliptic curve operations in XNET runtimes"
 edition = "2021"
 license = "Apache-2.0"
 homepage = "https://substrate.io"

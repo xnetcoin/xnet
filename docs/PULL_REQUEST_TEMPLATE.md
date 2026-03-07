@@ -1,35 +1,40 @@
+## Description
+
+<!-- Describe your change clearly:
+     - What does this PR do?
+     - Why is this change needed?
+     - How is it implemented and what does it affect? -->
 
 
-✄ -----------------------------------------------------------------------------
+Fixes # <!-- issue number, if applicable -->
 
-Thank you for your Pull Request! 🙏 Please make sure it follows the contribution guidelines outlined in [this document](https://github.com/paritytech/substrate/blob/master/docs/CONTRIBUTING.md) and fill out the sections below. Once you're ready to submit your PR for review, please delete this section and leave only the text under the "Description" heading.
+---
 
-# Description
+## Type of Change
 
-*Please include a summary of the changes and the related issue. Please also include relevant motivation and context, including:*
+<!-- Check all that apply -->
 
-- What does this PR do?
-- Why are these changes needed?
-- How were these changes implemented and what do they affect?
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Documentation update
+- [ ] Refactor (no functional change)
+- [ ] Performance improvement
+- [ ] Runtime migration (storage layout changed)
+- [ ] Breaking change (modifies external API or dispatchable interface)
 
-*Use [Github semantic linking](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword) to address any open issues this PR relates to or closes.*
+---
 
-Fixes # (issue number, *if applicable*) 
+## Checklist
 
-Closes # (issue number, *if applicable*) 
+- [ ] My branch is up to date with `main`
+- [ ] CI passes locally (`cargo check`, `cargo test --all`)
+- [ ] The change is covered by tests where applicable
+- [ ] Documentation is updated where applicable
+- [ ] If this is a runtime migration, `try-runtime` verification is included
+- [ ] If this breaks an external API, the PR is tagged `breaking` and migration instructions are included
 
-Polkadot companion: (*if applicable*)
+---
 
-Cumulus companion: (*if applicable*)
+## Notes for Reviewers
 
-# Checklist
-
-- [ ] My PR includes a detailed description as outlined in the "Description" section above
-- [ ] My PR follows the [labeling requirements](https://github.com/paritytech/substrate/blob/master/docs/CONTRIBUTING.md#merge-process) of this project (at minimum one label for each `A`, `B`, `C` and `D` required)
-- [ ] I have made corresponding changes to the documentation (if applicable)
-- [ ] I have added tests that prove my fix is effective or that my feature works (if applicable)
-- [ ] If this PR alters any external APIs or interfaces used by Polkadot, the corresponding Polkadot PR is ready as well as the corresponding Cumulus PR (optional)
-
-You can remove the "Checklist" section once all have been checked. Thank you for your contribution!
-
-✄ -----------------------------------------------------------------------------
+<!-- Anything reviewers should pay special attention to, known limitations, or follow-up work planned -->

@@ -1,221 +1,154 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/XNET-Blockchain-blue?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Substrate-Framework-green?style=for-the-badge" />
-<img src="https://img.shields.io/badge/EVM-Compatible-orange?style=for-the-badge" />
-<img src="https://img.shields.io/badge/ink!-WASM-purple?style=for-the-badge" />
-<img src="https://img.shields.io/badge/ZKP-Enabled-red?style=for-the-badge" />
+# XNET Protocol
 
-# XNET — Next Generation Layer 1 Blockchain
+### Independent Layer 1 Blockchain
 
-**A high-performance, privacy-first Layer 1 blockchain built on Substrate with dual smart contract execution (EVM + WASM), Zero-Knowledge Proof support, and cross-chain interoperability via XCM.**
+[![Rust](https://img.shields.io/badge/Rust-1.75%2B-orange?style=flat-square&logo=rust)](https://rustup.rs)
+[![Substrate](https://img.shields.io/badge/Substrate-Framework-brightgreen?style=flat-square)](https://substrate.io)
+[![EVM](https://img.shields.io/badge/EVM-Chain%20ID%202009-blue?style=flat-square&logo=ethereum)](https://xnetcoin.org)
+[![ink!](https://img.shields.io/badge/ink!-WASM%20Contracts-purple?style=flat-square)](https://use.ink)
+[![ZKP](https://img.shields.io/badge/ZKP-Dual%20System-red?style=flat-square)](https://xnetcoin.org)
+[![License](https://img.shields.io/badge/License-GPL--3.0-lightgrey?style=flat-square)](LICENSE)
 
-[Website](xnetcoin.org) · [Documentation](https://github.com/xnetcoin) · [Testnet Explorer](xnetcoin.org) · [Discord]() · [Twitter](xnethq)
+**[Website](https://xnetcoin.org) · [Telegram](https://t.me/xnethq) · [Twitter/X](https://x.com/xnethq) · [Docs](https://docs.xnetcoin.org) · [Explorer](https://explorer.xnetcoin.org)**
 
 </div>
 
 ---
 
-## 🌐 Overview
+## Overview
 
-XNET is a Layer 1 blockchain designed to bridge the gap between **Ethereum compatibility** and **next-generation privacy technology**. By combining a dual smart contract stack (EVM + ink!/WASM), native ZKP support, and Polkadot's XCM cross-chain messaging, XNET provides developers and users with a powerful, flexible, and future-proof platform.
+XNET is an independent Layer 1 blockchain built from scratch on Substrate. Not a fork. Not a parachain. Not a template — every line of runtime code was written from the ground up.
 
-Built on **Substrate**, XNET inherits battle-tested consensus mechanisms (BABE + GRANDPA), forkless runtime upgrades, and seamless interoperability with the broader Polkadot/Kusama ecosystem.
+Most blockchains force a choice: EVM or WASM, fast or private, programmable or sound money. XNET doesn't make you choose.
 
----
-
-## ✨ Key Features
-
-### 🔴 Dual Smart Contract Stack
-- **EVM Compatible** — Deploy any Solidity contract without modification. Full Ethereum tooling support: MetaMask, Hardhat, Foundry, Remix.
-- **ink! / WASM** — Native Rust-based smart contracts for maximum performance and safety. Built with `cargo contract`.
-
-### 🔵 Zero-Knowledge Proofs (ZKP)
-- Native ZKP support for **private transactions** and **confidential smart contracts**
-- BN128 precompiles (BN128Add, BN128Mul, BN128Pairing) — enabling zk-SNARKs on-chain
-- zkEVM-compatible design for future privacy DeFi applications
-
-### 🟢 Cross-Chain Interoperability (XCM)
-- Native **XCM** messaging protocol for seamless asset and data transfer
-- Interoperable with the entire Polkadot/Kusama ecosystem
-- Bridge-ready architecture for Ethereum ↔ XNET ↔ Polkadot
-
-### 🟡 Tokenomics
-- **53,000,000 XNET** hard supply cap — no inflation beyond block rewards
-- Bitcoin-style halving every **21,038,400 blocks** (~4 years)
-- Block reward starts at **1.117 XNET** per block
-- Transparent, predictable supply schedule
-
-### ⚪ NPoS Consensus
-- **BABE** block production + **GRANDPA** finality
-- Nominated Proof-of-Stake (NPoS) with Sequential Phragmén election
-- 2.5%–10% annual staking rewards based on participation rate
+| Feature | Description | Status |
+|---|---|---|
+| **EVM Compatible** | Deploy any Solidity contract. MetaMask, Hardhat, Foundry work out of the box | ✅ Live |
+| **ink! / WASM** | Rust-based smart contracts with superior safety and performance | ✅ Live |
+| **ZK Layer 1** | EVM-based Solidity ZK verifier contracts | ✅ Live |
+| **ZK Layer 2** | `pallet-zk-verifier` — native Groth16 in the runtime | 🔧 Final integration |
+| **XCM Interop** | Trustless cross-chain messaging | 📋 Testnet phase |
+| **Sound Money** | 53,000,000 XNC hard cap. Bitcoin-style halving | ✅ Encoded |
 
 ---
 
-## 💰 Tokenomics
+## Quick Start
 
-| Parameter | Value |
-|-----------|-------|
-| **Token Symbol** | XNET |
-| **Total Supply** | 53,000,000 XNET |
-| **Genesis Premine** | 6,000,000 XNET |
-| **Block Rewards** | ~47,000,000 XNET |
-| **Block Reward** | 1.117 XNET/block |
-| **Halving Interval** | 21,038,400 blocks (~4 years) |
-| **Block Time** | 6 seconds |
-| **Min Validator Bond** | 8,000 XNET |
-| **Min Nominator Bond** | 1,000 XNET |
-| **EVM Chain ID** | 2009 |
-| **SS58 Prefix** | 888 |
-
-### Supply Distribution
-
-```
-Total Supply: 53,000,000 XNET
-├── Genesis Premine:  6,000,000 XNET (11.3%)
-│   └── Locked for 2.5 years via on-chain vesting
-└── Block Rewards:   47,000,000 XNET (88.7%)
-    ├── Halving 1 (Years 1-4):  ~23,500,000 XNET
-    ├── Halving 2 (Years 4-8):  ~11,750,000 XNET
-    ├── Halving 3 (Years 8-12):  ~5,875,000 XNET
-    └── Subsequent halvings...
-```
-
-### Fee Distribution
-
-Every transaction fee on XNET is automatically split:
-
-```
-Transaction Fee
-├── 60% → On-chain Treasury  (ecosystem development)
-├── 15% → Grant Pool         (developer grants & bounties)
-└── 25% → Block Validator    (network security)
-```
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────┐
-│                  XNET Runtime                    │
-├──────────────────┬──────────────────────────────┤
-│   Substrate Core │  BABE + GRANDPA Consensus     │
-│                  │  NPoS Staking                 │
-│                  │  On-chain Treasury            │
-│                  │  Block Reward (Halving)       │
-├──────────────────┼──────────────────────────────┤
-│   Smart          │  EVM (Solidity)               │
-│   Contracts      │  ink! / WASM (Rust)           │
-│                  │  Unified Fee Model            │
-├──────────────────┼──────────────────────────────┤
-│   Privacy        │  ZKP — zk-SNARKs              │
-│                  │  BN128 Precompiles            │
-│                  │  Private Transactions         │
-├──────────────────┼──────────────────────────────┤
-│   Interop        │  XCM Cross-Chain Messaging    │
-│                  │  Polkadot/Kusama Compatible   │
-│                  │  Ethereum Bridge              │
-└──────────────────┴──────────────────────────────┘
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
+> New to Rust? See [docs/rust-setup.md](docs/rust-setup.md) for full setup instructions.
 
 ```bash
-# Install Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Add WASM target
-rustup target add wasm32-unknown-unknown
-
-# Install substrate dependencies (Ubuntu/Debian)
-sudo apt install -y git clang curl libssl-dev llvm libudev-dev make protobuf-compiler
-```
-
-### Build
-
-```bash
-# Clone the repository
+# Clone
 git clone https://github.com/xnetcoin/xnet
 cd xnet
 
-# Build release binary
+# Build
 cargo build --release
 
-# Build WASM runtime only
-cargo build --release -p xnet-node 
+# Run local dev node
+./target/release/xnet-node --dev
 ```
 
-### Run a Local Development Node
+Connect at `ws://127.0.0.1:9944` via [Polkadot.js Apps](https://polkadot.js.org/apps).
+
+---
+
+## Repository Structure
+
+```
+xnet/
+├── bin/                        # Node binary entrypoint
+├── contracts/                  # Example smart contracts (EVM + ink!)
+├── docker/                     # Docker & docker-compose configs
+├── docs/                       # Documentation
+│   ├── rust-setup.md           # Environment setup guide
+│   └── ...
+├── pallets/                    # Custom FRAME pallets
+│   ├── block-rewards/          # Bitcoin-style halving block rewards
+│   └── zk-verifier/            # On-chain Groth16 ZK-SNARK verification
+├── primitives/                 # Shared types and traits
+├── runtime/                    # WASM runtime
+│   ├── src/
+│   │   ├── lib.rs              # Runtime construction — all pallets wired here
+│   │   └── precompiles.rs      # EVM precompile set (0x01–0x09)
+│   └── build.rs                # Compiles runtime to WASM blob
+├── scripts/                    # Utility and deployment scripts
+├── src/                        # Node source (cli, service, rpc, chain_spec)
+├── test/                       # Integration tests
+├── test-utils/                 # Shared test utilities
+├── xnet-privacy-contracts/     # Privacy contract examples
+└── zombienet/                  # Multi-node test network configs
+```
+
+---
+
+## Running a Node
+
+### Development — single node, no peers needed
 
 ```bash
-# Start a single-node development chain (ephemeral, --dev wipes on restart)
 ./target/release/xnet-node --dev
 
-# Start with persistent state
+# With persistent state
 ./target/release/xnet-node --dev --base-path /tmp/xnet-dev
 ```
 
-### Connect
+### Local Testnet — 3 validators
 
-Once running, connect via:
-- **Polkadot.js Apps**: https://polkadot.js.org/apps → Settings → Custom endpoint → `ws://127.0.0.1:9944`
-- **MetaMask / EVM**: Add custom network → RPC `http://127.0.0.1:9933` → Chain ID `2009`
+```bash
+# Terminal 1 — Alice
+./target/release/xnet-node \
+  --chain local --alice \
+  --port 30333 --rpc-port 9944 \
+  --node-key 0000000000000000000000000000000000000000000000000000000000000001 \
+  --validator
 
----
+# Terminal 2 — Bob
+./target/release/xnet-node \
+  --chain local --bob \
+  --port 30334 --rpc-port 9945 \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/<ALICE_PEER_ID> \
+  --validator
 
-## 📡 Network Information
+# Terminal 3 — Charlie
+./target/release/xnet-node \
+  --chain local --charlie \
+  --port 30335 --rpc-port 9946 \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/<ALICE_PEER_ID> \
+  --validator
+```
 
-| Network | Status | RPC Endpoint | Explorer |
-|---------|--------|--------------|----------|
-| **Mainnet** | 🔜 Coming Soon | — | — |
-| **Testnet** | 🟡 In Development | — | — |
-| **Local Dev** | ✅ Available | `http://127.0.0.1:9933` | Local |
+### Docker
 
----
-
-## 🛣️ Roadmap
-
-### ✅ Phase 1 — Foundation (Completed)
-- [x] Substrate runtime core
-- [x] BABE + GRANDPA consensus
-- [x] NPoS staking with Bitcoin-style halving
-- [x] EVM compatibility (Frontier)
-- [x] ink! / WASM smart contracts
-- [x] On-chain treasury + grant pool
-- [x] Fee distribution system
-
-### 🔄 Phase 2 — Privacy & Interop (In Progress)
-- [ ] Full ZKP pallet integration (zk-SNARKs)
-- [ ] Private transaction support
-- [ ] XCM cross-chain messaging
-- [ ] Rococo testnet connection
-- [ ] Public testnet launch
-
-### 🔜 Phase 3 — Ecosystem (Q3-Q4 2025)
-- [ ] Public mainnet launch
-- [ ] Native DEX deployment
-- [ ] Ethereum ↔ XNET bridge
-- [ ] Developer grants program launch
-- [ ] CEX listings
-
-### 🔜 Phase 4 — Scale (2026)
-- [ ] zkEVM private smart contracts
-- [ ] Polkadot parachain slot
-- [ ] On-chain governance (replace Sudo)
-- [ ] Mobile wallet
-- [ ] 100+ dApp ecosystem
+```bash
+docker-compose -f docker/docker-compose.yml up
+```
 
 ---
 
-## 🔧 Smart Contract Development
+## Connecting Wallets
 
-### Deploy a Solidity Contract (EVM)
+### Polkadot.js Apps
+
+1. Open [polkadot.js.org/apps](https://polkadot.js.org/apps)
+2. Settings → Custom endpoint → `ws://127.0.0.1:9944`
+
+### MetaMask / EVM Wallets
+
+| Field | Value |
+|---|---|
+| Network Name | XNET |
+| RPC URL | `http://127.0.0.1:9944` |
+| Chain ID | `2009` |
+| Symbol | `XNC` |
+| Explorer | `https://explorer.xnetcoin.org` |
+
+---
+
+## Smart Contracts
+
+### Solidity (EVM)
 
 ```javascript
 // hardhat.config.js
@@ -234,100 +167,236 @@ module.exports = {
 npx hardhat deploy --network xnet
 ```
 
-### Deploy an ink! Contract (WASM)
+### ink! (WASM)
 
 ```bash
-# Install cargo-contract
-cargo install cargo-contract
+cargo install cargo-contract --force
 
-# Create new ink! contract
 cargo contract new my_contract
 cd my_contract
-
-# Build contract
-cargo contract build
-
-# Deploy via contracts UI or CLI
-cargo contract instantiate --suri //Alice --args false
+cargo contract build --release
+cargo contract instantiate \
+  --contract target/ink/my_contract.contract \
+  --constructor new \
+  --suri //Alice \
+  --url ws://127.0.0.1:9944
 ```
 
 ---
 
-## 📊 Technical Specifications
+## Custom Pallets
+
+### `pallet-block-rewards`
+
+Bitcoin-style emission with halving every ~4 years:
 
 | Parameter | Value |
-|-----------|-------|
-| **Consensus** | BABE (block production) + GRANDPA (finality) |
-| **Block Time** | 6 seconds |
-| **Block Size** | 5 MB max |
-| **Gas Limit** | 75,000,000 per block |
-| **Finality** | ~12 seconds (2 blocks) |
-| **Staking APY** | 2.5% – 10% (variable) |
-| **Epoch Duration** | 1 hour |
-| **Era Duration** | 24 hours |
-| **Unbonding Period** | 28 days |
-| **EVM Chain ID** | 2009 |
-| **Framework** | Substrate (Rust) |
+|---|---|
+| Initial reward | 1,117 XNC / block |
+| Halving interval | 21,038,400 blocks (~4 years) |
+| Hard cap | 53,000,000 XNC |
 
----
+### `pallet-zk-verifier`
 
-## 🤝 Contributing
+Native Groth16 ZK-SNARK verification in the Substrate runtime — written entirely in Rust, no external cryptographic library dependencies.
 
-We welcome contributions from the community!
+- Full Groth16 verifier — supports any Circom-compiled circuit
+- Nullifier registry — prevents proof replay attacks
+- Block-level proof limits — DoS protection
+- SnarkJS compatible
+
+No equivalent open-source Groth16 pallet exists in the Substrate ecosystem.
 
 ```bash
-# Fork and clone
-git clone https://github.com/xnetcoin/xnet
-cd xnet
+# Generate proof with Circom + SnarkJS
+circom circuit.circom --r1cs --wasm --sym
+snarkjs groth16 setup circuit.r1cs pot12_final.ptau circuit_final.zkey
+snarkjs groth16 prove circuit_final.zkey witness.wtns proof.json public.json
 
-# Create feature branch
-git checkout -b feature/your-feature
-
-# Make changes, then test
-cargo test
-
-# Submit pull request
+# Submit proof on-chain
+# pallet_zk_verifier::verify_proof(proof, public_inputs, verification_key)
 ```
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
+---
+
+## EVM Precompiles
+
+| Address | Name | Used By |
+|---|---|---|
+| `0x01` | ECRecover | Wallets, signature verification |
+| `0x02` | SHA-256 | Bitcoin bridge, hashing |
+| `0x03` | RIPEMD-160 | Bitcoin address derivation |
+| `0x04` | Identity | Solidity ABI encoder |
+| `0x05` | ModExp | RSA, ZK circuits |
+| `0x06` | BN128Add | ZK-SNARK verification |
+| `0x07` | BN128Mul | ZK-SNARK verification |
+| `0x08` | BN128Pairing | Full ZK-SNARK proof check |
+| `0x09` | BLAKE2F | Privacy protocols |
 
 ---
 
-## 🏆 Grants Program
+## Tokenomics
 
-XNET allocates **15% of all transaction fees** to a dedicated grant pool for:
-- dApp developers building on XNET
-- Security auditors and researchers
-- Community tools and infrastructure
-- Educational content
+| Parameter | Value |
+|---|---|
+| Token Name | XNET |
+| Ticker | XNC |
+| Hard Cap | 53,000,000 XNC |
+| Genesis Premine | 6,000,000 XNC — all locked, 0 liquid at genesis |
+| Block Reward | 1,117 XNC → halves every ~4 years |
+| Fee Distribution | 60% Treasury · 15% Dev Grants · 25% Validators |
+| Validator Min Bond | 8,000 XNC |
+| Nominator Min Bond | 1,000 XNC |
+| EVM Chain ID | `2009` |
+| SS58 Prefix | `888` |
 
-Apply for a grant: [grants.xnetcoin.org](#)
+### Supply Schedule
+
+```
+Total: 53,000,000 XNC
+├── Genesis Premine    6,000,000 XNC  (all locked at genesis)
+│   ├── Founder              1,000,000  — 2.5 years vesting
+│   ├── Investor Reserve     1,000,000  — 2.5 years vesting
+│   ├── Ecosystem Fund       2,000,000  — 3 years vesting
+│   │   └── Developer Grants 1,000,000  — governance-released
+│   └── Treasury Reserve     2,000,000  — governance-controlled
+└── Block Rewards     47,000,000 XNC
+    ├── Era 1 (Year 0–4)    1,117 XNC/block  → ~23.5M XNC
+    ├── Era 2 (Year 4–8)    ~558 XNC/block   → ~11.75M XNC
+    ├── Era 3 (Year 8–12)   ~279 XNC/block   → ~5.87M XNC
+    └── Era 4+ ... until hard cap (~100 years)
+```
 
 ---
 
-## 📜 License
+## Technical Specs
 
-This project is licensed under the **Apache 2.0 License** — see [LICENSE](LICENSE) for details.
+| Parameter | Value |
+|---|---|
+| Consensus | BABE + GRANDPA |
+| Staking | NPoS — Sequential Phragmén |
+| Block Time | 6 seconds |
+| Finality | ~12 seconds |
+| Block Size | 5 MB |
+| Gas Limit | 75,000,000 / block |
+| Era Duration | 24 hours (1,800 blocks) |
+| Unbonding Period | 28 eras (~28 days) |
+| Max Validators | 100 |
 
 ---
 
-## 🔗 Links
+## Roadmap
 
-| Resource | Link |
-|----------|------|
-| Website | [xnetcoin.org](#) |
-| Documentation | [docs.xnetcoin.org](#) |
-| Block Explorer | [explorer.xnetcoin.org](#) |
-| Discord | [discord.gg/xnet](#) |
-| Twitter/X | [@xnethq](#) |
-| Telegram | [t.me/xnethq](#) |
+```
+[NOW]   pallet-zk-verifier — native Groth16, final integration
+  ↓
+[NEXT]  Public testnet launch
+  ↓
+[THEN]  XCM — cross-chain messaging (during testnet)
+  ↓
+[THEN]  Sudo removal → on-chain governance
+  ↓
+[THEN]  Mainnet
+  ↓
+[THEN]  DEX · Bridge · CEX listings · Mobile wallet
+```
+
+| Phase | Status | Includes |
+|---|---|---|
+| Phase 1 — Foundation | ✅ Complete | Runtime, EVM, ink!, NPoS, halving, treasury |
+| Phase 2 — ZKP | 🔧 In Progress | pallet-zk-verifier final integration |
+| Phase 3 — Testnet + XCM | 🔜 Next | Public testnet, XCM, explorer, wallet, docs |
+| Phase 4 — Mainnet | 🔜 After testnet | Governance, mainnet genesis |
+| Phase 5 — Ecosystem | 🔜 Post-mainnet | DEX, bridge, CEX, mobile wallet |
+
+---
+
+## Network Status
+
+| Network | Status | RPC | Explorer |
+|---|---|---|---|
+| Mainnet | 🔜 Coming Soon | — | — |
+| Testnet | 🔜 Launching Soon | — | — |
+| Local Dev | ✅ Available | `ws://127.0.0.1:9944` | — |
+
+---
+
+## Benchmarking
+
+```bash
+cargo build --release --features runtime-benchmarks
+
+./target/release/xnet-node benchmark pallet \
+  --chain dev \
+  --pallet pallet_zk_verifier \
+  --extrinsic "*" \
+  --steps 50 \
+  --repeat 20 \
+  --output pallets/zk-verifier/src/weights.rs
+```
+
+---
+
+## Developer Grants
+
+**1,000,000 XNC** from the ecosystem fund plus **15% of all transaction fees** are allocated to developer grants. The formal grant program launches with testnet — but we're already listening.
+
+If you have an idea for something you want to build on XNET — a DeFi protocol, an NFT platform, a ZK application, a wallet, an explorer, developer tooling, or anything else that would make this ecosystem stronger — reach out now. Early contributors will be remembered when the grants program goes live.
+
+You don't need a finished product. A clear idea is enough to start a conversation.
+
+**What we're looking for:**
+- DeFi — DEXs, lending, stablecoins, yield protocols
+- ZK applications — privacy tools, identity, provable computation
+- NFT infrastructure — minting, marketplaces, provenance
+- Developer tooling — SDKs, indexers, testing frameworks
+- Infrastructure — RPC providers, explorers, monitoring
+- Anything that makes XNET more useful for developers or users
+
+**Get in touch — whichever works for you:**
+
+→ Telegram: [t.me/xnethq](https://t.me/xnethq)
+→ Twitter / X: [x.com/xnethq](https://x.com/xnethq)
+→ Email: [xnetprotocol@gmail.com](mailto:xnetprotocol@gmail.com)
+
+---
+
+## Contributing
+
+```bash
+git clone https://github.com/xnetcoin/xnet
+git checkout -b feat/your-feature
+cargo test
+# open a pull request
+```
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a PR.
+
+---
+
+## Security
+
+Found a vulnerability? Report it privately via [security@xnetcoin.org](mailto:security@xnetcoin.org) or see [SECURITY.md](SECURITY.md).
+
+Do not open a public GitHub issue for security vulnerabilities.
+
+---
+
+## License
+
+- [GPL-3.0](LICENSE-GPL3) — node and runtime
+- [Apache-2.0](LICENSE-APACHE2) — pallets and libraries
 
 ---
 
 <div align="center">
 
-**Built with ❤️ using Substrate & Rust**
+Built with Rust & Substrate — from scratch.
 
-*XNET — Where Privacy Meets Performance*
+**[xnetcoin.org](https://xnetcoin.org) · [t.me/xnethq](https://t.me/xnethq) · [@xnethq](https://x.com/xnethq)**
 
 </div>
+
+---
+
+*A note on these docs: English isn't my first language. The last twelve months went into the code, not into writing. I used AI to help put these docs together — to make sure the technical details were presented clearly and nothing important was left out. The architecture, the pallets, the late nights — that's all mine. The words got some help. If you want to know what this project really is, read the commits.*

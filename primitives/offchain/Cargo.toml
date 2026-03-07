@@ -1,9 +1,9 @@
 [package]
-description = "Substrate offchain workers primitives"
+description = "XNET offchain workers primitives"
 name = "sp-offchain"
 version = "4.0.0-dev"
 license = "Apache-2.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["XNET Protocol Team <admin@parity.io>"]
 edition = "2021"
 homepage = "https://substrate.io"
 repository = "https://github.com/paritytech/substrate/"

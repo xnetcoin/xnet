@@ -1,172 +1,157 @@
 ---
-title: Style Guide for Rust in Substrate
+title: Rust Style Guide — XNET
 ---
 
-Where possible these styles are enforced by settings in `rustfmt.toml` so if you run `cargo fmt` 
-then you will adhere to most of these style guidelines automatically.
+All Rust code in this repository must pass `cargo fmt` before submission. The
+settings in `rustfmt.toml` enforce most of the rules below automatically.
+What follows covers the cases `rustfmt` cannot handle.
 
-# Code Formatting
+---
 
--   Indent using tabs.
--   Lines should be longer than 100 characters long only in exceptional circumstances and certainly
-    no longer than 120. For this purpose, tabs are considered 4 characters wide.
--   Indent levels should be greater than 5 only in exceptional circumstances and certainly no
-    greater than 8. If they are greater than 5, then consider using `let` or auxiliary functions in
-    order to strip out complex inline expressions.
--   Never have spaces on a line prior to a non-whitespace character
--   Follow-on lines are only ever a single indent from the original line.
+## Formatting
+
+- **Indentation**: tabs, not spaces.
+- **Line length**: 100 characters. Tabs count as 4 characters. Exceeding 100
+  characters is allowed only in extraordinary circumstances; 120 is a hard ceiling.
+- **Nesting depth**: aim for ≤ 5 levels. At 6 or deeper, refactor into helper
+  functions or `let` bindings to flatten the shape.
+- No trailing whitespace on any line.
+- Follow-on (continuation) lines use a single extra indent level — not two.
 
 ```rust
-fn calculation(some_long_variable_a: i8, some_long_variable_b: i8) -> bool {
-	let x = some_long_variable_a * some_long_variable_b
-		- some_long_variable_b / some_long_variable_a
-		+ sqrt(some_long_variable_a) - sqrt(some_long_variable_b);
-	x > 10
+fn calculate(a: i64, b: i64) -> bool {
+	let result = a * b
+		- b / a
+		+ sqrt(a)
+		- sqrt(b);
+	result > 10
 }
 ```
 
--   Indent level should follow open parens/brackets, but should be collapsed to the smallest number
-    of levels actually used:
+- When a function call or parameter list breaks across lines, every parameter
+  goes on its own line, and the closing delimiter is on its own line:
 
 ```rust
-fn calculate(
-	some_long_variable_a: f32,
-	some_long_variable_b: f32,
-	some_long_variable_c: f32,
-) -> f32 {
-	(-some_long_variable_b + sqrt(
-		// two parens open, but since we open & close them both on the
-		// same line, only one indent level is used
-		some_long_variable_b * some_long_variable_b
-		- 4 * some_long_variable_a * some_long_variable_c
-	// both closed here at beginning of line, so back to the original indent
-	// level
-	)) / (2 * some_long_variable_a)
+// ✓ correct
+fn init(
+	config: Config,
+	storage: StorageRef,
+	network: NetworkHandle,
+) -> Result<Node> {
+	…
 }
+
+// ✗ wrong — mixed inline and wrapped params
+fn init(config: Config, storage: StorageRef,
+	network: NetworkHandle) -> Result<Node> { … }
 ```
 
--   `where` is indented, and its items are indented one further.
--   Argument lists or function invocations that are too long to fit on one line are indented
-    similarly to code blocks, and once one param is indented in such a way, all others should be,
-    too. Run-on parameter lists are also acceptable for single-line run-ons of basic function calls.
+- `where` clauses are indented one level; their items are indented one further.
+- Always include a trailing comma on the last item of any multi-line
+  comma-delimited list (struct fields, enum variants, function parameters, match
+  arms in block form) when the language allows it.
+- Single-line comma-delimited lists do **not** have a trailing comma.
+- Avoid unnecessary semicolons at the end of block expressions used as return
+  values.
+
+---
+
+## Naming
+
+Follow [Rust API guidelines](https://rust-lang.github.io/api-guidelines/):
+
+- Types, traits, enum variants: `UpperCamelCase`
+- Functions, methods, variables, modules: `snake_case`
+- Constants and statics: `SCREAMING_SNAKE_CASE`
+- Type parameters: short `UpperCamelCase`, e.g. `T`, `E`, `AccountId`
+
+Pallet storage items follow on-chain naming conventions and are exempt from the
+`snake_case` function rule (they are types, not functions).
+
+---
+
+## Safety and Panics
+
+- **No `unwrap()`** outside of test code. Use `expect("reason; qed")` when you
+  can prove statically that an `Option` or `Result` is always `Ok`/`Some`, and
+  document why:
 
 ```rust
-// OK
-fn foo(
-	really_long_parameter_name_1: SomeLongTypeName,
-	really_long_parameter_name_2: SomeLongTypeName,
-	shrt_nm_1: u8,
-	shrt_nm_2: u8,
-) {
-   ...
-}
-
-// NOT OK
-fn foo(really_long_parameter_name_1: SomeLongTypeName, really_long_parameter_name_2: SomeLongTypeName,
-	shrt_nm_1: u8, shrt_nm_2: u8) {
-	...
-}
+let path = self.path().expect(
+	"DiskDirectory always returns a path; \
+	 this variant cannot have no path; qed"
+);
 ```
 
-```rust
-{
-	// Complex line (not just a function call, also a let statement). Full
-	// structure.
-	let (a, b) = bar(
-		really_long_parameter_name_1,
-		really_long_parameter_name_2,
-		shrt_nm_1,
-		shrt_nm_2,
-	);
+- **No raw `panic!`** in runtime code. Runtime panics produce invalid blocks.
+  Return `Err(…)` or use `ensure!` instead.
 
-	// Long, simple function call.
-	waz(
-		really_long_parameter_name_1,
-		really_long_parameter_name_2,
-		shrt_nm_1,
-		shrt_nm_2,
-	);
+- **Unsafe code** requires justification in a `// SAFETY:` comment immediately
+  before the `unsafe` block. Before introducing unsafe, evaluate:
+  - How much is actually gained in performance or ergonomics?
+  - How likely is it that the invariant could be violated in future?
+  - Are there tests or tools that would catch a violation early?
 
-	// Short function call. Inline.
-	baz(a, b);
-}
-```
+---
 
--   Always end last item of a multi-line comma-delimited set with `,` when legal:
+## Documentation
 
-```rust
-struct Point<T> {
-	x: T,
-	y: T,    // <-- Multiline comma-delimited lists end with a trailing ,
-}
+- All `pub` items in crates that are part of the external API must have doc
+  comments (`///`).
+- Module-level documentation uses `//!`.
+- The first sentence of every doc comment must stand alone as a complete
+  description — it appears in the generated index tables.
+- Use `[`item`]` intra-doc links rather than bare backticks when referring to
+  other items.
+- Code examples in doc comments are compiled and run as integration tests;
+  keep them correct and up to date.
+- Internal implementation notes that are not relevant to callers belong in
+  `//` comments, not `///`.
 
-// Single line comma-delimited items do not have a trailing `,`
-enum Meal { Breakfast, Lunch, Dinner };
-```
+---
 
--   Avoid trailing `;`s where unneeded.
+## Cargo.toml Formatting
 
-```rust
-if condition {
-	return 1    // <-- no ; here
-}
-```
+Feature lists are formatted by `zepter format features`. The rules are:
 
--   `match` arms may be either blocks or have a trailing `,` but not both.
--   Blocks should not be used unnecessarily.
+- Single-entry features fit on one line: `default = ["std"]`
+- Multi-entry features are broken to one entry per line with a trailing comma:
 
-```rust
-match meal {
-	Meal::Breakfast => "eggs",
-	Meal::Lunch => { check_diet(); recipe() },
-//	Meal::Dinner => { return Err("Fasting") }   // WRONG
-	Meal::Dinner => return Err("Fasting"),
-}
-```
-
-# Style
-
--   Panickers require explicit proofs they don't trigger. Calling `unwrap` is discouraged. The
-    exception to this rule is test code. Avoiding panickers by restructuring code is preferred if
-    feasible.
-
-```rust
-let mut target_path =
-	self.path().expect(
-		"self is instance of DiskDirectory;\
-		DiskDirectory always returns path;\
-		qed"
-	);
-```
-
--   Unsafe code requires explicit proofs just as panickers do. When introducing unsafe code,
-    consider trade-offs between efficiency on one hand and reliability, maintenance costs, and
-    security on the other. Here is a list of questions that may help evaluating the trade-off while
-    preparing or reviewing a PR:
-    -   how much more performant or compact the resulting code will be using unsafe code,
-    -   how likely is it that invariants could be violated,
-    -   are issues stemming from the use of unsafe code caught by existing tests/tooling,
-    -   what are the consequences if the problems slip into production.
-
-# Manifest Formatting
-
-> **TLDR**
-> You can use the CLI tool [Zepter](https://crates.io/crates/zepter) to format the files: `zepter format features`
-
-Rust `Cargo.toml` files need to respect certain formatting rules. All entries need to be alphabetically sorted. This makes it easier to read them and insert new entries. The exhaustive list of rules is enforced by the CI. The general format looks like this:
-
-- The feature is written as a single line if it fits within 80 chars:
-```toml
-[features]
-default = [ "std" ]
-```
-
-- Otherwise the feature is broken down into multiple lines with one entry per line. Each line is padded with one tab and no trailing spaces but a trailing comma.
 ```toml
 [features]
 default = [
-	"loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
-	# Comments go here as well ;)
-	"std",
+	"pallet-balances/std",
+	"pallet-staking/std",
+	"sp-runtime/std",
 ]
 ```
+
+All entries within a section are sorted alphabetically.
+
+---
+
+## Match Arms
+
+Each match arm is either a single expression followed by a comma, or a braced
+block. Do not combine both styles on the same arm:
+
+```rust
+match action {
+	Action::Transfer => transfer(),
+	Action::Stake => { validate(); stake() },
+//	Action::Exit => { return Err(…) }   // ✗ — trailing comma missing
+	Action::Exit => return Err(Error::NotAllowed),
+}
+```
+
+Blocks are only used when multiple statements are genuinely required.
+
+---
+
+## Error Handling
+
+- Runtime dispatchables return `DispatchResult` or `DispatchResultWithPostInfo`.
+  Use `ensure!(condition, Error::<T>::Variant)` for guard conditions.
+- Off-chain code (RPC, CLI) uses `anyhow` or explicit `Result` chains.
+- Never silently discard errors with `let _ = fallible_call();` without a
+  comment explaining why the result is intentionally ignored.

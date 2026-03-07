@@ -1,8 +1,8 @@
 [package]
 name = "sp-state-machine"
 version = "0.28.0"
-authors = ["Parity Technologies <admin@parity.io>"]
-description = "Substrate State Machine"
+authors = ["XNET Protocol Team <admin@parity.io>"]
+description = "XNET State Machine"
 edition = "2021"
 license = "Apache-2.0"
 homepage = "https://substrate.io"

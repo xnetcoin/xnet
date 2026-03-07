@@ -2,23 +2,23 @@
 pragma solidity ^0.8.20;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// XnetPrivacyPool — ZKP asosida maxfiy XNC transfer
+// XnetPrivacyPool — ZKP-based Private XNC Transfers
 //
-// Tornado Cash arxitekturasi asosida, XNET EVM uchun moslashtirilgan.
-// Tornado Cash MIT litsenziyada: github.com/tornadocash/tornado-core
+// Based on the Tornado Cash architecture, adapted for the XNET EVM.
+// Tornado Cash is licensed under MIT: github.com/tornadocash/tornado-core
 //
-// Qanday ishlaydi:
-//   1. deposit(commitment) — XNC pool'ga tushadi, commitment on-chain
-//   2. withdraw(proof, nullifier, recipient) — ZK proof bilan chiqariladi
+// Protocol flow:
+//   1. deposit(commitment) — XNC enters the pool, commitment is recorded on-chain.
+//   2. withdraw(proof, nullifier, recipient) — Funds are withdrawn via ZK proof.
 //
-// On-chain hech qachon ko'rinmaydi:
-//   - Kim deposit qildi
-//   - Kim withdraw qildi
-//   - Qaysi deposit qaysi withdraw bilan bog'liq
+// The following data is never exposed on-chain:
+//   - The identity of the depositor.
+//   - The identity of the withdrawer.
+//   - The link between a specific deposit and its corresponding withdrawal.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Groth16 verifier interfeysi
-/// Har bir denomination uchun alohida verifier deploy qilinadi
+/// Groth16 verifier interface.
+/// A dedicated verifier is deployed for each denomination.
 interface IVerifier {
     function verifyProof(
         uint[2] calldata a,
@@ -28,7 +28,7 @@ interface IVerifier {
     ) external view returns (bool);
 }
 
-/// Poseidon hash interfeysi (ZK-friendly hash)
+/// Poseidon hash interface (ZK-friendly hash function).
 interface IHasher {
     function poseidon(bytes32[2] calldata inputs)
         external pure returns (bytes32);
@@ -40,41 +40,41 @@ contract XnetPrivacyPool {
     // State
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// Groth16 verifier contract
+    /// The Groth16 verifier contract.
     IVerifier public immutable verifier;
 
-    /// Poseidon hasher (ZK-friendly, Circom bilan mos)
+    /// The Poseidon hasher (ZK-friendly, compatible with Circom).
     IHasher public immutable hasher;
 
-    /// Har bir deposit shu miqdorda bo'ladi (anonymity set uchun)
-    /// Masalan: 1 XNC, 10 XNC, 100 XNC — alohida pool'lar
+    /// The fixed deposit amount for this pool (sets the anonymity set).
+    /// Typically: 1 XNC, 10 XNC, 100 XNC — each requires a separate pool.
     uint256 public immutable denomination;
 
-    /// Merkle tree chuqurligi — 2^20 = 1,048,576 deposit sig'adi
+    /// Merkle tree depth — 2^20 supports up to 1,048,576 deposits.
     uint32 public constant MERKLE_TREE_HEIGHT = 20;
 
-    /// Operator manzili (relayer to'lovini oladi)
+    /// The operator address (receives the relayer fee).
     address public operator;
 
-    // Merkle tree
+    // Merkle tree state
     uint256 public currentRootIndex;
     uint256 public nextIndex;
 
-    /// Oxirgi ROOT_HISTORY_SIZE ta root saqlanadi
-    /// Foydalanuvchi eski root bilan ham withdraw qila oladi
+    /// Caches the most recent ROOT_HISTORY_SIZE roots.
+    /// Enables users to withdraw using slightly older roots to avoid front-running.
     uint32 public constant ROOT_HISTORY_SIZE = 100;
     bytes32[ROOT_HISTORY_SIZE] public roots;
 
-    /// Commitment → deposit bo'ldimi
+    /// Tracks whether a commitment has already been deposited.
     mapping(bytes32 => bool) public commitments;
 
-    /// Nullifier → sarflandimi (double-spend himoyasi)
+    /// Tracks whether a nullifier has been spent (double-spend protection).
     mapping(bytes32 => bool) public nullifierHashes;
 
-    /// Merkle tree filledSubtrees (incremental tree uchun)
+    /// Filled subtrees used for the incremental Merkle tree logic.
     bytes32[MERKLE_TREE_HEIGHT] public filledSubtrees;
 
-    /// Zero values (bo'sh barglar uchun)
+    /// Zero values for empty leaves at each depth.
     bytes32[MERKLE_TREE_HEIGHT + 1] public zeros;
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ contract XnetPrivacyPool {
         denomination = _denomination;
         operator = _operator;
 
-        // Zero value'larni hisoblash (Poseidon(0, 0) recursively)
+        // Precompute zero values recursively (Poseidon(0, 0))
         bytes32 currentZero = bytes32(0);
         zeros[0] = currentZero;
         filledSubtrees[0] = currentZero;
@@ -121,7 +121,7 @@ contract XnetPrivacyPool {
             filledSubtrees[i] = currentZero;
         }
 
-        // Dastlabki root
+        // Setup the genesis root
         roots[0] = _hashPair(currentZero, currentZero);
     }
 
@@ -129,15 +129,15 @@ contract XnetPrivacyPool {
     // Deposit
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// XNC'ni shielded pool'ga yashirish.
+    /// Shields XNC by inserting a commitment into the anonymity pool.
     ///
-    /// @param commitment   Hash(secret, nullifier) — foydalanuvchi hisoblaydi
+    /// @param commitment   Hash(secret, nullifier) — computed by the user off-chain.
     ///
-    /// Foydalanuvchi qadamlari:
-    /// 1. JavaScript'da: secret = random(), nullifier = random()
-    /// 2. commitment = poseidon([secret, nullifier])
-    /// 3. deposit(commitment) — bu function'ni chaqiradi
-    /// 4. secret va nullifier'ni xavfsiz saqlaydi (hech kim bilmasligi kerak)
+    /// Client-side flow:
+    /// 1. Generate random generic bytes: secret = random(), nullifier = random()
+    /// 2. Compute commitment: commitment = poseidon([secret, nullifier])
+    /// 3. Call deposit(commitment) providing the fixed denomination in msg.value.
+    /// 4. Securely store the secret and nullifier (recovering funds is impossible without them).
     function deposit(bytes32 commitment) external payable {
         require(msg.value == denomination, "Wrong XNC amount");
         require(!commitments[commitment], "Commitment already exists");
@@ -153,21 +153,21 @@ contract XnetPrivacyPool {
     // Withdraw
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// ZK proof bilan XNC'ni chiqarish.
+    /// Withdraws shielded XNC using a valid zero-knowledge proof.
     ///
-    /// @param proofA       Groth16 proof A
-    /// @param proofB       Groth16 proof B
-    /// @param proofC       Groth16 proof C
-    /// @param root         Merkle root (oxirgi 100 ta rootdan biri)
-    /// @param nullifierHash Hash(nullifier, leafIndex) — bir marta ishlatiladi
-    /// @param recipient    XNC qabul qiluvchi (deposit qiluvchidan farq qiladi!)
-    /// @param relayer      Relayer manzili (gasless tx uchun)
-    /// @param fee          Relayer'ga to'lov (XNC)
+    /// @param proofA        Groth16 proof parameter A
+    /// @param proofB        Groth16 proof parameter B
+    /// @param proofC        Groth16 proof parameter C
+    /// @param root          The Merkle root (must exist in recent history)
+    /// @param nullifierHash Hash(nullifier, leafIndex) — strictly single-use
+    /// @param recipient     The destination address receiving the XNC
+    /// @param relayer       The relayer executing the transaction (for gasless UX)
+    /// @param fee           The relayer fee (denominated in XNC)
     ///
-    /// Anonymity qanday ta'minlanadi:
-    /// - recipient deposit qiluvchi bilan bog'liq emas
-    /// - relayer orqali yuborilsa — recipient'ning IP ham yashirin
-    /// - nullifierHash'dan secret chiqarib bo'lmaydi
+    /// Anonymity protections:
+    /// - The recipient is completely decoupled from the original depositor.
+    /// - Executing via a relayer obscures the recipient's IP address.
+    /// - The underlying secret cannot be reverse-engineered from the nullifierHash.
     function withdraw(
         uint[2] calldata proofA,
         uint[2][2] calldata proofB,
@@ -182,7 +182,7 @@ contract XnetPrivacyPool {
         require(!nullifierHashes[nullifierHash], "Already spent");
         require(isKnownRoot(root), "Unknown root");
 
-        // ZK proof tekshirish
+        // Verify the ZK proof against the public inputs
         // Public inputs: [root, nullifierHash]
         require(
             verifier.verifyProof(
@@ -194,10 +194,10 @@ contract XnetPrivacyPool {
             "Invalid ZK proof"
         );
 
-        // Nullifier sarflandi (TRANSFER DAN OLDIN — reentrancy himoyasi)
+        // Invalidate the nullifier (MUST execute before transfers to prevent reentrancy)
         nullifierHashes[nullifierHash] = true;
 
-        // XNC yuborish
+        // Disburse the XNC
         uint256 amount = denomination - fee;
         recipient.transfer(amount);
 
@@ -212,7 +212,7 @@ contract XnetPrivacyPool {
     // Merkle Tree (Incremental)
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// Yangi bargni Merkle tree'ga qo'shish va yangi rootni qaytarish.
+    /// Inserts a new leaf into the incremental Merkle tree and updates the active root.
     function _insert(bytes32 leaf) internal returns (uint32 index) {
         uint32 _nextIndex = uint32(nextIndex);
         require(_nextIndex < 2**MERKLE_TREE_HEIGHT, "Tree is full");
@@ -235,7 +235,7 @@ contract XnetPrivacyPool {
             currentIndex /= 2;
         }
 
-        // Yangi rootni saqlash (ring buffer)
+        // Store the newly computed root in the ring buffer
         uint256 newRootIndex = (currentRootIndex + 1) % ROOT_HISTORY_SIZE;
         currentRootIndex = newRootIndex;
         roots[newRootIndex] = currentLevelHash;
@@ -254,7 +254,7 @@ contract XnetPrivacyPool {
     // View functions
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// Root oxirgi 100 ta rootdan birimi?
+    /// Validates whether a provided root exists within the recent cache history.
     function isKnownRoot(bytes32 root) public view returns (bool) {
         if (root == bytes32(0)) return false;
         uint256 i = currentRootIndex;
@@ -266,21 +266,21 @@ contract XnetPrivacyPool {
         return false;
     }
 
-    /// Hozirgi Merkle root
+    /// Returns the active (most recent) Merkle root.
     function getLastRoot() external view returns (bytes32) {
         return roots[currentRootIndex];
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// XnetPrivacyPoolFactory — ko'p denominationli pool'lar yaratish
+// XnetPrivacyPoolFactory — Factory for deploying multi-denomination pools
 // ─────────────────────────────────────────────────────────────────────────────
 
 contract XnetPrivacyPoolFactory {
     IVerifier public immutable verifier;
     IHasher public immutable hasher;
 
-    // denomination → pool address
+    // Mapping of denomination limits to their respective pool addresses
     mapping(uint256 => address) public pools;
     address[] public allPools;
 
@@ -291,8 +291,8 @@ contract XnetPrivacyPoolFactory {
         hasher = _hasher;
     }
 
-    /// Yangi denomination uchun pool yaratish.
-    /// Masalan: 1 XNC, 10 XNC, 100 XNC, 1000 XNC
+    /// Deploys a new anonymity pool for a specific token denomination.
+    /// e.g., Dedicated pools for 1 XNC, 10 XNC, 100 XNC, 1000 XNC.
     function createPool(uint256 denomination) external returns (address) {
         require(pools[denomination] == address(0), "Pool exists");
 

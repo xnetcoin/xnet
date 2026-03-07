@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod xnet_test_contract {
+mod xnet_wasm {
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order

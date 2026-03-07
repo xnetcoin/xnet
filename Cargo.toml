@@ -1,6 +1,6 @@
 [package]
 name = "xnet"
-description = "Xnet - Decentralized blockchain platform for secure transactions"
+description = "XNET — Dual EVM + ink! blockchain with NPoS consensus and Bitcoin-style halving"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
 homepage = "https://xnetcoin.org"
 repository = "https://github.com/xnetcoin/xnet/"
@@ -12,10 +12,11 @@ version = "1.0.0"
 resolver = "2"
 
 members = [
-	"bin/xnet-node/node",
-	"bin/xnet-node/pallets/block-rewards",
-	"bin/xnet-node/runtime",
-] 
+	"node",
+	"runtime",
+	"pallets/block-rewards",
+	"pallets/zk-verifier",
+]
 [workspace.dependencies]
 
 # --- General utilities ---
@@ -132,25 +133,13 @@ substrate-build-script-utils = { git = "https://github.com/paritytech/polkadot-s
 substrate-wasm-builder       = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2407" }
 
 # --- XNET local crates ---
-xnet-runtime = { path = "bin/xnet-node/runtime" }
-pallet-block-reward = { path = "bin/xnet-node/pallets/block-rewards", default-features = false }
-pallet-zk-verifier = { path = "bin/xnet-node/pallets/zk-verifier", default-features = false }
+xnet-runtime        = { path = "runtime" }
+pallet-block-reward = { path = "pallets/block-rewards", default-features = false }
+pallet-zk-verifier  = { path = "pallets/zk-verifier",  default-features = false }
 
-# The list of dependencies below (which can be both direct and indirect dependencies) are crates
-# that are suspected to be CPU-intensive, and that are unlikely to require debugging (as some of
-# their debug info might be missing) or to require to be frequently recompiled. We compile these
-# dependencies with `opt-level=3` even in "dev" mode in order to make "dev" mode more usable.
-# The majority of these crates are cryptographic libraries.
-#
-# Note that this does **not** affect crates that depend on Substrate. In other words, if you add
-# a dependency on Substrate, you have to copy-paste this list in your own `Cargo.toml` (assuming
-# that you want the same list). This list is only relevant when running `cargo build` from within
-# the Substrate workspace.
-#
-# If you see an error mentioning "profile package spec ... did not match any packages", it
-# probably concerns this list.
-#
-# This list is ordered alphabetically.
+# Dev-profile optimisations for CPU-intensive crates (cryptography, codegen).
+# These are compiled at opt-level=3 even in debug builds to keep iteration fast.
+# The list is ordered alphabetically.
 [profile.dev.package]
 blake2 = { opt-level = 3 }
 blake2b_simd = { opt-level = 3 }
@@ -196,16 +185,10 @@ x25519-dalek = { opt-level = 3 }
 yamux = { opt-level = 3 }
 zeroize = { opt-level = 3 }
 
-# Release Profile
-# Optimised for production validator nodes.
-# Key flags:
-#   lto = "fat"          — link-time optimisation across all crates (smaller, faster binary)
-#   codegen-units = 1    — single codegen unit for maximum inlining
-#   overflow-checks = false — disabled for performance (Substrate uses saturating math)
-#   strip = "symbols"    — removes debug symbols to reduce binary size
+# Release profile — optimised for production validator nodes.
 
 [profile.release]
-panic           = "unwind"  # Substrate requires unwind for proper cleanup on panics
+panic           = "unwind"  # Required for correct cleanup on panics in async context
 opt-level       = 3         # Maximum compiler optimisation
 lto             = "fat"     # Cross-crate link-time optimisation
 codegen-units   = 1         # One codegen unit → better inlining, slower compile
@@ -214,11 +197,6 @@ debug           = false     # No debug info in release builds
 strip           = "symbols" # Strip symbol table to minimise binary size
 
 [profile.production]
-inherits = "release"
-
-# Sacrifice compile speed for execution speed by using optimization flags:
-
-# https://doc.rust-lang.org/rustc/linker-plugin-lto.html
-lto = "fat"
-# https://doc.rust-lang.org/rustc/codegen-options/index.html#codegen-units
+inherits      = "release"
+lto           = "fat"
 codegen-units = 1

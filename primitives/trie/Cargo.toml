@@ -1,7 +1,7 @@
 [package]
 name = "sp-trie"
 version = "22.0.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["XNET Protocol Team <admin@parity.io>"]
 description = "Patricia trie stuff using a parity-scale-codec node format"
 repository = "https://github.com/paritytech/substrate/"
 license = "Apache-2.0"
