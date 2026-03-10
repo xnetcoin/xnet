@@ -43,6 +43,14 @@ pallet-balances = { workspace = true }
 frame-benchmarking = { workspace = true, optional = true }
 
 # =============================================================================
+# Dev Dependencies (tests only — not compiled into WASM)
+# =============================================================================
+
+[dev-dependencies]
+sp-io   = { workspace = true, features = ["std"] }
+sp-core = { workspace = true, features = ["std"] }
+
+# =============================================================================
 # Feature Flags
 # =============================================================================
 

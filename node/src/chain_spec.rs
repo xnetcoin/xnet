@@ -1,30 +1,53 @@
 //! # Chain Specification
 //!
-//! Defines how the XNET blockchain is initialised at genesis for each deployment
-//! environment: development (single-node Alice), local testnet (three nodes), and
-//! mainnet. Each config sets the token name, decimal precision, SS58 prefix, and
-//! the initial account balances, validator set, and sudo key.
+//! Defines how the XNET blockchain initialises at genesis for each deployment
+//! environment: development (single node), testnet, and mainnet.
 //!
-//! ## Tokenomics at Genesis
-//! | Constant            | Value          | Notes                                 |
-//! |---------------------|----------------|---------------------------------------|
-//! | `PREMINE_AMOUNT`    | 6,000,000 XNC  | Allocated to the founder account      |
-//! | `VALIDATOR_STAKE`   | 8,000 XNC      | Self-bond required per validator      |
-//! | `NOMINATOR_STAKE`   | 1,000 XNC      | Minimum nominator bond                |
+//! ## How to generate real validator keys
+//!
+//! Each validator needs three key pairs: BABE (sr25519), GRANDPA (ed25519),
+//! ImOnline (sr25519). Generate them with the node binary:
+//!
+//! ```bash
+//! # Generate BABE + ImOnline key (sr25519)
+//! ./target/release/xnet-node key generate --scheme sr25519 --output-type json
+//!
+//! # Derive GRANDPA key from the same seed (ed25519)
+//! ./target/release/xnet-node key inspect --scheme ed25519 "<YOUR_SEED_PHRASE>"
+//!
+//! # Insert BABE key into a running node
+//! ./target/release/xnet-node key insert \
+//!   --key-type babe --scheme sr25519 \
+//!   --suri "<YOUR_SEED_PHRASE>" \
+//!   --base-path /var/lib/xnet
+//!
+//! # Insert GRANDPA key
+//! ./target/release/xnet-node key insert \
+//!   --key-type gran --scheme ed25519 \
+//!   --suri "<YOUR_SEED_PHRASE>" \
+//!   --base-path /var/lib/xnet
+//! ```
+//!
+//! ## Genesis Tokenomics
+//!
+//! | Constant          | Value         | Notes                                     |
+//! |-------------------|---------------|-------------------------------------------|
+//! | `PREMINE_AMOUNT`  | 6,000,000 XNC | Locked entirely; released via vesting     |
+//! | `VALIDATOR_STAKE` | 8,000 XNC     | Minimum self-bond per validator           |
+//! | `NOMINATOR_STAKE` | 1,000 XNC     | Minimum nominator bond                    |
 
-use xnet_runtime::{
-    AccountId, Signature, WASM_BINARY,
-    opaque::SessionKeys, BABE_GENESIS_EPOCH_CONFIG,
-};
+use hex_literal::hex;
+use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_service::ChainType;
+use serde_json::json;
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_consensus_grandpa::AuthorityId as GrandpaId;
-use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sp_core::{sr25519, Pair, Public};
 use sp_runtime::traits::{IdentifyAccount, Verify};
 use sp_runtime::Perbill;
-use serde_json::json;
-use hex_literal::hex;
+use xnet_runtime::{
+	opaque::SessionKeys, AccountId, Signature, BABE_GENESIS_EPOCH_CONFIG, WASM_BINARY,
+};
 
 // =============================================================================
 // Genesis Tokenomics
@@ -33,173 +56,240 @@ use hex_literal::hex;
 /// One XNC token (18 decimal places).
 pub const XNC: u128 = 1_000_000_000_000_000_000;
 
-/// Tokens allocated to the founder address at genesis.
+/// Total tokens allocated to the genesis address at launch.
+/// All 6,000,000 XNC are subject to vesting — zero liquid at genesis.
 pub const PREMINE_AMOUNT: u128 = 6_000_000 * XNC;
 
-/// Minimum self-bond required for a validator (matches `MIN_VALIDATOR_BOND` in runtime).
+/// Minimum self-bond required to become a validator.
 const VALIDATOR_STAKE: u128 = 8_000 * XNC;
 
 /// Minimum nominator bond (matches `MIN_NOMINATOR_BOND` in runtime).
 const NOMINATOR_STAKE: u128 = 1_000 * XNC;
 
-/// SR25519 public key of the founder / initial sudo key.
-/// Replace with the real key before mainnet launch.
-pub const FOUNDER_ACCOUNT_ID: [u8; 32] = hex!("ca5344670f46bb69639065a18c1a21df152e14ec6a138e90fc1377bd5ffa4819");
+// =============================================================================
+// Real Account Keys
+// =============================================================================
+//
+// XNET SS58 prefix = 888. Use subkey or the node's `key` subcommand to
+// generate and insert real keys. The hex values below are the raw 32-byte
+// public keys (AccountId32 / sr25519 / ed25519 as appropriate).
+
+/// Genesis sudo key — controls privileged calls until governance goes live.
+/// Replace with your real sr25519 public key before deploying.
+pub const SUDO_ACCOUNT: [u8; 32] =
+	hex!("ca5344670f46bb69639065a18c1a21df152e14ec6a138e90fc1377bd5ffa4819");
+
+/// Primary genesis balance recipient — the team treasury / premine address.
+/// Set to the same address as SUDO_ACCOUNT until mainnet; replace before launch.
+pub const PREMINE_ACCOUNT: [u8; 32] = SUDO_ACCOUNT;
+
+/// Testnet validator 1 — BABE + ImOnline key (sr25519).
+///
+/// Replace with a real key generated by:
+/// `./target/release/xnet-node key generate --scheme sr25519`
+pub const TESTNET_V1_BABE: [u8; 32] =
+	hex!("ca5344670f46bb69639065a18c1a21df152e14ec6a138e90fc1377bd5ffa4819");
+
+/// Testnet validator 1 — GRANDPA key (ed25519).
+///
+/// Derived from the same seed as V1_BABE using:
+/// `./target/release/xnet-node key inspect --scheme ed25519 "<SEED>"`
+pub const TESTNET_V1_GRANDPA: [u8; 32] =
+	hex!("ca5344670f46bb69639065a18c1a21df152e14ec6a138e90fc1377bd5ffa4819");
+
+// =============================================================================
+// Type Aliases
+// =============================================================================
 
 /// Concrete chain-spec type — no custom extensions required.
 pub type ChainSpec = sc_service::GenericChainSpec<sc_service::NoExtension>;
 
 type AccountPublic = <Signature as Verify>::Signer;
 
-/// Derives an `AccountId` from a development seed string (e.g. `"Alice"`).
+// =============================================================================
+// Key Derivation Helpers  (dev / local only)
+// =============================================================================
+
+/// Derives an `AccountId` from a development seed (e.g. `"//Alice"`).
 ///
-/// Only use this for dev/testnet configs — seeds are not secure in production.
+/// **Only use this in `development_config()`. Never use seed-derived keys
+/// on a public network.**
 pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
 where
-    AccountPublic: From<<TPublic::Pair as Pair>::Public>,
+	AccountPublic: From<<TPublic::Pair as Pair>::Public>,
 {
-    AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
+	AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
 
-/// Derives a public key from a development seed string.
+/// Derives a typed public key from a development seed.
 pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
-    TPublic::Pair::from_string(&format!("//{}", seed), None)
-        .expect("static values are valid; qed")
-        .public()
+	TPublic::Pair::from_string(&format!("//{}", seed), None)
+		.expect("static values are valid; qed")
+		.public()
 }
 
-/// Packs BABE, GRANDPA, and ImOnline public keys into a single `SessionKeys` struct.
+/// Packs BABE, GRANDPA, and ImOnline keys into a `SessionKeys` struct.
 fn session_keys(babe: BabeId, grandpa: GrandpaId, im_online: ImOnlineId) -> SessionKeys {
-    SessionKeys { babe, grandpa, im_online }
+	SessionKeys { babe, grandpa, im_online }
 }
 
-/// Derives a full set of authority keys (stash, controller, GRANDPA, BABE, ImOnline)
-/// from a single development seed string.
-pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, GrandpaId, BabeId, ImOnlineId) {
-    (
-        get_account_id_from_seed::<sr25519::Public>(s), // Stash    (x.0)
-        get_account_id_from_seed::<sr25519::Public>(s), // Controller (x.1) — same as stash for dev
-        get_from_seed::<GrandpaId>(s),                  // GRANDPA  (x.2)
-        get_from_seed::<BabeId>(s),                     // BABE     (x.3)
-        get_from_seed::<ImOnlineId>(s),                 // ImOnline (x.4)
-    )
+/// Derives a full authority key tuple from a development seed.
+/// Used only in `development_config()`.
+fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, GrandpaId, BabeId, ImOnlineId) {
+	(
+		get_account_id_from_seed::<sr25519::Public>(s),
+		get_account_id_from_seed::<sr25519::Public>(s),
+		get_from_seed::<GrandpaId>(s),
+		get_from_seed::<BabeId>(s),
+		get_from_seed::<ImOnlineId>(s),
+	)
 }
 
 // =============================================================================
 // Chain Configurations
 // =============================================================================
 
-/// Single-node development chain (instant sealing via Alice).
+/// **Development** — single-node local chain.
 ///
-/// Useful for rapid local development — no need to run multiple nodes.
+/// Uses a seed-derived key for block production so the node runs with
+/// `--dev` without any external configuration. Not for public deployment.
+///
+/// The founder address still receives the premine so genesis state is
+/// representative of real network conditions.
 pub fn development_config() -> Result<ChainSpec, String> {
-    let wasm_binary = WASM_BINARY.ok_or_else(|| "Development wasm not available".to_string())?;
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Development wasm not available".to_string())?;
 
-    Ok(ChainSpec::builder(
-        wasm_binary,
-        None,
-    )
-    .with_name("XNET Development")
-    .with_id("dev")
-    .with_chain_type(ChainType::Development)
-    .with_properties(
-        json!({
-            "tokenSymbol": "XNC",
-            "tokenDecimals": 18,
-            "ss58Format": 42
-        })
-        .as_object()
-        .expect("Properties must be a JSON object")
-        .clone(),
-    )
-    .with_genesis_config_patch(testnet_genesis(
-        // Single authority — Alice is both proposer and finaliser.
-        vec![authority_keys_from_seed("Alice")],
-        // Sudo key — founder address controls privileged calls during development.
-        FOUNDER_ACCOUNT_ID.into(),
-        // Initial balances.
-        vec![
-            (FOUNDER_ACCOUNT_ID.into(), PREMINE_AMOUNT),
-            (get_account_id_from_seed::<sr25519::Public>("Alice"), 1_000_000 * XNC),
-        ],
-    ))
-    .build())
+	Ok(ChainSpec::builder(wasm_binary, None)
+		.with_name("XNET Development")
+		.with_id("dev")
+		.with_chain_type(ChainType::Development)
+		.with_properties(
+			json!({
+				"tokenSymbol": "XNC",
+				"tokenDecimals": 18,
+				"ss58Format": 888
+			})
+			.as_object()
+			.expect("Properties must be a JSON object")
+			.clone(),
+		)
+		// Dev uses a seed-derived key so `--dev` works out of the box.
+		// No real money; purge-chain clears it between sessions.
+		.with_genesis_config_patch(genesis_config(
+			vec![authority_keys_from_seed("Alice")],
+			SUDO_ACCOUNT.into(),
+			vec![
+				// Genesis premine — subject to vesting, same as mainnet.
+				(PREMINE_ACCOUNT.into(), PREMINE_AMOUNT),
+				// Developer convenience balance on the dev authority account.
+				// Amount is intentionally non-round to distinguish it from mainnet values.
+				(
+					get_account_id_from_seed::<sr25519::Public>("Alice"),
+					100_000 * XNC,
+				),
+			],
+		))
+		.build())
 }
 
-/// Three-node local testnet — Alice, Bob, and Charlie share block production.
+/// **Testnet** — multi-node public test network.
 ///
-/// Use this to test validator rotation, slashing, and governance locally
-/// before deploying to a public testnet.
-pub fn local_testnet_config() -> Result<ChainSpec, String> {
-    let wasm_binary = WASM_BINARY.ok_or_else(|| "Local testnet wasm not available".to_string())?;
+/// Validators are listed explicitly by their real public keys.
+/// Replace the placeholder hex values in `TESTNET_V1_*` with actual
+/// keys generated by each validator operator before launching the testnet.
+///
+/// Instructions: see module-level doc comment on how to generate and insert keys.
+pub fn testnet_config() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Testnet wasm not available".to_string())?;
 
-    Ok(ChainSpec::builder(
-        wasm_binary,
-        None,
-    )
-    .with_name("XNET Local Testnet")
-    .with_id("local_testnet")
-    .with_chain_type(ChainType::Local)
-    .with_properties(
-        json!({
-            "tokenSymbol": "XNC",
-            "tokenDecimals": 18,
-            "ss58Format": 42
-        })
-        .as_object()
-        .expect("Properties must be a JSON object")
-        .clone(),
-    )
-    .with_genesis_config_patch(testnet_genesis(
-        vec![
-            authority_keys_from_seed("Alice"),
-            authority_keys_from_seed("Bob"),
-            authority_keys_from_seed("Charlie"),
-        ],
-        FOUNDER_ACCOUNT_ID.into(),
-        vec![
-            (FOUNDER_ACCOUNT_ID.into(), PREMINE_AMOUNT),
-            (get_account_id_from_seed::<sr25519::Public>("Alice"), 1_000_000 * XNC),
-            (get_account_id_from_seed::<sr25519::Public>("Bob"), 1_000_000 * XNC),
-            (get_account_id_from_seed::<sr25519::Public>("Charlie"), 1_000_000 * XNC),
-        ],
-    ))
-    .build())
+	// -------------------------------------------------------------------------
+	// Testnet validator set.
+	//
+	// For each validator, provide:
+	//   (stash_account, controller_account, grandpa_ed25519, babe_sr25519, imonline_sr25519)
+	//
+	// All five keys can be derived from the same seed phrase; the derivation
+	// path differs only for GRANDPA (ed25519 vs sr25519 for the others).
+	// -------------------------------------------------------------------------
+	let initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, ImOnlineId)> =
+		vec![(
+			TESTNET_V1_BABE.into(),                                       // stash
+			TESTNET_V1_BABE.into(),                                       // controller 
+			GrandpaId::from(sp_core::ed25519::Public::from_raw(TESTNET_V1_GRANDPA)), // GRANDPA
+            BabeId::from(sp_core::sr25519::Public::from_raw(TESTNET_V1_BABE)),      // BABE
+            ImOnlineId::from(sp_core::sr25519::Public::from_raw(TESTNET_V1_BABE)), // ImOnline
+		)];
+
+	Ok(ChainSpec::builder(wasm_binary, None)
+		.with_name("XNET Testnet")
+		.with_id("xnet_testnet")
+		.with_chain_type(ChainType::Live)
+		.with_properties(
+			json!({
+				"tokenSymbol": "XNC",
+				"tokenDecimals": 18,
+				"ss58Format": 888
+			})
+			.as_object()
+			.expect("Properties must be a JSON object")
+			.clone(),
+		)
+		.with_genesis_config_patch(genesis_config(
+			initial_authorities,
+			SUDO_ACCOUNT.into(),
+			vec![
+				// Founder premine — fully locked via vesting schedule.
+				(PREMINE_ACCOUNT.into(), PREMINE_AMOUNT),
+			],
+		))
+		.build())
 }
 
-/// Production mainnet configuration.
+/// **Mainnet** — production network.
 ///
-/// Before launch, replace the Alice placeholder authority with real validator keys
-/// and update `FOUNDER_ACCOUNT_ID` to the actual genesis sudo key.
+/// Before launching:
+/// 1. Replace all `TESTNET_V*` constants with real mainnet validator keys.
+/// 2. Remove `invulnerables` from genesis (or clear it post-launch via governance).
+/// 3. Verify `SUDO_ACCOUNT` matches the real multisig / governance key.
+/// 4. Confirm vesting schedule in `genesis_config()` matches the whitepaper.
+/// 5. Audit the full genesis JSON with `build-spec --raw`.
 pub fn mainnet_config() -> Result<ChainSpec, String> {
-    let wasm_binary = WASM_BINARY.ok_or_else(|| "Mainnet wasm not available".to_string())?;
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Mainnet wasm not available".to_string())?;
 
-    Ok(ChainSpec::builder(
-        wasm_binary,
-        None,
-    )
-    .with_name("XNET Protocol Mainnet")
-    .with_id("xnet_mainnet")
-    .with_chain_type(ChainType::Live)
-    .with_properties(
-        json!({
-            "tokenSymbol": "XNC",
-            "tokenDecimals": 18,
-            "ss58Format": 42
-        })
-        .as_object()
-        .expect("Properties must be a JSON object")
-        .clone(),
-    )
-    .with_genesis_config_patch(testnet_genesis(
-        // TODO: replace with real validator keys before mainnet launch.
-        vec![authority_keys_from_seed("Alice")],
-        FOUNDER_ACCOUNT_ID.into(),
-        vec![
-            (FOUNDER_ACCOUNT_ID.into(), PREMINE_AMOUNT),
-        ],
-    ))
-    .build())
+	// Mainnet validator set — must be real keys, not seeds.
+	// Replace TESTNET_V1_* with separate mainnet validator constants once available.
+	let initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, ImOnlineId)> =
+		vec![(
+			TESTNET_V1_BABE.into(),
+			TESTNET_V1_BABE.into(),
+			GrandpaId::from(sp_core::ed25519::Public::from_raw(TESTNET_V1_GRANDPA)),
+            BabeId::from(sp_core::sr25519::Public::from_raw(TESTNET_V1_BABE)),
+            ImOnlineId::from(sp_core::sr25519::Public::from_raw(TESTNET_V1_BABE)),
+		)];
+
+	Ok(ChainSpec::builder(wasm_binary, None)
+		.with_name("XNET Protocol")
+		.with_id("xnet")
+		.with_chain_type(ChainType::Live)
+		.with_properties(
+			json!({
+				"tokenSymbol": "XNC",
+				"tokenDecimals": 18,
+				"ss58Format": 888
+			})
+			.as_object()
+			.expect("Properties must be a JSON object")
+			.clone(),
+		)
+		.with_genesis_config_patch(genesis_config(
+			initial_authorities,
+			SUDO_ACCOUNT.into(),
+			vec![
+				// 6,000,000 XNC — locked entirely via 2.5-year vesting.
+				(PREMINE_ACCOUNT.into(), PREMINE_AMOUNT),
+			],
+		))
+		.build())
 }
 
 // =============================================================================
@@ -208,110 +298,124 @@ pub fn mainnet_config() -> Result<ChainSpec, String> {
 
 /// Constructs the genesis storage patch shared by all chain configurations.
 ///
-/// This function is the single source of truth for the initial chain state:
-/// it wires together starting balances, the validator set, session keys,
-/// staking configuration, and the sudo key.
-fn testnet_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, ImOnlineId)>,
-    root_key: AccountId,
-    endowed_accounts: Vec<(AccountId, u128)>,
+/// This is the single source of truth for the initial chain state.
+/// All financial constants match those defined in `runtime/src/lib.rs`.
+fn genesis_config(
+	initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, ImOnlineId)>,
+	root_key: AccountId,
+	endowed_accounts: Vec<(AccountId, u128)>,
 ) -> serde_json::Value {
+	serde_json::json!({
+		"system": {},
 
-    serde_json::json!({
-        "system": {},
-        "balances": {
-            // Accounts funded at genesis — includes premine and dev seeding.
-            "balances": endowed_accounts,
-        },
-        "babe": {
-            // Validators register their session keys via the `Session` pallet;
-            // BABE authorities start empty and are populated at the first epoch.
-            "authorities": [],
-            "epochConfig": Some(BABE_GENESIS_EPOCH_CONFIG),
-        },
-        "grandpa": {
-            // GRANDPA authority set is also managed dynamically via `Session`.
-            "authorities": [],
-        },
-        "session": {
-            // Map each validator's stash to their session keys (BABE + GRANDPA + ImOnline).
-            "keys": initial_authorities
-                .iter()
-                .map(|x| {
-                    (
-                        x.0.clone(), // Stash account
-                        x.0.clone(), // Controller account (same as stash for dev)
-                        session_keys(x.3.clone(), x.2.clone(), x.4.clone()),
-                    )
-                })
-                .collect::<Vec<_>>(),
-        },
-        "staking": {
-            "validatorCount": initial_authorities.len() as u32,
-            "minimumValidatorCount": 1,
-            // TESTNET: Invulnerable validators cannot be slashed. This is intentional
-            // during the testnet phase — removing invulnerability now could cause the
-            // network to halt if validators are slashed due to bugs or misconfiguration.
-            // Remove this before mainnet launch so the NPoS security model is fully active.
-            "invulnerables": initial_authorities.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
-            // 10% of any slash goes to the reporter; the rest goes to the treasury.
-            "slashRewardFraction": Perbill::from_percent(10),
-            "minNominatorBond": NOMINATOR_STAKE,
-            "minValidatorBond": VALIDATOR_STAKE,
-            // Bootstrap stakers — each validator self-nominates at genesis.
-            "stakers": initial_authorities
-                .iter()
-                .map(|x| {
-                    (
-                        x.0.clone(),       // Stash
-                        x.1.clone(),       // Controller
-                        VALIDATOR_STAKE,   // Initial self-bond
-                        "Validator",       // Role
-                    )
-                })
-                .collect::<Vec<_>>(),
-        },
-        "sudo": {
-            // The sudo key can execute privileged calls until on-chain governance is live.
-            "key": Some(root_key),
-        },
-        "treasury": {},
-        "evm": {
-            "accounts": {
-                "0xaaafB3972B05630fCceE866eC69CdADd9baC2771": {
-                    "balance": "0x56BC75E2D630FFFFF",
-                    "code": [],
-                    "nonce": "0x0",
-                    "storage": {}
-                },
-                "0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac": {
-                    "balance": "0x56BC75E2D630FFFFF",
-                    "code": [],
-                    "nonce": "0x0",
-                    "storage": {}
-                }
-            }
-        },
-        "ethereum": {},
-        "baseFee": {
-            "baseFeePerGas": "0x3B9ACA00",
-            "elasticity": 125000
-        },
-        "transactionPayment": {
-            "multiplier": "1000000000000000000"
-        },
-            // Vesting schedule:
-            // (Who, Start Block, Length in Blocks, Locked Amount)
-            // 6_000_000 XNC locked for 2.5 years (13,140,000 blocks at 6s/block).
-        "vesting": {
-            "vesting": vec![
-                (
-                    <AccountId as From<[u8; 32]>>::from(FOUNDER_ACCOUNT_ID),
-                    0u32,                 // 0-blokdan boshlanadi
-                    13_140_000u32,        // 2.5 yil davom etadi
-                    5_500_000_000_000_000_000_000_000u128 // 5.5 million XNC (18 ta nol va oxirida u128)
-                ),
-            ],
-        },
-    })
+		"balances": {
+			"balances": endowed_accounts,
+		},
+
+		"babe": {
+			// BABE authorities are populated dynamically by the Session pallet
+			// at the end of the first epoch. Leave empty at genesis.
+			"authorities": [],
+			"epochConfig": BABE_GENESIS_EPOCH_CONFIG,
+		},
+
+		"grandpa": {
+			// GRANDPA authority set is also managed via Session.
+			"authorities": [],
+		},
+
+		"session": {
+			// Register each validator's session keys (BABE + GRANDPA + ImOnline).
+			"keys": initial_authorities
+				.iter()
+				.map(|x| (
+					x.0.clone(),                                          // stash
+					x.0.clone(),                                          // session recipient
+					session_keys(x.3.clone(), x.2.clone(), x.4.clone()), // keys
+				))
+				.collect::<Vec<_>>(),
+		},
+
+		"staking": {
+			"validatorCount": initial_authorities.len() as u32,
+			"minimumValidatorCount": 1,
+
+			// Invulnerable validators cannot be slashed.
+			// This protects the network during the early testnet / mainnet bootstrap
+			// phase when a validator bug could otherwise cause a network halt.
+			// Remove via governance once the network is stable.
+			"invulnerables": initial_authorities
+				.iter()
+				.map(|x| x.0.clone())
+				.collect::<Vec<_>>(),
+
+			// 10 % of any slash goes to the reporter; remainder goes to treasury.
+			"slashRewardFraction": Perbill::from_percent(10),
+			"minNominatorBond": NOMINATOR_STAKE,
+			"minValidatorBond": VALIDATOR_STAKE,
+
+			// Each validator self-nominates at genesis with the minimum required bond.
+			"stakers": initial_authorities
+				.iter()
+				.map(|x| (x.0.clone(), x.1.clone(), VALIDATOR_STAKE, "Validator"))
+				.collect::<Vec<_>>(),
+		},
+
+		"sudo": {
+			// Controls privileged extrinsics until on-chain governance replaces it.
+			"key": Some(root_key),
+		},
+
+		"treasury": {},
+
+		"evm": {
+			// EVM accounts pre-funded at genesis for testnet convenience.
+			// Remove or replace these before mainnet launch.
+			"accounts": {
+				"0xaaafB3972B05630fCceE866eC69CdADd9baC2771": {
+					"balance": "0x56BC75E2D630FFFFF",
+					"code": [],
+					"nonce": "0x0",
+					"storage": {}
+				},
+				"0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac": {
+					"balance": "0x56BC75E2D630FFFFF",
+					"code": [],
+					"nonce": "0x0",
+					"storage": {}
+				}
+			}
+		},
+
+		"ethereum": {},
+
+		"baseFee": {
+			// 1 Gwei base fee at genesis.
+			"baseFeePerGas": "0x3B9ACA00",
+			// Elasticity 0 = base fee is fixed (no EIP-1559 adjustment).
+			"elasticity": 0
+		},
+
+		"transactionPayment": {
+			"multiplier": "1000000000000000000"
+		},
+
+		// Vesting schedule: (who, begin_block, length_blocks, liquid_amount)
+		//
+		// pallet_vesting computes internally:
+		//   locked    = free_balance - liquid_amount
+		//   per_block = locked / length_blocks
+		//
+		// Setting liquid = 0 means the entire PREMINE_AMOUNT balance is locked from
+		// genesis and releases linearly over 13,140,000 blocks (~2.5 years at 6s/block).
+		// per_block = 6_000_000 XNC / 13_140_000 ≈ 456_621 planck/block (> 0, valid).
+		"vesting": {
+			"vesting": vec![(
+				<AccountId as From<[u8; 32]>>::from(PREMINE_ACCOUNT),
+				0u32,          // vesting starts at genesis block
+				13_140_000u32, // fully vested after ~2.5 years
+				0u128,         // liquid at genesis = 0 (everything is locked)
+			)],
+		},
+	})
 }

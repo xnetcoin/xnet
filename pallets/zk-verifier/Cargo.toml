@@ -11,12 +11,20 @@ scale-info = { workspace = true }
 frame-support = { workspace = true }
 frame-system = { workspace = true }
 sp-std = { workspace = true }
-sp-io = { workspace = true }
 sp-runtime = { workspace = true }
 sp-core = { workspace = true }
 
+# BN254 math for Groth16 verification (no host functions needed)
+ark-std       = { workspace = true }
+ark-ff        = { workspace = true }
+ark-ec        = { workspace = true }
+ark-bn254     = { workspace = true }
+ark-groth16   = { workspace = true }
+ark-serialize = { workspace = true }
+
 [dev-dependencies]
-sp-keyring = { workspace = true }
+sp-io       = { workspace = true, features = ["std"] }
+sp-keyring  = { workspace = true }
 pallet-balances = { workspace = true }
 
 [features]
@@ -27,9 +35,14 @@ std = [
     "frame-support/std",
     "frame-system/std",
     "sp-std/std",
-    "sp-io/std",
     "sp-runtime/std",
     "sp-core/std",
+    "ark-std/std",
+    "ark-ff/std",
+    "ark-ec/std",
+    "ark-bn254/std",
+    "ark-groth16/std",
+    "ark-serialize/std",
 ]
 runtime-benchmarks = [
     "frame-support/runtime-benchmarks",

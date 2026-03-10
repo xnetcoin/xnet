@@ -1,0 +1,20 @@
+Business Source License 1.1
+
+License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
+"Business Source License" is a trademark of MariaDB Corporation Ab.
+
+Parameters
+Licensor: XNET Protocol 
+Licensed Work: XNET Protocol Core Substrate Node and Smart Contract Runtimes
+Additional Use Grant: You may make use of the Licensed Work, provided that you do not use it to operate a commercial public blockchain network, validator node for profit, or commercial decentralized application (dApp) platform that competes with the Licensor.
+Change Date: March 9, 2030
+Change License: Version 3 of the GNU General Public License (GPLv3)
+
+Terms
+The Licensor hereby grants you the right to copy, modify, create derivative works, redistribute, and make non-production use of the Licensed Work. The Licensed Work is provided "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+If your use of the Licensed Work does not comply with the requirements currently in effect as described in the Additional Use Grant, you must purchase a commercial license from the Licensor, its affiliated entities, or authorized resellers, or you must refrain from using the Licensed Work.
+
+All copies of the original and modified Licensed Work, and derivative works of the Licensed Work, are subject to this Business Source License. This Business Source License applies separately for each version of the Licensed Work and the Change Date may vary for each version of the Licensed Work released by Licensor.
+
+As of the Change Date, this Business Source License automatically converts to the Change License, and all use of the Licensed Work will be governed by the Change License.

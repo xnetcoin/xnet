@@ -36,19 +36,26 @@ Most blockchains force a choice: EVM or WASM, fast or private, programmable or s
 
 ## Quick Start
 
-> New to Rust? See [docs/rust-setup.md](docs/rust-setup.md) for full setup instructions.
+> New to Rust? See [docs/rust-setup.md](docs/rust-setup.md) for toolchain setup.
 
 ```bash
-# Clone
+# 1. Clone the repository
 git clone https://github.com/xnetcoin/xnet
 cd xnet
 
-# Build
-cargo build --release
+# 2. Build the node binary (takes 10-20 min on first run)
+cargo build --release -p xnet-node
 
-# Run local dev node
+# 3. The binary is now at:
+#    ./target/release/xnet-node
+
+# 4. Run a local development node (single validator, no peers needed)
 ./target/release/xnet-node --dev
 ```
+
+> **Why doesn't the binary exist yet?**  
+> Rust compiles everything from source. `cargo build --release -p xnet-node` must run
+> at least once before `./target/release/xnet-node` appears.
 
 Connect at `ws://127.0.0.1:9944` via [Polkadot.js Apps](https://polkadot.js.org/apps).
 
@@ -58,39 +65,67 @@ Connect at `ws://127.0.0.1:9944` via [Polkadot.js Apps](https://polkadot.js.org/
 
 ```
 xnet/
-├── bin/                        # Node binary entrypoint
-├── contracts/                  # Example smart contracts (EVM + ink!)
-├── docker/                     # Docker & docker-compose configs
-├── docs/                       # Documentation
-│   ├── rust-setup.md           # Environment setup guide
-│   └── ...
-├── pallets/                    # Custom FRAME pallets
-│   ├── block-rewards/          # Bitcoin-style halving block rewards
-│   └── zk-verifier/            # On-chain Groth16 ZK-SNARK verification
-├── primitives/                 # Shared types and traits
-├── runtime/                    # WASM runtime
-│   ├── src/
-│   │   ├── lib.rs              # Runtime construction — all pallets wired here
-│   │   └── precompiles.rs      # EVM precompile set (0x01–0x09)
-│   └── build.rs                # Compiles runtime to WASM blob
-├── scripts/                    # Utility and deployment scripts
-├── src/                        # Node source (cli, service, rpc, chain_spec)
-├── test/                       # Integration tests
-├── test-utils/                 # Shared test utilities
-├── xnet-privacy-contracts/     # Privacy contract examples
-└── zombienet/                  # Multi-node test network configs
+├── node/                         # Node binary crate (produces xnet-node)
+│   └── src/
+│       ├── main.rs               # Binary entrypoint — starts the Tokio runtime
+│       ├── cli.rs                # CLI argument definitions (--dev, --chain, etc.)
+│       ├── command.rs            # Subcommand dispatch (run, build-spec, benchmark…)
+│       ├── service.rs            # Full-node service setup: client, network, BABE/GRANDPA
+│       ├── rpc.rs                # JSON-RPC builder: Substrate + Eth + frontier modules
+│       ├── chain_spec.rs         # Chain spec builders: dev, local, mainnet genesis
+│       └── benchmarking.rs       # Benchmark host functions wired to the runtime
+│
+├── runtime/                      # WASM runtime crate (produces xnet_runtime.wasm)
+│   └── src/
+│       ├── lib.rs                # construct_runtime! — all pallets wired, weights, fees
+│       └── precompiles.rs        # EVM precompile set (0x01 ECRecover → 0x09 BLAKE2F)
+│
+├── pallets/                      # Custom FRAME pallets
+│   ├── block-rewards/
+│   │   └── src/
+│   │       ├── lib.rs            # Bitcoin-style halving block reward; mints to block author
+│   │       ├── mock.rs           # Test runtime for unit tests
+│   │       └── tests.rs          # 23 unit tests: halving, supply cap, clamping, events
+│   └── zk-verifier/
+│       └── src/
+│           ├── lib.rs            # Native Groth16 verifier (ark-groth16, BN254, no host fn)
+│           ├── weights.rs        # FRAME weight definitions
+│           ├── mock.rs           # Test runtime (arkworks VK serialisation helper)
+│           └── tests.rs          # 19 unit tests: VK registration, nullifiers, block limits
+│
+├── primitives/                   # Shared types re-exported from Substrate SDK
+├── docs/                         # Developer documentation
+│   └── rust-setup.md             # Rust + toolchain installation guide
+├── scripts/                      # Utility scripts (key generation, spec export, etc.)
+├── contracts/                    # Example Solidity smart contracts
+├── docker/                       # Docker and docker-compose configuration
+├── zombienet/                    # Multi-node testnet configuration (zombienet)
+├── Cargo.toml                    # Workspace manifest — all crate versions pinned here
+└── README.md                     # This file
 ```
 
 ---
 
 ## Running a Node
 
-### Development — single node, no peers needed
+### Step 1 — Build the binary
+
+```bash
+# Build only the node (faster than building the entire workspace)
+cargo build --release -p xnet-node
+
+# The binary will be at:
+./target/release/xnet-node --version
+```
+
+### Step 2 — Start a node
+
+#### Development — single node, no peers needed
 
 ```bash
 ./target/release/xnet-node --dev
 
-# With persistent state
+# With persistent state across restarts
 ./target/release/xnet-node --dev --base-path /tmp/xnet-dev
 ```
 
@@ -366,8 +401,13 @@ You don't need a finished product. A clear idea is enough to start a conversatio
 ```bash
 git clone https://github.com/xnetcoin/xnet
 git checkout -b feat/your-feature
-cargo test
-# open a pull request
+
+# Run all pallet tests
+cargo nextest run
+
+# Build and smoke-test the node
+cargo build --release -p xnet-node
+./target/release/xnet-node --dev
 ```
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a PR.

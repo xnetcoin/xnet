@@ -101,6 +101,11 @@ pallet-evm-precompile-blake2    = { workspace = true }
 
 # --- Custom Pallets ---
 pallet-block-reward = { workspace = true }
+pallet-zk-verifier =  { workspace = true }
+
+[dev-dependencies]
+sp-io        = { workspace = true }
+sp-keyring   = { workspace = true }
 
 # --- Build Dependencies ---
 
@@ -164,6 +169,7 @@ std = [
     "pallet-treasury/std",
     "pallet-contracts/std",
     "pallet-block-reward/std",
+    "pallet-zk-verifier/std",
     "pallet-vesting/std",
 
     # Frontier / EVM
@@ -199,7 +205,9 @@ runtime-benchmarks = [
     "pallet-babe/runtime-benchmarks",
     "pallet-contracts/runtime-benchmarks",
     "pallet-evm/runtime-benchmarks",
+    "pallet-ethereum/runtime-benchmarks",
     "pallet-block-reward/runtime-benchmarks",
+    "pallet-zk-verifier/runtime-benchmarks",
     "pallet-vesting/runtime-benchmarks",
 
     "sp-runtime/runtime-benchmarks",
@@ -229,5 +237,6 @@ try-runtime = [
     "pallet-evm/try-runtime",
     "pallet-ethereum/try-runtime",
     "pallet-block-reward/try-runtime",
+    "pallet-zk-verifier/try-runtime",
     "pallet-vesting/try-runtime",
 ]

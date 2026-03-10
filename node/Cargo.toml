@@ -14,7 +14,7 @@
 name = "xnet-node"
 version = "1.0.0"
 description = "XNET Protocol Node"
-authors = ["XNET Protocol Team"]
+authors = ["XNET TECHNALOGY"]
 homepage = "https://xnetcoin.org"
 edition = "2021"
 license = "GPL-3.0-or-later"

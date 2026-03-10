@@ -9,11 +9,12 @@
 mod chain_spec;
 #[macro_use]
 mod service;
+mod benchmarking;
 mod cli;
 mod command;
 mod rpc;
-mod benchmarking;
 
+#[allow(clippy::result_large_err)]
 fn main() -> sc_cli::Result<()> {
-    command::run()
+	command::run()
 }
