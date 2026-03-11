@@ -26,7 +26,6 @@
 //!     --output pallets/zk-verifier/src/weights.rs
 //! ```
 
-#![cfg_attr(not(feature = "std"), no_std)]
 
 use frame_support::weights::Weight;
 use frame_support::traits::Get;

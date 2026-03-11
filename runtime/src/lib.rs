@@ -660,7 +660,8 @@ impl pallet_treasury::Config for Runtime {
 	type SpendFunds = ();
 	type SpendOrigin = frame_support::traits::NeverEnsureOrigin<u128>;
 	type RejectOrigin = frame_system::EnsureRoot<AccountId>;
-	type BenchmarkHelper = ();
+	#[cfg(feature = "runtime-benchmarks")]
+    type BenchmarkHelper = ();
 }
 
 // --- Sudo (bootstrap governance — replace with on-chain governance before mainnet) ---
